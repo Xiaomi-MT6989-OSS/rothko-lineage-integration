@@ -7,7 +7,7 @@
     {
       "repository": "android_device_xiaomi_rothko",
       "path": "device/xiaomi/rothko",
-      "commit": "090edfcade0ab3f375986af916103c01cbeb10be"
+      "commit": "8bad0a5b9c48371eea17f7d5827aa061277782da"
     },
     {
       "repository": "proprietary_vendor_xiaomi_rothko",
