@@ -7,11 +7,18 @@ different steps; none of these helpers contacts a phone.
 
 ## 1. Clone the four real repositories
 
-Clone this integration repository and its three companion repositories beside
-one another, using the actual URLs chosen by the maintainer. No fictitious owner
-or implicit private remote is embedded. Set `INTEGRATION` to this local checkout
-and `SOURCE` to a new Android source directory. Keep the repository names from
-README.md, or pass `--repositories-parent` to the staging helper.
+Clone the four public repositories beside one another:
+
+```sh
+git clone -b lineage-23.2 https://github.com/Xiaomi-MT6989-OSS/rothko-lineage-integration.git
+git clone -b lineage-23.2 https://github.com/Xiaomi-MT6989-OSS/android_device_xiaomi_rothko.git
+git clone -b lineage-23.2 https://github.com/Xiaomi-MT6989-OSS/proprietary_vendor_xiaomi_rothko.git
+git clone -b lineage-23.2 https://github.com/Xiaomi-MT6989-OSS/rothko-kernel-extraction.git
+```
+
+Set `INTEGRATION` to the integration checkout and `SOURCE` to a new Android
+source directory. Keep the repository names from README.md, or pass
+`--repositories-parent` to the staging helper.
 
 Read `baseline.json` and check out its recorded companion revisions before
 continuing. Do not use an unrelated vendor, kernel or device branch.

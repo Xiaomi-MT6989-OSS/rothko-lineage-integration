@@ -11,10 +11,10 @@ The collaboration set has four repositories:
 
 | Repository | Android checkout path | Contents |
 | --- | --- | --- |
-| `android_device_xiaomi_rothko` | `device/xiaomi/rothko` | Device configuration, services, overlays, policy and extraction tools |
-| `proprietary_vendor_xiaomi_rothko` | `vendor/xiaomi/rothko` | Build metadata and portable source ledger; no proprietary payloads |
-| `rothko-kernel-extraction` | `device/xiaomi/rothko-kernel` | Stock kernel material extraction recipe; no kernel source or binaries |
-| `rothko-lineage-integration` | integration | Pinned manifest, platform patch series, extraction/build instructions and validation notes |
+| [`android_device_xiaomi_rothko`](https://github.com/Xiaomi-MT6989-OSS/android_device_xiaomi_rothko) | `device/xiaomi/rothko` | Device configuration, services, overlays, policy and extraction tools |
+| [`proprietary_vendor_xiaomi_rothko`](https://github.com/Xiaomi-MT6989-OSS/proprietary_vendor_xiaomi_rothko) | `vendor/xiaomi/rothko` | Build metadata and portable source ledger; no proprietary payloads |
+| [`rothko-kernel-extraction`](https://github.com/Xiaomi-MT6989-OSS/rothko-kernel-extraction) | `device/xiaomi/rothko-kernel` | Stock kernel material extraction recipe; no kernel source or binaries |
+| [`rothko-lineage-integration`](https://github.com/Xiaomi-MT6989-OSS/rothko-lineage-integration) | integration | Pinned manifest, platform patch series, extraction/build instructions and validation notes |
 
 The device tree alone is insufficient. Follow [BUILD.md](BUILD.md) and use the
 companion commits recorded in `baseline.json`. The kernel repository is an

@@ -4,10 +4,10 @@
 
 协作套件由四个仓库组成：
 
-- `android_device_xiaomi_rothko`：设备配置、服务、overlay、策略及提取工具。
-- `proprietary_vendor_xiaomi_rothko`：vendor 构建元数据和可移植来源账本，不含专有二进制。
-- `rothko-kernel-extraction`：原厂内核材料提取配方，不含内核源码或二进制。
-- `rothko-lineage-integration`：固定 manifest、平台补丁、提取与构建说明、验证范围。
+- [`android_device_xiaomi_rothko`](https://github.com/Xiaomi-MT6989-OSS/android_device_xiaomi_rothko)：设备配置、服务、overlay、策略及提取工具。
+- [`proprietary_vendor_xiaomi_rothko`](https://github.com/Xiaomi-MT6989-OSS/proprietary_vendor_xiaomi_rothko)：vendor 构建元数据和可移植来源账本，不含专有二进制。
+- [`rothko-kernel-extraction`](https://github.com/Xiaomi-MT6989-OSS/rothko-kernel-extraction)：原厂内核材料提取配方，不含内核源码或二进制。
+- [`rothko-lineage-integration`](https://github.com/Xiaomi-MT6989-OSS/rothko-lineage-integration)：固定 manifest、平台补丁、提取与构建说明、验证范围。
 
 **只拿设备树不能复现这套系统。** 按 [BUILD.md](BUILD.md) 同步固定版本并运行提取流程；各仓库提交号记录在 `baseline.json`。原厂内核仓库是提取配方，不是可编译的内核源码。
 

@@ -35,6 +35,7 @@ or a new phone acceptance round.
   parity, resolution of all entries in `KNOWN_ISSUES.md`, or LineageOS official
   device acceptance.
 
-Hosted GitHub CI has not run: the repositories have been prepared locally but
-not created or pushed to GitHub. Do not treat successful source filtering,
-patch replay or payload reproduction as ROM build or hardware validation.
+Hosted GitHub CI has not run. The source repositories are now published under
+Xiaomi-MT6989-OSS, but publication does not validate a clean full-ROM build or
+hardware behavior. Do not treat successful source filtering, patch replay or
+payload reproduction as ROM build or hardware validation.
