@@ -1,0 +1,151 @@
+{
+  "state": "current-source-reconstruction-series",
+  "replay_verified": true,
+  "note": "Preserves revert/diagnostic history. Review before publication; replay on recorded base and compare final tree before use.",
+  "repositories": [
+    {
+      "path": "bootable/recovery",
+      "base": "acd99f7c48e0229eaedd40aa3e2adcbabe2dc283",
+      "base_ref": "lineage/lineage-23.2",
+      "head": "28f4853ffbbf0c6f6001f77120de92531d6ce61c",
+      "expected_final_tree": "b95ca11b02c5db2432239fff2777dab7777f5e87",
+      "local_commits": 1,
+      "file": "bootable__recovery.mbox",
+      "bytes": 987,
+      "sha256": "ed432790622433bbb0f366941c79349b8b8a69a3468be045b99e13c847356b42"
+    },
+    {
+      "path": "build/soong",
+      "base": "9aa045a2aef10b8089e32e847fed26d9aa3d61be",
+      "base_ref": "lineage/lineage-23.2",
+      "head": "e4403ac5df4159b33bf96a8f8f756baaa2dc823a",
+      "expected_final_tree": "84650f42289b160a77fc5b7ace4cf87153cffca1",
+      "local_commits": 2,
+      "file": "build__soong.mbox",
+      "bytes": 2599,
+      "sha256": "c604e7c98588a315be723c12402df67089b9b55f4a94eaa5a0970d18f39ffd34"
+    },
+    {
+      "path": "external/wpa_supplicant_8",
+      "base": "16bcc5ac5f275c64c613772852cb879f608ff2a6",
+      "base_ref": "lineage/lineage-23.2",
+      "head": "4a2c60d77cc7f201fd5c7a2e569eb9c8135e2f1b",
+      "expected_final_tree": "8359fe660cb6b6d2ff64fe85aa9fa12250594ef8",
+      "local_commits": 1,
+      "file": "external__wpa_supplicant_8.mbox",
+      "bytes": 2028,
+      "sha256": "691029ffbbea0c2d7123db5f4558091ebd046b7a3cce81e1d147c713899d2d17"
+    },
+    {
+      "path": "frameworks/av",
+      "base": "b6b36c1fdb3c6ffced822a054fbf035b544f0de2",
+      "base_ref": "lineage/lineage-23.2",
+      "head": "eca3bbce373b1652c35d587cc1e19ae9f4392ace",
+      "expected_final_tree": "cfb3db04a1c36ca1b160d74d5809cc7c19f697c9",
+      "local_commits": 12,
+      "file": "frameworks__av.mbox",
+      "bytes": 183869,
+      "sha256": "b6f4c232f625f1271d19f1761efa86c1b7cb282639ac0304755e9c04ae287d36"
+    },
+    {
+      "path": "frameworks/base",
+      "base": "958afcc3d647d57571650cee4172afe0da619171",
+      "base_ref": "lineage/lineage-23.2",
+      "head": "8b24ec80b00b6c356b2730d2fcd4adfae90f4511",
+      "expected_final_tree": "2a9f88dff6916960a5ea4dcddef72158b896c949",
+      "local_commits": 30,
+      "file": "frameworks__base.mbox",
+      "bytes": 287702,
+      "sha256": "05fbb64cd60172a7a6897ae59063a5e5f83f6f8d3b42b6a3eff5bd3acc3e561d"
+    },
+    {
+      "path": "frameworks/native",
+      "base": "9568531f9be7ae65f260699811f32ec4e461de6e",
+      "base_ref": "lineage/lineage-23.2",
+      "head": "b236ef2b472c0c7aec73c36156ae5a189a737171",
+      "expected_final_tree": "9b04960e3f563c5eeac582b11a0e40333e2ec6bf",
+      "local_commits": 5,
+      "file": "frameworks__native.mbox",
+      "bytes": 48048,
+      "sha256": "974c081bf09d87bfdee0f5ad0136f392f77cd779b42726a685308adb1c1bed68"
+    },
+    {
+      "path": "hardware/interfaces",
+      "base": "13d687a84c834af855bfb314b853b8372a7aa6d9",
+      "base_ref": "lineage/lineage-23.2",
+      "head": "e9de474a54acdb57aa25249c023f16162cc28bf4",
+      "expected_final_tree": "dc20256e85d9a52f49d61088d3f6e15806534fe2",
+      "local_commits": 2,
+      "file": "hardware__interfaces.mbox",
+      "bytes": 2540,
+      "sha256": "c21bccc8c1f0676851f3ea258e2539067a6b4699b0de869b6c3ddf0983d7d2eb"
+    },
+    {
+      "path": "hardware/mediatek",
+      "base": "68f9be72a32bca66e7c63d69e9739b18f13c8b48",
+      "base_ref": "rothko-github/lineage-23.2",
+      "head": "43572e2342b9cb9b37f4e3d8dce44d7c8152f15b",
+      "expected_final_tree": "a07348d7a39b2921ed70cf3c2454ddb9fa604d8f",
+      "local_commits": 5,
+      "file": "hardware__mediatek.mbox",
+      "bytes": 11991,
+      "sha256": "8e5faf81a155b1c0c23ccdfc3d8bd73bd6d6fffd30a0efdc0b0d1298c4d0a956"
+    },
+    {
+      "path": "lineage-sdk",
+      "base": "c94553c624ef88c7de67b224d1daa7ed10ec7081",
+      "base_ref": "lineage/lineage-23.2",
+      "head": "33c1e1a40b12deedfe39c54f9b7cd143ae437b18",
+      "expected_final_tree": "8884360fb2d147c7f2cb432d2f2af4f5be6f5ef3",
+      "local_commits": 4,
+      "file": "lineage-sdk.mbox",
+      "bytes": 28385,
+      "sha256": "de2d480ec879e51e14a3854a2f6a96c2fdcdde7aa247f07107969e114460b3ce"
+    },
+    {
+      "path": "packages/apps/LineageParts",
+      "base": "329b58e8e63da78624c8aa675d9b5dd84d990fe0",
+      "base_ref": "lineage/lineage-23.2",
+      "head": "51a628f1751d0a2b31a94d4bdc8efd3c62270ee9",
+      "expected_final_tree": "3f51d0bf548da31f23e65214e79d4f9574d0d611",
+      "local_commits": 6,
+      "file": "packages__apps__LineageParts.mbox",
+      "bytes": 24044,
+      "sha256": "4cba52ae656ded85a60bfa86bf3a852d992c2c49edda4036b13c896c99ea4042"
+    },
+    {
+      "path": "packages/apps/Settings",
+      "base": "72494c35b673f1b531e1218160e1e514976f6a1e",
+      "base_ref": "lineage/lineage-23.2",
+      "head": "c57e861333cc861c56a65e3eda7978f2f2ac565f",
+      "expected_final_tree": "decbb98a963858f93f49e3379e7c4eabdbf09c89",
+      "local_commits": 4,
+      "file": "packages__apps__Settings.mbox",
+      "bytes": 55109,
+      "sha256": "71567765d25aa049e93981374e048b90dd92b139bb18aa43adae772ce21fc307"
+    },
+    {
+      "path": "packages/modules/Bluetooth",
+      "base": "d585a7b489f93e514ad93de7022b5ba20a660328",
+      "base_ref": "lineage/lineage-23.2",
+      "head": "7cdc6ef1d543926cf9bea71495c57152c3296586",
+      "expected_final_tree": "0e04d0d5a1c63b0ebf0e5e8deb9d6964d67dec41",
+      "local_commits": 1,
+      "file": "packages__modules__Bluetooth.mbox",
+      "bytes": 1458,
+      "sha256": "e2656a34adf1d720a774e874ae66e37183446b62df24e71c07ad49e3f04b5a49"
+    },
+    {
+      "path": "tools/extract-utils",
+      "base": "44e3b07397a339c2721c637e40cb73159c78ad46",
+      "base_ref": "lineage/lineage-23.2",
+      "head": "f13e19a95f77e609e0242148b9a18e80c1d96736",
+      "expected_final_tree": "e2fbed1e4c323f3d8bca62f2eace25bdc60b247a",
+      "local_commits": 1,
+      "file": "tools__extract-utils.mbox",
+      "bytes": 1265,
+      "sha256": "e1b13d44906a308d7aa70679c3a6b9d94e1c8469d2c21b491fe568a4e469e8e7"
+    }
+  ],
+  "first_stage_probe_omitted": true
+}

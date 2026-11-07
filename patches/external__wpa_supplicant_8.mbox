@@ -1,0 +1,49 @@
+From 4a2c60d77cc7f201fd5c7a2e569eb9c8135e2f1b Mon Sep 17 00:00:00 2001
+From: tunkoal <tunkoal@163.com>
+Date: Thu, 5 Nov 2026 11:19:23 +0800
+Subject: [PATCH] nl80211: Allow legacy RSN version encoding for SAE
+
+Change-Id: Idf2eaf66ec536aa3f4a7d6e0199220e753e39eb3
+---
+ src/drivers/driver_nl80211.c | 4 +++-
+ wpa_supplicant/Android.bp    | 5 ++++-
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/src/drivers/driver_nl80211.c b/src/drivers/driver_nl80211.c
+index f8cc9e16199558dc556245316e3987b081befece..7558b7e32ea125c77e6bbd8abcd7431e6173a554 100644
+--- a/src/drivers/driver_nl80211.c
++++ b/src/drivers/driver_nl80211.c
+@@ -7010,7 +7010,8 @@ static int nl80211_connect_common(struct wpa_driver_nl80211_data *drv,
+ 		if (params->wpa_proto & WPA_PROTO_WPA)
+ 			ver |= NL80211_WPA_VERSION_1;
+ 		if (params->wpa_proto & WPA_PROTO_RSN) {
+-#if !defined(CONFIG_DRIVER_NL80211_BRCM) && !defined(CONFIG_DRIVER_NL80211_SYNA)
++#if !defined(CONFIG_DRIVER_NL80211_BRCM) && !defined(CONFIG_DRIVER_NL80211_SYNA) && \
++	!defined(CONFIG_NL80211_LEGACY_SAE_RSN_VERSION)
+ 			/*
+ 			 * NL80211_ATTR_SAE_PASSWORD is related and was added
+ 			 * at the same time as NL80211_WPA_VERSION_3.
+@@ -7021,6 +7022,7 @@ static int nl80211_connect_common(struct wpa_driver_nl80211_data *drv,
+ 				ver |= NL80211_WPA_VERSION_3;
+ 			else
+ #endif
++				/* Legacy drivers use RSN version 2 with SAE AKM. */
+ 				ver |= NL80211_WPA_VERSION_2;
+ 		}
+ 
+diff --git a/wpa_supplicant/Android.bp b/wpa_supplicant/Android.bp
+index a99502b4ecf4300d38d0c2e8c03fc5692e38781a..e8f766d22098d5a56c8c5f121f694e446a6f166d 100644
+--- a/wpa_supplicant/Android.bp
++++ b/wpa_supplicant/Android.bp
+@@ -929,7 +929,10 @@ cc_defaults {
+     cflags: [
+         "-DCONFIG_AIDL",
+         "-DCONFIG_CTRL_IFACE_AIDL",
+-    ],
++    ] + select(soong_config_variable("wpa_supplicant_8", "legacy_sae_rsn_version"), {
++        true: ["-DCONFIG_NL80211_LEGACY_SAE_RSN_VERSION"],
++        default: [],
++    }),
+     defaults: [
+         "wpa_supplicant_no_aidl_cflags_default",
+     ],

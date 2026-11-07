@@ -1,0 +1,46 @@
+{
+  "scope": "independent filtered collaboration candidates, not a ROM release",
+  "baseline_date": "2026-11-07",
+  "baseline_file": "source-release/snapshots/20261107/public-source-inputs.json",
+  "branch": "lineage-23.2",
+  "device_public_history_base": "059ac72366d7ca095f2341e635145f611349e0de",
+  "filter_repo_version": "v2.47.0",
+  "filter_repo_sha256": "67447413e273fc76809289111748870b6f6072f08b17efe94863a92d810b7d94",
+  "filter_repo_upstream_commit": "6f79afc8c90c592a3052e6cc53c2ca8907515bca",
+  "source_repositories_modified": false,
+  "repositories": {
+    "device": {
+      "directory": "android_device_xiaomi_rothko",
+      "source_head": "ef779ba78867e9379e0f6e2c4f9922c5a196c543",
+      "filtered_head": "a53d155d4f90dd6e63aee6c6e4c830be7a494573",
+      "commits_preserved": 310,
+      "author_and_committer_metadata_exact": true,
+      "tracked_files": 274,
+      "self_contained": true,
+      "unreachable_objects": false,
+      "remote_configured": false
+    },
+    "vendor": {
+      "directory": "proprietary_vendor_xiaomi_rothko",
+      "source_head": "f9257ac44ed5e369aec25ec6ca1940c9c802e21e",
+      "filtered_head": "652c0f4cbf69d83df57ba76415a7f0d2a077080c",
+      "commits_preserved": 53,
+      "author_and_committer_metadata_exact": true,
+      "tracked_files": 5,
+      "self_contained": true,
+      "unreachable_objects": false,
+      "remote_configured": false
+    },
+    "kernel": {
+      "directory": "rothko-kernel-extraction",
+      "source_head": "508b696afe5a7c925bae0e0a61067ecfe12d8798",
+      "filtered_head": "d16388b0901007d4940d4690fe4150baa890dac1",
+      "commits_preserved": 1,
+      "author_and_committer_metadata_exact": true,
+      "tracked_files": 1,
+      "self_contained": true,
+      "unreachable_objects": false,
+      "remote_configured": false
+    }
+  }
+}

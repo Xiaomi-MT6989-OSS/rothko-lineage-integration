@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-07",
+  "firmware": "OS3.0.307.0.WNNCNXM",
+  "framework": "LineageOS 23.2 / Android 16",
+  "stock_vendor_api": 34,
+  "device_repositories": [
+    {
+      "repository": "android_device_xiaomi_rothko",
+      "path": "device/xiaomi/rothko",
+      "commit": "090edfcade0ab3f375986af916103c01cbeb10be"
+    },
+    {
+      "repository": "proprietary_vendor_xiaomi_rothko",
+      "path": "vendor/xiaomi/rothko",
+      "commit": "19137ec1891c57c37eaeedb8455645e40d2f8788"
+    },
+    {
+      "repository": "rothko-kernel-extraction",
+      "path": "device/xiaomi/rothko-kernel",
+      "commit": "18ffbb2bc0789d67c23b45a9da4a0bf22a84971e"
+    }
+  ],
+  "platform_series": 13,
+  "platform_commits": 74,
+  "manifest_projects": 1167,
+  "pinned_manifest_sha256": "fb661edd60d12f77185b4b95e02683f09da91f9d31445ca5d0eb081f846101c5",
+  "payload_counts": {
+    "device": 778,
+    "vendor": 3056,
+    "kernel_material_recipe": 581
+  },
+  "clean_full_rom_build_passed": false,
+  "runtime_acceptance_passed": false,
+  "source_only": true,
+  "first_stage_probe_included": false
+}
