@@ -4,17 +4,6 @@
   "note": "Preserves revert/diagnostic history. Review before publication; replay on recorded base and compare final tree before use.",
   "repositories": [
     {
-      "path": "bootable/recovery",
-      "base": "acd99f7c48e0229eaedd40aa3e2adcbabe2dc283",
-      "base_ref": "lineage/lineage-23.2",
-      "head": "28f4853ffbbf0c6f6001f77120de92531d6ce61c",
-      "expected_final_tree": "b95ca11b02c5db2432239fff2777dab7777f5e87",
-      "local_commits": 1,
-      "file": "bootable__recovery.mbox",
-      "bytes": 987,
-      "sha256": "ed432790622433bbb0f366941c79349b8b8a69a3468be045b99e13c847356b42"
-    },
-    {
       "path": "build/soong",
       "base": "9aa045a2aef10b8089e32e847fed26d9aa3d61be",
       "base_ref": "lineage/lineage-23.2",
