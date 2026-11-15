@@ -15,12 +15,20 @@ def git(repo, *args):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--source-root', type=Path, required=True)
+    p.add_argument('--patch-index', type=Path,
+                   default=Path(__file__).resolve().parents[1] / 'patches' / 'index.json',
+                   help='series index, with mbox files beside it (default: bundled index)')
     p.add_argument('--without-host-support', action='store_true')
-    p.add_argument('--check-only', action='store_true')
+    mode = p.add_mutually_exclusive_group()
+    mode.add_argument('--check-only', action='store_true',
+                      help='validate inputs and report pending series without applying')
+    mode.add_argument('--require-applied', action='store_true',
+                      help='validate inputs and fail if any series remains pending')
     a = p.parse_args()
     source = a.source_root.resolve(strict=True)
-    patch_root = Path(__file__).resolve().parents[1] / 'patches'
-    rows = json.loads((patch_root / 'index.json').read_text())['repositories']
+    patch_index = a.patch_index.resolve(strict=True)
+    patch_root = patch_index.parent
+    rows = json.loads(patch_index.read_text())['repositories']
     plan = []
     for row in rows:
         if a.without_host_support and row['path'] == 'build/soong':
@@ -48,7 +56,9 @@ def main():
             plan.append((repo, patch, row))
         elif tree != row['expected_final_tree']:
             raise ValueError('repository is neither exact base nor expected result: ' + row['path'])
-    if a.check_only:
+    if a.require_applied and plan:
+        p.error(f'{len(plan)} series pending; prepare sources before building')
+    if a.check_only or a.require_applied:
         print(f'Preflight passed; {len(plan)} series pending, no source changes')
         return
     for repo, patch, row in plan:

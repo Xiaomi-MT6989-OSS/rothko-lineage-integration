@@ -56,6 +56,13 @@ memory limits; `--without-host-support` skips that group if intentionally desire
 The host group is not a hardware requirement. First-stage probe patches are not
 included; `system/core` remains at its unmodified upstream base.
 
+For another reviewed integration version, pass `--patch-index /absolute/path/to/index.json`
+explicitly. Its mbox files must be beside that index. Prepare the intended topic
+branch before applying and retain the applied commits across incremental builds.
+Use the same index with `--require-applied` in a build entrypoint to validate the
+prepared sources without applying patches. This mode fails if a series is pending,
+while `--check-only` accepts an applicable base and reports the pending count.
+
 ## 4. Prepare the exact stock inputs
 
 Unpack your own OS3.0.307.0.WNNCNXM fastboot package using trusted Android tools.
