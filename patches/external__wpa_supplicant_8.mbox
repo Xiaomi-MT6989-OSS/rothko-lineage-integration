@@ -47,3 +47,5 @@ index a99502b4ecf4300d38d0c2e8c03fc5692e38781a..e8f766d22098d5a56c8c5f121f694e44
      defaults: [
          "wpa_supplicant_no_aidl_cflags_default",
      ],
+
+base-commit: 16bcc5ac5f275c64c613772852cb879f608ff2a6

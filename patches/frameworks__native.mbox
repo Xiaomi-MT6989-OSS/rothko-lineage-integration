@@ -38,6 +38,8 @@ index 05fbc148d2c99287b4914a7fea2025491fdbb303..bfcf136e8f3ea7544efe6a9549f4ad29
  
  void BLASTBufferQueue::update(const sp<SurfaceControl>& surface, uint32_t width, uint32_t height,
 
+base-commit: 9568531f9be7ae65f260699811f32ec4e461de6e
+
 From 5443a0b29fee221932b1b18917a178e5f7e3c17c Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Fri, 16 Oct 2026 15:01:13 +0800

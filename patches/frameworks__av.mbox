@@ -24,6 +24,8 @@ index f07eb3cf03ce5610ac2158c9b9661aef5676822b..fbd7c5012d4ce308d4e853a7229b0294
                  _locked = true;
              }
 
+base-commit: b6b36c1fdb3c6ffced822a054fbf035b544f0de2
+
 From cbd13a24c5124405aee877e21ec4e891812a1387 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Fri, 16 Oct 2026 14:10:04 +0800

@@ -1,0 +1,37 @@
+From 40570e8752a8119f2750a8ce44f7d76a2f0bec93 Mon Sep 17 00:00:00 2001
+From: tunkoal <tunkoal@163.com>
+Date: Sat, 14 Nov 2026 00:28:44 +0800
+Subject: [PATCH] bionic: make libstdc++ available to the Bluetooth APEX
+
+Stock LHDC libraries depend on libstdc++. Make the existing Bionic
+library available to the Bluetooth APEX. Nov 13 APEX build and V5 playback
+passed; see LHDC_20261113.zh-CN.md.
+
+Recorded before the LineageOS 24.0 migration. See the project integration
+record bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md for companion
+repository revisions and validation boundaries.
+
+Change-Id: I455a8f79420df8653e3c21d142fc6c820b62c675
+---
+ libc/Android.bp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/libc/Android.bp b/libc/Android.bp
+index efba83b6e3b83adde94eff41b1c006420c34a629..96de2962e4cc131b0648f6c7feb13c97c183d248 100644
+--- a/libc/Android.bp
++++ b/libc/Android.bp
+@@ -1774,10 +1774,12 @@ cc_defaults {
+         "bionic/__cxa_pure_virtual.cpp",
+         "bionic/new.cpp",
+     ],
++    min_sdk_version: "33",
+     static_ndk_lib: true,
+     static_libs: ["libasync_safe"],
+     apex_available: [
+         "//apex_available:platform",
++        "com.android.bt",
+     ],
+ 
+     static: {
+
+base-commit: ff9fe01e7e1e81febaf32b15fa561aec480a112c

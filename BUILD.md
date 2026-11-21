@@ -44,17 +44,18 @@ maintainer commit is requested from an unrelated upstream remote.
 ## 3. Apply the platform series
 
 ```sh
-python3 "$INTEGRATION/scripts/apply-platform-patches.py" --source-root "$SOURCE" --check-only
-python3 "$INTEGRATION/scripts/apply-platform-patches.py" --source-root "$SOURCE"
+PATCH_INDEX="$INTEGRATION/patches/index.json"
+python3 "$INTEGRATION/scripts/apply-platform-patches.py" --source-root "$SOURCE" --patch-index "$PATCH_INDEX" --check-only
+python3 "$INTEGRATION/scripts/apply-platform-patches.py" --source-root "$SOURCE" --patch-index "$PATCH_INDEX"
 ```
 
 This requires clean repositories at exact bases and verifies final trees. It
 never resets local work; an interrupted `git am` is left for inspection. Configure
 your Git committer identity first. Original patch authors/messages remain intact.
-Source patches include host support for external OUT_DIR and optional Soong
-memory limits; `--without-host-support` skips that group if intentionally desired.
-The host group is not a hardware requirement. First-stage probe patches are not
-included; `system/core` remains at its unmodified upstream base.
+The Soong series includes host support for external OUT_DIR and optional
+Soong memory limits, plus a Xiaomi IMS boot package allowlist entry. Apply the
+whole series for this snapshot. First-stage probe patches are excluded and
+`system/core` stays at the manifest pin.
 
 For another reviewed integration version, pass `--patch-index /absolute/path/to/index.json`
 explicitly. Its mbox files must be beside that index. Prepare the intended topic
@@ -110,16 +111,54 @@ prebuilts/extract-tools is mandatory for exact device audio transforms.
 The extraction contract is stock-dump based. Installed-phone extraction, arbitrary
 APK signatures, OTA parsing and a source-built kernel remain separate work.
 
-## 5. Build a development candidate
+## 5. Stage the LHDC inputs
+
+The Bluetooth APEX requires four ARM64 encoder libraries from the stock
+OS3.0.307.0.WNNCNXM `system/apex/com.android.bt.apex`. Unpack its
+`apex_payload.img` with the appropriate Android filesystem tools and set
+`STOCK_BT_LIB64` to the resulting `lib64` directory. The four encoder
+libraries stay local. Obtain the matching headers at the exact EvoX-LHDC
+revision below. The archived Rothko files match these upstream header bytes.
+
+Run the following from a shell with `INTEGRATION`, `SOURCE` and
+`STOCK_BT_LIB64` set. It stages in a temporary directory inside
+`$SOURCE/external` and installs the result only after all hashes agree.
+If `external/liblhdc` is already present, verify its files with the same
+`SHA256SUMS` before reusing it.
+
+```sh
+(
+    set -eu
+    test ! -e "$SOURCE/external/liblhdc"
+    test ! -L "$SOURCE/external/liblhdc"
+    lhdc_tmp=$(mktemp -d "$SOURCE/external/.rothko-lhdc.XXXXXXXX")
+    trap 'rm -rf -- "$lhdc_tmp"' EXIT
+    mkdir -p "$lhdc_tmp/staged/lib64"
+    git init -q "$lhdc_tmp/headers"
+    git -C "$lhdc_tmp/headers" fetch --depth=1 \
+        https://github.com/EvoX-LHDC/external_liblhdc.git 7add548047836e7ee711babb8cd138751ac69654
+    git -C "$lhdc_tmp/headers" archive -o "$lhdc_tmp/headers.tar" FETCH_HEAD inc include
+    tar -xf "$lhdc_tmp/headers.tar" -C "$lhdc_tmp/staged"
+    cp "$INTEGRATION/inputs/lhdc/Android.bp" "$lhdc_tmp/staged/"
+    for codec in liblhdc liblhdcBT_enc liblhdcv5 liblhdcv5BT_enc; do
+        cp "$STOCK_BT_LIB64/$codec.so" "$lhdc_tmp/staged/lib64/"
+    done
+    (cd "$lhdc_tmp/staged" && sha256sum -c "$INTEGRATION/inputs/lhdc/SHA256SUMS")
+    mv -T --no-clobber "$lhdc_tmp/staged" "$SOURCE/external/liblhdc"
+    test ! -e "$lhdc_tmp/staged"
+)
+```
+
+## 6. Build a development candidate
 
 ```sh
 cd "$SOURCE"
 export OUT_DIR=/absolute/path/to/new-output
-export SOONG_GOMEMLIMIT=14GiB
-export NINJA_HIGHMEM_NUM_JOBS=1
+export SOONG_GOMEMLIMIT=24GiB
+export NINJA_HIGHMEM_NUM_JOBS=4
 source build/envsetup.sh
 lunch lineage_rothko-bp4a-userdebug
-m -j4 bootimage initbootimage vendorbootimage systemimage systemextimage \
+m -j6 bootimage initbootimage vendorbootimage systemimage systemextimage \
   productimage vendorimage odmimage system_dlkmimage vendor_dlkmimage odm_dlkmimage \
   vbmetasystemimage vbmetavendorimage vbmetaimage check-vintf-all sepolicy_test
 ```

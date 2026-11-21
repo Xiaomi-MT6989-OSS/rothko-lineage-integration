@@ -1,7 +1,7 @@
 From 0045e73181d0369628bd8fb41e331e39397a1b73 Mon Sep 17 00:00:00 2001
 From: codex <codex@local>
 Date: Sat, 17 Oct 2026 15:59:04 +0800
-Subject: [PATCH 1/2] camera: Add a client-only common helper without the
+Subject: [PATCH 1/3] camera: Add a client-only common helper without the
  gralloc importer
 
 Change-Id: Icb482ec58c54cf75ffc4a1b12521dd8f2c393504
@@ -50,10 +50,12 @@ index ad2c139517c57a7bbc1695edddb7fbec35d227cd..39a88bf6ad8a5c909b9543e553bd51b0
  // Depend on "android.hardware.camera.common-helper" instead
  cc_library_static {
 
+base-commit: 13d687a84c834af855bfb314b853b8372a7aa6d9
+
 From e9de474a54acdb57aa25249c023f16162cc28bf4 Mon Sep 17 00:00:00 2001
 From: codex <codex@local>
 Date: Sat, 17 Oct 2026 17:02:09 +0800
-Subject: [PATCH 2/2] camera: Give the client-only helper the headers it uses
+Subject: [PATCH 2/3] camera: Give the client-only helper the headers it uses
  directly
 
 Change-Id: I567a7cb7760f7976f45f5927a459c05b20491f70
@@ -74,3 +76,35 @@ index 39a88bf6ad8a5c909b9543e553bd51b00b12e4a6..edcea1c0297dc6c958e0841cf7dda7e0
      ],
      include_dirs: ["system/media/private/camera/include"],
      export_include_dirs: ["include"],
+
+From 9882ad35d61bcdb52dabadc2f858f34048ab9808 Mon Sep 17 00:00:00 2001
+From: tunkoal <tunkoal@163.com>
+Date: Sat, 14 Nov 2026 00:28:44 +0800
+Subject: [PATCH 3/3] bluetooth: expose high-rate software PCM capability
+
+Extend the software session capability for LHDC PCM. This uses the stock
+software audio path. Nov 13 compilation passed; runtime acceptance covers
+V5 at 48 kHz/24-bit, with higher rates pending.
+
+Recorded before the LineageOS 24.0 migration. See the project integration
+record bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md for companion
+repository revisions and validation boundaries.
+
+Change-Id: Iad58fa8dced3d23694cabc6eea5e7d631fa49ff6
+---
+ bluetooth/audio/utils/aidl_session/BluetoothAudioCodecs.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/bluetooth/audio/utils/aidl_session/BluetoothAudioCodecs.cpp b/bluetooth/audio/utils/aidl_session/BluetoothAudioCodecs.cpp
+index 2fddce85fed11cc52238b8ae3aba9dc8790d78ce..3259af580128f1cf7558b339b772147b123d8ae3 100644
+--- a/bluetooth/audio/utils/aidl_session/BluetoothAudioCodecs.cpp
++++ b/bluetooth/audio/utils/aidl_session/BluetoothAudioCodecs.cpp
+@@ -43,7 +43,7 @@ namespace bluetooth {
+ namespace audio {
+ 
+ static const PcmCapabilities kDefaultSoftwarePcmCapabilities = {
+-    .sampleRateHz = {8000, 16000, 24000, 32000, 44100, 48000, 88200, 96000},
++    .sampleRateHz = {8000, 16000, 24000, 32000, 44100, 48000, 88200, 96000, 176400, 192000},
+     .channelMode = {ChannelMode::MONO, ChannelMode::STEREO},
+     .bitsPerSample = {16, 24, 32},
+     .dataIntervalUs = {},

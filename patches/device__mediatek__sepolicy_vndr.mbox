@@ -1,0 +1,31 @@
+From 56b019fd89b226200f023ea9c38b0679ef4cea69 Mon Sep 17 00:00:00 2001
+From: tunkoal <tunkoal@163.com>
+Date: Sat, 14 Nov 2026 00:28:44 +0800
+Subject: [PATCH] sepolicy: leave the ISP extension mapping to the device
+
+The common generic service mapping duplicates rothko's dedicated ISP
+service label. Remove that exact duplicate. Nov 13 VINTF/SELinux checks
+and runtime ISP registration passed. Companion device policy is recorded
+in the migration ledger.
+
+Recorded before the LineageOS 24.0 migration. See the project integration
+record bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md for companion
+repository revisions and validation boundaries.
+---
+ base/vendor/service_contexts | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/base/vendor/service_contexts b/base/vendor/service_contexts
+index ae7df7e34c2e48856f2295995be43b311724721b..a8d0928b5ea3142cbe20966ba29ef23c380cfe6f 100644
+--- a/base/vendor/service_contexts
++++ b/base/vendor/service_contexts
+@@ -32,7 +32,6 @@ vendor.mediatek.hardware.apuware.utils.IApuwareUtils/default u:object_r:hal_neur
+ vendor.mediatek.hardware.camera.aovservice.IAovService/default u:object_r:hal_camera_service:s0
+ vendor.mediatek.hardware.camera.atms.IATMs/default u:object_r:hal_camera_service:s0
+ vendor.mediatek.hardware.camera.bgservice.IBGService/default u:object_r:hal_camera_service:s0
+-vendor.mediatek.hardware.camera.isphal.IISPModule/internal/1 u:object_r:hal_camera_service:s0
+ vendor.mediatek.hardware.camera.postproc.IPostDevice/default u:object_r:hal_camera_service:s0
+ vendor.mediatek.hardware.camera.uievent.IUIEvent/default u:object_r:hal_camera_service:s0
+ 
+
+base-commit: b1c50f4903504168e7bd0e32b44c72d139d38d09

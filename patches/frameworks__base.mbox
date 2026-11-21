@@ -1,7 +1,7 @@
 From a75c83008b95489b4e8ac814d2591d7bf9d67e32 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Thu, 15 Oct 2026 19:43:29 +0800
-Subject: [PATCH 01/30] biometrics: expose opt-in UDFPS lifecycle notifications
+Subject: [PATCH 01/31] biometrics: expose opt-in UDFPS lifecycle notifications
  for devices
 
 Keep vendor protocols in device services. Report actual overlay attachment/removal, fingerprint request lifetimes, lockout, controller/HAL death and display fade state without making OEM calls on framework threads. Preserve existing SystemUI notification timing unless explicitly enabled by an overlay.
@@ -446,10 +446,12 @@ index 2fbb114c9a63ffa9774200a4032bb3023efa91a9..dd7659ed1bdea58ec2a180938b4d15c2
  
     /**
 
+base-commit: 958afcc3d647d57571650cee4172afe0da619171
+
 From 9910636ad30395625fbee152da39e0f6f46b5415 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Thu, 15 Oct 2026 20:41:17 +0800
-Subject: [PATCH 02/30] SystemUI: qualify the UDFPS lifecycle resource package
+Subject: [PATCH 02/31] SystemUI: qualify the UDFPS lifecycle resource package
 
 Change-Id: Ib37ad6e9d9a6f1301659e8d4ae726b664c50f59e
 ---
@@ -473,7 +475,7 @@ index 65485136536c01715d6333ecf9ff88666a01bb8b..c55a3593b4b8b82e9fcacf0ca5348b0a
 From 3e71e3ec0d5e2932a4b98178292344bf0e4ef1d4 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Thu, 15 Oct 2026 21:56:45 +0800
-Subject: [PATCH 03/30] services: retain optional UDFPS observer API for device
+Subject: [PATCH 03/31] services: retain optional UDFPS observer API for device
  jars
 
 Change-Id: I2cfeb80de260f99ee895ad263c043fbb38471eec
@@ -501,7 +503,7 @@ index b10aa7ef79f126761c2c869430972d56b5c0650e..dab4df26cd9257ea8ed45a28f9949fb5
 From 02e2651c2abd0784dda60a331cbda4138cacc12c Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Fri, 16 Oct 2026 01:07:35 +0800
-Subject: [PATCH 04/30] SystemUI: honor the screen-off UDFPS configured default
+Subject: [PATCH 04/31] SystemUI: honor the screen-off UDFPS configured default
 
 Change-Id: I705effe7066328f26badaf1fc377a2e43e9de982
 ---
@@ -526,7 +528,7 @@ index c55a3593b4b8b82e9fcacf0ca5348b0a052b74b7..fdfae4ad5b757f7b08d0c30605a44390
 From 41a64b4964c2d136c751b968ba71f90020d099d7 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Fri, 16 Oct 2026 01:13:25 +0800
-Subject: [PATCH 05/30] biometrics: expose HAL-owned face enrollment preview
+Subject: [PATCH 05/31] biometrics: expose HAL-owned face enrollment preview
  properties
 
 Keep HIDL self-illumination semantics and pass AIDL preview geometry independently. This internal Parcelable change requires framework and Settings to be updated together at reboot. Preserve the HAL strength and enrollment limits.
@@ -778,7 +780,7 @@ index 5bd7037dd072a302496258ab9bf5f9c1a1e9ccb4..617116bac057e7a244e500447f22be45
 From 66bc90388cd23dfa2fd0b35d5677a441ccddc579 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Fri, 16 Oct 2026 19:34:31 +0800
-Subject: [PATCH 06/30] display: Report HDR ratio support from modern
+Subject: [PATCH 06/31] display: Report HDR ratio support from modern
  brightness configuration
 
 Change-Id: I2a05d33692c3f1998ff385927f36117db237f62d
@@ -855,7 +857,7 @@ index 313d99bc76e828c65aabdda6711fce07981e3798..0acc25f50036301bdd3b373e63870cbb
 From fc96d56a4cfa2c29cd30772c08ac0a96b1754a96 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Fri, 16 Oct 2026 19:34:44 +0800
-Subject: [PATCH 07/30] display: Add opt-in fail-closed thermal gating for HDR
+Subject: [PATCH 07/31] display: Add opt-in fail-closed thermal gating for HDR
  boost
 
 Change-Id: I4b5cf321c0ad25c7c505483eb3ca249fb25be489
@@ -1651,7 +1653,7 @@ index 0000000000000000000000000000000000000000..358564ff7ecd88973f3349810262cd0e
 From 2f3196c8a3bc10c6a5e9349d791cf89240168cb5 Mon Sep 17 00:00:00 2001
 From: codex <codex@local>
 Date: Sat, 17 Oct 2026 17:46:35 +0800
-Subject: [PATCH 08/30] fingerprint: Mark the FOD UI ready when the HAL asks
+Subject: [PATCH 08/31] fingerprint: Mark the FOD UI ready when the HAL asks
  (vendor code 22)
 
 Change-Id: I30676632547ed50193c638c213ff65a3c89aced3
@@ -1684,7 +1686,7 @@ index cd864eb43e84d9b352c3446c4c21b37e245f4142..4f5f4737093b371d88b9e94ff19a1506
 From e19462c04f63f9f338cda9be15bdbe2a6036f535 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Sat, 17 Oct 2026 20:53:35 +0800
-Subject: [PATCH 09/30] telephony: Protect the MTK carrier express update
+Subject: [PATCH 09/31] telephony: Protect the MTK carrier express update
  broadcast
 
 Change-Id: Ifcc5cd1ad66ac7a17ecf76b4664e248cb887791b
@@ -1708,7 +1710,7 @@ index 769c3d3110dff9ebe0b204ad0f22cf0adefad3f6..c48b199a7e2dda06097900eea701712e
 From 152c9b5b2fc4c5e461ad4f22bbfc6acf9a811809 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Sun, 18 Oct 2026 03:53:07 +0800
-Subject: [PATCH 10/30] fingerprint: do not acknowledge display readiness on a
+Subject: [PATCH 10/31] fingerprint: do not acknowledge display readiness on a
  vendor acquire event
 
 The rothko screen-off trace shows vendor acquired 22 on touch down while the panel is still OFF. A direct onUiReady call neither enables the panel nor produces the hardware local-HBM ready event; authentication still times out. Keep the normal SystemUI/display readiness path and handle screen-off pulse activation separately.
@@ -1743,7 +1745,7 @@ index 4f5f4737093b371d88b9e94ff19a1506066b2f12..cd864eb43e84d9b352c3446c4c21b37e
 From 440acf26e3da0423e02f76e492dd27600abdcbf1 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Sun, 18 Oct 2026 16:06:14 +0800
-Subject: [PATCH 11/30] SystemUI: wake display for fully-off UDFPS
+Subject: [PATCH 11/31] SystemUI: wake display for fully-off UDFPS
 
 Change-Id: I9f4a3b66f62a883feeaffd8ab21fffdc7add92a0
 ---
@@ -1848,7 +1850,7 @@ index 2b13b5a9603d6a7e4d6299e746060757dd3fccaa..d62f22f3ef791194b10effbfdf6a1067
 From 72fd41b201b51b73da9ccbf1f789feb45e9a4e6d Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Sun, 18 Oct 2026 19:31:27 +0800
-Subject: [PATCH 12/30] SystemUI: hand off screen-off UDFPS input before
+Subject: [PATCH 12/31] SystemUI: hand off screen-off UDFPS input before
  leaving doze
 
 A full wake finishes DozeService before its display-ON callback. Move the pending gesture into UdfpsController before waking and use its existing ScreenLifecycle observer to deliver the press when the display is ready. Cancel pending input when the authentication overlay is hidden; preserve the AOD pulse path.
@@ -2152,7 +2154,7 @@ index d62f22f3ef791194b10effbfdf6a106779430603..48312abd6b087eebe1b555ef0da6068a
 From ecadcb1205eebd7cd5fc4ee9b2692edd00e0dcb5 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Mon, 19 Oct 2026 08:59:54 +0800
-Subject: [PATCH 13/30] SystemUI: restore native doze pulse for screen-off
+Subject: [PATCH 13/31] SystemUI: restore native doze pulse for screen-off
  UDFPS
 
 The rothko stock FOD request now survives display transitions. A controlled native Doze pulse authenticated without a full lockscreen wake. Remove the complete-wake workaround and its handoff-only APIs; retain pending-input cleanup on overlay removal. Restore standard pulse sequencing and update regression coverage. First-touch behavior still requires paired-image runtime validation.
@@ -2423,7 +2425,7 @@ index 48312abd6b087eebe1b555ef0da6068a60f03fe4..c006e6a7e46c7d7110944b757712f51b
 From b258a85e3b5fb718e2929ee9647678a0c4514497 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Mon, 19 Oct 2026 14:24:31 +0800
-Subject: [PATCH 14/30] SystemUI: keep keyguard indications above the UDFPS
+Subject: [PATCH 14/31] SystemUI: keep keyguard indications above the UDFPS
  sensor
 
 Anchor the complete indication area above the device entry icon on UDFPS devices. The icon already follows the scaled physical sensor bounds; leave non-UDFPS bottom placement unchanged. Include the indication area in the notification bottom barrier so multiline text also retains space. Add constraint coverage for UDFPS and existing non-UDFPS placement.
@@ -2591,7 +2593,7 @@ index fc26d18fde6b1d6448c611bacf1515d9f170f121..c9db4f2f2f9586dd9ff7ac61efed6660
 From df1ade4a9fb51be8b8eb2ddf01ae09e9e9e6f75b Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Tue, 20 Oct 2026 15:34:21 +0800
-Subject: [PATCH 15/30] display: add opt-in device thermal brightness policy
+Subject: [PATCH 15/31] display: add opt-in device thermal brightness policy
  before HDR clamping
 
 Change-Id: I2034688c4da509e217a82e5117a0156eb2570b75
@@ -2907,7 +2909,7 @@ index 0000000000000000000000000000000000000000..c8559906f10d20756bf7c7a0c496e87f
 From aa88d5ff49f55ae48a90cb9d939e18847717fed7 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Tue, 20 Oct 2026 23:00:44 +0800
-Subject: [PATCH 16/30] display: share actual HDR layer state with optional
+Subject: [PATCH 16/31] display: share actual HDR layer state with optional
  device brightness policy
 
 Change-Id: I590dd4180eba043c1e4fa93683efaaeadd3de125
@@ -3159,7 +3161,7 @@ index f7958fa7d9259f1b32a0ea9c1f4cdadd938dc912..c088c6984c334813e1c39f0223ef0c67
 From 20fd5663d534de626b1a7a887594495942a3d7c1 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Wed, 21 Oct 2026 08:52:33 +0800
-Subject: [PATCH 17/30] display: keep device SDR white point bounded
+Subject: [PATCH 17/31] display: keep device SDR white point bounded
  independently of HDR peak
 
 Change-Id: I45ec5172818b0f677b75d7b001c887c3b96542a4
@@ -3281,7 +3283,7 @@ index 3067a6649190e6cdef6d7e9272100733c9e60fe5..c177f11e7f1ef766a4911b8fbcaca1fc
 From 0550b2f8eab96bb111738854b43f34bc9d94ac3c Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Wed, 21 Oct 2026 09:13:15 +0800
-Subject: [PATCH 18/30] display: distinguish device content bounds from thermal
+Subject: [PATCH 18/31] display: distinguish device content bounds from thermal
  throttling
 
 Change-Id: I9ffda78a830ba19129ef18cb2c2a1d52c42e5b52
@@ -3461,7 +3463,7 @@ index c177f11e7f1ef766a4911b8fbcaca1fc67d40cbc..94a61fdd2f3a36bce035c631da52eea1
 From a7b65f06dafc25a95a0ee3414d6fbd88c3238311 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Wed, 21 Oct 2026 09:20:36 +0800
-Subject: [PATCH 19/30] display: avoid HBM quota callback loop for all-zero
+Subject: [PATCH 19/31] display: avoid HBM quota callback loop for all-zero
  timing
 
 Change-Id: I327447b471d72103f3b8db5a65f35c01f79bcdd4
@@ -3569,7 +3571,7 @@ index ed606e1d30af0b93ea4d5efd9ddf004bc7e57a92..f721acefd18706a6afddcc64cd4fa635
 From 88308d0e2da3c0168de504bbfc8df46253d340f2 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Wed, 21 Oct 2026 09:45:51 +0800
-Subject: [PATCH 20/30] display: migrate opt-in per-user brightness across
+Subject: [PATCH 20/31] display: migrate opt-in per-user brightness across
  affine backlight ranges
 
 Change-Id: I499e29439851393ad1a4ad4d8912ccc067b8a9d3
@@ -3892,7 +3894,7 @@ index 7ad04ec7efe5a5c2bc6b127f2e48af096b59c441..ca18927a58b81c420d2225d325909049
 From 06bc9b66d3ea52bd1e3bf6f1cc5b155fa36dc4df Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Wed, 21 Oct 2026 14:13:28 +0800
-Subject: [PATCH 21/30] display: retire interim HDR veto after device cap
+Subject: [PATCH 21/31] display: retire interim HDR veto after device cap
  integration
 
 Change-Id: I35d3deee0229be576c346240783495947987e568
@@ -4617,7 +4619,7 @@ index 358564ff7ecd88973f3349810262cd0ee99e44a9..00000000000000000000000000000000
 From f77f68d06d7c0fe1e36b2030921f9ce4891ce4c5 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Wed, 21 Oct 2026 15:46:15 +0800
-Subject: [PATCH 22/30] display: respect the common cap in the legacy HDR
+Subject: [PATCH 22/31] display: respect the common cap in the legacy HDR
  target path
 
 Change-Id: Iae44b76340183d52585960990419bad05bbdbbd6
@@ -4685,7 +4687,7 @@ index 94f57de2077ff177ee3db98defeaeb8f4cd4c4f2..07d977356718a481a012d657ecf1625a
 From ce08e268ddad2f9b0737359b678f5cf549a65248 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Wed, 21 Oct 2026 20:23:02 +0800
-Subject: [PATCH 23/30] display: allow an ordered device doze backlight route
+Subject: [PATCH 23/31] display: allow an ordered device doze backlight route
 
 Change-Id: I65688ed254155ed674dbf0a4d6d4d10104967ad7
 ---
@@ -4821,7 +4823,7 @@ index 3da7874f65fe694f074778eb160babf9180ea07b..9de4853d00bbc4026636bd83fd6de84e
 From d08961be40f886442a1a7edaaed8a2c9cb194ab7 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Wed, 21 Oct 2026 22:20:06 +0800
-Subject: [PATCH 24/30] display: import framework resources for brightness
+Subject: [PATCH 24/31] display: import framework resources for brightness
  migration
 
 Change-Id: I3ef11c5170f3a5f8522beb88ef65b1adc9ae5b62
@@ -4845,7 +4847,7 @@ index 22d1fe8c2581d75c57b32878f1fd5d1da442917e..8e24aa8be2d379a3f6d8d74cc699aadb
 From 62d09585a18d13fd7c4593c13a041bede3f7d83a Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Wed, 21 Oct 2026 22:43:36 +0800
-Subject: [PATCH 25/30] display: source automatic brightness state from the
+Subject: [PATCH 25/31] display: source automatic brightness state from the
  controller
 
 Change-Id: I7ead73420b9f9a3e7225a33b5e0f2206f3eba588
@@ -4918,7 +4920,7 @@ index 94a61fdd2f3a36bce035c631da52eea1cfc0938f..815d9351d09ff99ce30f15f287301d9f
 From 935446041a4002cbd34d298628f3a1cc5a1e4503 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Sat, 24 Oct 2026 15:34:07 +0800
-Subject: [PATCH 26/30] display: enter native doze before dedicated brightness
+Subject: [PATCH 26/31] display: enter native doze before dedicated brightness
 
 Enable the native DOZE path before issuing an explicitly configured device doze backlight request. Stock rothko panel commands can otherwise be cached without reaching the panel. Leave devices without the optional controller unchanged. Runtime validation of this source candidate is pending.
 
@@ -4951,7 +4953,7 @@ index 9de4853d00bbc4026636bd83fd6de84ed24917e6..4968953e664d62d221e4a7337c9db386
 From 8d1e41bdb72b7a3ce255dc0fe7d06fb4507271cf Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Sat, 24 Oct 2026 15:34:31 +0800
-Subject: [PATCH 27/30] SystemUI: protect opted-in AOD draws until presentation
+Subject: [PATCH 27/31] SystemUI: protect opted-in AOD draws until presentation
 
 Use the native DRAW wake lock to keep doze refreshable while the actual shade frame is presented. Observe committed display-state events and a next-buffer present fence. Cancel stale sessions, bound failures and disable retries for a failed AOD session. The device resource defaults to false. Checked against current framework APIs and ten host-fake lifecycle scenarios; full build, Dagger and device graphics validation remain pending.
 
@@ -5339,7 +5341,7 @@ index bd6dae8d23ebd7c3922db91757e413266f7f0243..52a983502453c06951e004c8067578e5
 From 4a5c8de936764a4aff0615b352a28bded96467f0 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Sat, 24 Oct 2026 16:20:47 +0800
-Subject: [PATCH 28/30] SystemUI: support opted-in special-trigger pickup
+Subject: [PATCH 28/31] SystemUI: support opted-in special-trigger pickup
  sensors
 
 Change-Id: I208e3a4c3abb691b7609013ed0e37e661183a31d
@@ -5547,7 +5549,7 @@ index 329a51a921d1fb69cf30302c90890ef0d5dab880..33630bb71aae10a768b606580653a992
 From ba20a22726b5003cb0bd7f9678ff849aceefbdd1 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Thu, 29 Oct 2026 20:41:16 +0800
-Subject: [PATCH 29/30] SystemUI: notify keyguard clocks on the AOD minute tick
+Subject: [PATCH 29/31] SystemUI: notify keyguard clocks on the AOD minute tick
 
 DozeUi already schedules wakeup minute ticks, but the host only forwards
 them to doze state flows and fingerprint burn-in handling. Clock event
@@ -5578,7 +5580,7 @@ index 7db4093fad0c882e00ffd50c7f2c77b38513c98b..1fdc40cb32c57521109f5c4160943429
 From 8b24ec80b00b6c356b2730d2fcd4adfae90f4511 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Thu, 29 Oct 2026 20:41:17 +0800
-Subject: [PATCH 30/30] SystemUI: prepare AOD draw leases before publishing
+Subject: [PATCH 30/31] SystemUI: prepare AOD draw leases before publishing
  updates
 
 For opted-in panels, acquire the existing bounded DRAW lease before
@@ -5689,3 +5691,578 @@ index 1fdc40cb32c57521109f5c416094342954c3ea59..6aa7e94c52afe7590182deb8518f8ee0
          mDozeLog.traceSetAodWallpaperDimmingScrim(scrimOpacity);
          mAodDimInteractor.setWallpaperDimAmount(scrimOpacity);
      }
+
+From c9a2ecda2cd81e8f84f016bade939a82383e46c7 Mon Sep 17 00:00:00 2001
+From: tunkoal <tunkoal@163.com>
+Date: Sat, 14 Nov 2026 00:28:46 +0800
+Subject: [PATCH 31/31] SettingsLib: integrate LHDC PCM options and HD audio
+ names
+
+Expose the software PCM/codec options required by the stock LHDC encoders.
+Map V3/V4 and V5 in the HD audio label using locale-independent strings
+to avoid short translated codec arrays. Extend label regression coverage.
+The PCM controls were built Nov 13; HD label changes have static checks
+only and await image/device validation. Evidence: LHDC_20261113.zh-CN.md
+and BLUETOOTH_CODEC_DETAILS_20261113.zh-CN.md.
+
+Recorded before the LineageOS 24.0 migration. See the project integration
+record bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md for companion
+repository revisions and validation boundaries.
+
+Change-Id: I40ee480452f69e1fe3849c22032187d63a67f822
+---
+ media/java/android/media/AudioSystem.java     |  8 ++
+ .../SettingsLib/res/values-zh-rCN/arrays.xml  | 57 ++++++++++++++
+ .../SettingsLib/res/values-zh-rCN/strings.xml | 26 +++++++
+ .../SettingsLib/res/values-zh-rHK/arrays.xml  | 57 ++++++++++++++
+ .../SettingsLib/res/values-zh-rHK/strings.xml | 26 +++++++
+ .../SettingsLib/res/values-zh-rTW/arrays.xml  | 57 ++++++++++++++
+ .../SettingsLib/res/values-zh-rTW/strings.xml | 26 +++++++
+ packages/SettingsLib/res/values/arrays.xml    | 74 +++++++++++++++++++
+ packages/SettingsLib/res/values/strings.xml   | 30 ++++++++
+ .../settingslib/bluetooth/A2dpProfile.java    |  6 ++
+ .../bluetooth/A2dpProfileTest.java            | 12 +++
+ 11 files changed, 379 insertions(+)
+
+diff --git a/media/java/android/media/AudioSystem.java b/media/java/android/media/AudioSystem.java
+index 966dcece50b2071ce5213d932fb2677839bbe743..aa52e2088803e5622601943b618e044ac1038ea8 100644
+--- a/media/java/android/media/AudioSystem.java
++++ b/media/java/android/media/AudioSystem.java
+@@ -253,6 +253,9 @@ public class AudioSystem
+     public static final int AUDIO_FORMAT_OPUS           = 0x08000000;
+     /** @hide */
+     public static final int AUDIO_FORMAT_OPUS_HI_RES    = 0x08000001;
++    /** @hide */
++    public static final int AUDIO_FORMAT_LHDC           = 0x28000000;
++
+ 
+     /** @hide */
+     @IntDef(flag = false, prefix = "AUDIO_FORMAT_", value = {
+@@ -263,6 +266,7 @@ public class AudioSystem
+             AUDIO_FORMAT_APTX,
+             AUDIO_FORMAT_APTX_HD,
+             AUDIO_FORMAT_LDAC,
++            AUDIO_FORMAT_LHDC,
+             AUDIO_FORMAT_LC3,
+             AUDIO_FORMAT_OPUS,
+             AUDIO_FORMAT_OPUS_HI_RES,
+@@ -354,6 +358,10 @@ public class AudioSystem
+                 return AudioSystem.AUDIO_FORMAT_LC3;
+             case BluetoothCodecConfig.SOURCE_CODEC_TYPE_OPUS:
+                 return AudioSystem.AUDIO_FORMAT_OPUS;
++            case BluetoothCodecConfig.SOURCE_CODEC_TYPE_LHDCV3:
++                return AudioSystem.AUDIO_FORMAT_LHDC;
++            case BluetoothCodecConfig.SOURCE_CODEC_TYPE_LHDCV5:
++                return AudioSystem.AUDIO_FORMAT_LHDC;
+             default:
+                 Log.e(TAG, "Unknown A2DP BT codec 0x" + Integer.toHexString(btCodec)
+                         + " for conversion to audio format");
+diff --git a/packages/SettingsLib/res/values-zh-rCN/arrays.xml b/packages/SettingsLib/res/values-zh-rCN/arrays.xml
+index e243afce0824818b5b40ab74f80667a74437b980..45452a8cb25a6936c6e310f2e4135c16eef10dfd 100644
+--- a/packages/SettingsLib/res/values-zh-rCN/arrays.xml
++++ b/packages/SettingsLib/res/values-zh-rCN/arrays.xml
+@@ -306,4 +306,61 @@
+     <item msgid="7880769915418638436">"status_bar_latest_touch"</item>
+     <item msgid="4313165186636015195">"focused_display"</item>
+   </string-array>
++  <!-- Savitech Patch - START -->
++  <!-- Titles for Bluetooth Audio Codec LHDC Playback Quality selection preference. [CHAR LIMIT=70] -->
++  <string-array name="bluetooth_a2dp_codec_lhdc_playback_quality_titles">
++      <item>连接稳定为主 (64kbps)</item>
++      <item>连接稳定为主 (128(V3)/160(V5)kbps)</item>
++      <item>连接稳定为主 (192kbps)</item>
++      <item>连接稳定为主 (256kbps)</item>
++      <item>连接稳定为主 (320kbps)</item>
++      <item>连接稳定为主 (400kbps)</item>
++      <item>平衡音质与连接质量 (500kbps)</item>
++      <item>高音质 (900kbps)</item>
++      <item>高音质 (1000kbps)</item>
++      <item>自适应最佳 (Auto Bit Rate)</item>
++  </string-array>
++
++  <!-- Summaries for Bluetooth Audio Codec LHDC Playback Quality selection preference. [CHAR LIMIT=70]-->
++  <string-array name="bluetooth_a2dp_codec_lhdc_playback_quality_summaries">
++      <item>64 kbps</item>
++      <item>128(V3)/160(V5) kbps</item>
++      <item>192 kbps</item>
++      <item>256 kbps</item>
++      <item>320 kbps</item>
++      <item>400 kbps</item>
++      <item>500 kbps</item>
++      <item>900 kbps</item>
++      <item>1000 kbps</item>
++      <item>自适应最佳</item>
++  </string-array>
++
++  <!-- Titles for Bluetooth Audio Codec LHDC Low Latency selection preference. [CHAR LIMIT=70] -->
++  <string-array name="bluetooth_enable_a2dp_codec_lhdc_latency_titles">
++      <item>低延迟模式 - 关闭</item>
++      <item>低延迟模式 - 开启</item>
++  </string-array>
++
++  <!-- Summaries for Bluetooth Audio Codec LHDC Latency selection preference. [CHAR LIMIT=70]-->
++  <string-array name="bluetooth_enable_a2dp_codec_lhdc_latency_summaries">
++      <item>关闭</item>
++      <item>开启</item>
++  </string-array>
++
++  <!-- Titles for Bluetooth Audio Codec LHDC Lossless selection preference. [CHAR LIMIT=70] -->
++  <string-array name="bluetooth_enable_a2dp_codec_lhdc_lossless_titles">
++      <item>关闭</item>
++      <item>开启</item>
++  </string-array>
++
++  <!-- Summaries for Bluetooth Audio Codec LHDC Lossless selection preference [CHAR LIMIT=70]-->
++  <string-array name="bluetooth_enable_a2dp_codec_lhdc_lossless_summaries">
++      <item>关闭</item>
++      <item>开启</item>
++  </string-array>
++
++  <!-- Titles for Bluetooth Audio Codec LHDC Lossless Raw mode selection preference. [CHAR LIMIT=70] -->
++
++  <!-- Summaries for Bluetooth Audio Codec LHDC Lossless Raw mode selection preference [CHAR LIMIT=70]-->
++  <!-- Savitech Patch - END -->
+ </resources>
+diff --git a/packages/SettingsLib/res/values-zh-rCN/strings.xml b/packages/SettingsLib/res/values-zh-rCN/strings.xml
+index 0be52eb44d09cd66cd7efbe2927459931fa55e40..5521fa46818b11c87eeb519a25db552c37491d6a 100644
+--- a/packages/SettingsLib/res/values-zh-rCN/strings.xml
++++ b/packages/SettingsLib/res/values-zh-rCN/strings.xml
+@@ -774,4 +774,30 @@
+     <string name="feminine" msgid="1529155595310784757">"阴性"</string>
+     <string name="masculine" msgid="4653978041013996303">"阳性"</string>
+     <string name="system_update_settings_list_item_title" msgid="6618098383615432484">"系统更新"</string>
++    <!-- Savitech LHDC - START -->
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Playback Quality -->
++    <string name="bluetooth_select_a2dp_codec_lhdc_playback_quality">蓝牙音频 LHDC 编解码器：播放质量</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Playback Quality -->
++    <string name="bluetooth_select_a2dp_codec_lhdc_playback_quality_dialog_title">选择蓝牙音频 LHDC 编解码器：播放质量</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Low Latency Summary -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_playback_quality_summaries">LHDC 编解码器：播放质量</string>
++
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Low Latency -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_latency">蓝牙音频 LHDC 编解码器：低延迟</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Low Latency -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_latency_dialog_titles">选择蓝牙音频 LHDC 编解码器：低延迟</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Low Latency Summary -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_latency_summaries">LHDC 编解码器：低延迟</string>
++
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Lossless -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_lossless">启用 LHDC-V 无损</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Lossless: LHDC Lossless Audio -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_lossless_dialog_titles">选择蓝牙音频 LHDC 编解码器：无损音频</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Lossless Summary -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_lossless_summaries">LHDC 编解码器：无损音频</string>
++
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Lossless Raw Mode -->
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Lossless Raw Mode: LHDC Lossless Audio -->
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Lossless Raw Mode Summary -->
++    <!-- Savitech LHDC - END -->
+ </resources>
+diff --git a/packages/SettingsLib/res/values-zh-rHK/arrays.xml b/packages/SettingsLib/res/values-zh-rHK/arrays.xml
+index f70b02d2e01730da1012ec0ac99d7ae708a15031..5140fa51e01e364702c776642d5b8079fe846dcc 100644
+--- a/packages/SettingsLib/res/values-zh-rHK/arrays.xml
++++ b/packages/SettingsLib/res/values-zh-rHK/arrays.xml
+@@ -306,4 +306,61 @@
+     <item msgid="7880769915418638436">"status_bar_latest_touch"</item>
+     <item msgid="4313165186636015195">"focused_display"</item>
+   </string-array>
++  <!-- Savitech Patch - START -->
++  <!-- Titles for Bluetooth Audio Codec LHDC Playback Quality selection preference. [CHAR LIMIT=70] -->
++  <string-array name="bluetooth_a2dp_codec_lhdc_playback_quality_titles">
++      <item>连接稳定为主 (64kbps)</item>
++      <item>连接稳定为主 (128(V3)/160(V5)kbps)</item>
++      <item>连接稳定为主 (192kbps)</item>
++      <item>连接稳定为主 (256kbps)</item>
++      <item>连接稳定为主 (320kbps)</item>
++      <item>连接稳定为主 (400kbps)</item>
++      <item>平衡音质与连接质量 (500kbps)</item>
++      <item>高音质 (900kbps)</item>
++      <item>高音质 (1000kbps)</item>
++      <item>自适应最佳 (Auto Bit Rate)</item>
++  </string-array>
++
++  <!-- Summaries for Bluetooth Audio Codec LHDC Playback Quality selection preference. [CHAR LIMIT=70]-->
++  <string-array name="bluetooth_a2dp_codec_lhdc_playback_quality_summaries">
++      <item>64 kbps</item>
++      <item>128(V3)/160(V5) kbps</item>
++      <item>192 kbps</item>
++      <item>256 kbps</item>
++      <item>320 kbps</item>
++      <item>400 kbps</item>
++      <item>500 kbps</item>
++      <item>900 kbps</item>
++      <item>1000 kbps</item>
++      <item>自适应最佳</item>
++  </string-array>
++
++  <!-- Titles for Bluetooth Audio Codec LHDC Low Latency selection preference. [CHAR LIMIT=70] -->
++  <string-array name="bluetooth_enable_a2dp_codec_lhdc_latency_titles">
++      <item>低延迟模式 - 关闭</item>
++      <item>低延迟模式 - 开启</item>
++  </string-array>
++
++  <!-- Summaries for Bluetooth Audio Codec LHDC Latency selection preference. [CHAR LIMIT=70]-->
++  <string-array name="bluetooth_enable_a2dp_codec_lhdc_latency_summaries">
++      <item>关闭</item>
++      <item>开启</item>
++  </string-array>
++
++  <!-- Titles for Bluetooth Audio Codec LHDC Lossless selection preference. [CHAR LIMIT=70] -->
++  <string-array name="bluetooth_enable_a2dp_codec_lhdc_lossless_titles">
++      <item>关闭</item>
++      <item>开启</item>
++  </string-array>
++
++  <!-- Summaries for Bluetooth Audio Codec LHDC Lossless selection preference [CHAR LIMIT=70]-->
++  <string-array name="bluetooth_enable_a2dp_codec_lhdc_lossless_summaries">
++      <item>关闭</item>
++      <item>开启</item>
++  </string-array>
++
++  <!-- Titles for Bluetooth Audio Codec LHDC Lossless Raw mode selection preference. [CHAR LIMIT=70] -->
++
++  <!-- Summaries for Bluetooth Audio Codec LHDC Lossless Raw mode selection preference [CHAR LIMIT=70]-->
++  <!-- Savitech Patch - END -->
+ </resources>
+diff --git a/packages/SettingsLib/res/values-zh-rHK/strings.xml b/packages/SettingsLib/res/values-zh-rHK/strings.xml
+index 9a2787ab8b5ba60607d01ffedb28bf5a07ef5431..75758cc62fc86bc2551cc7043be35deccf399fd9 100644
+--- a/packages/SettingsLib/res/values-zh-rHK/strings.xml
++++ b/packages/SettingsLib/res/values-zh-rHK/strings.xml
+@@ -774,4 +774,30 @@
+     <string name="feminine" msgid="1529155595310784757">"女性"</string>
+     <string name="masculine" msgid="4653978041013996303">"男性"</string>
+     <string name="system_update_settings_list_item_title" msgid="6618098383615432484">"系統更新"</string>
++    <!-- Savitech LHDC - START -->
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Playback Quality -->
++    <string name="bluetooth_select_a2dp_codec_lhdc_playback_quality">蓝牙音频 LHDC 编解码器：播放质量</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Playback Quality -->
++    <string name="bluetooth_select_a2dp_codec_lhdc_playback_quality_dialog_title">选择蓝牙音频 LHDC 编解码器：播放质量</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Low Latency Summary -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_playback_quality_summaries">LHDC 编解码器：播放质量</string>
++
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Low Latency -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_latency">蓝牙音频 LHDC 编解码器：低延迟</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Low Latency -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_latency_dialog_titles">选择蓝牙音频 LHDC 编解码器：低延迟</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Low Latency Summary -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_latency_summaries">LHDC 编解码器：低延迟</string>
++
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Lossless -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_lossless">启用 LHDC-V 无损</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Lossless: LHDC Lossless Audio -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_lossless_dialog_titles">选择蓝牙音频 LHDC 编解码器：无损音频</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Lossless Summary -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_lossless_summaries">LHDC 编解码器：无损音频</string>
++
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Lossless Raw Mode -->
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Lossless Raw Mode: LHDC Lossless Audio -->
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Lossless Raw Mode Summary -->
++    <!-- Savitech LHDC - END -->
+ </resources>
+diff --git a/packages/SettingsLib/res/values-zh-rTW/arrays.xml b/packages/SettingsLib/res/values-zh-rTW/arrays.xml
+index 6ac8ff5b3757d01f57e5f6550abe1860e1ebf07a..1f3ba3e5139a82aef30af4dc264f59e63c277745 100644
+--- a/packages/SettingsLib/res/values-zh-rTW/arrays.xml
++++ b/packages/SettingsLib/res/values-zh-rTW/arrays.xml
+@@ -306,4 +306,61 @@
+     <item msgid="7880769915418638436">"最新觸控狀態列"</item>
+     <item msgid="4313165186636015195">"focused_display"</item>
+   </string-array>
++  <!-- Savitech Patch - START -->
++  <!-- Titles for Bluetooth Audio Codec LHDC Playback Quality selection preference. [CHAR LIMIT=70] -->
++  <string-array name="bluetooth_a2dp_codec_lhdc_playback_quality_titles">
++      <item>连接稳定为主 (64kbps)</item>
++      <item>连接稳定为主 (128(V3)/160(V5)kbps)</item>
++      <item>连接稳定为主 (192kbps)</item>
++      <item>连接稳定为主 (256kbps)</item>
++      <item>连接稳定为主 (320kbps)</item>
++      <item>连接稳定为主 (400kbps)</item>
++      <item>平衡音质与连接质量 (500kbps)</item>
++      <item>高音质 (900kbps)</item>
++      <item>高音质 (1000kbps)</item>
++      <item>自适应最佳 (Auto Bit Rate)</item>
++  </string-array>
++
++  <!-- Summaries for Bluetooth Audio Codec LHDC Playback Quality selection preference. [CHAR LIMIT=70]-->
++  <string-array name="bluetooth_a2dp_codec_lhdc_playback_quality_summaries">
++      <item>64 kbps</item>
++      <item>128(V3)/160(V5) kbps</item>
++      <item>192 kbps</item>
++      <item>256 kbps</item>
++      <item>320 kbps</item>
++      <item>400 kbps</item>
++      <item>500 kbps</item>
++      <item>900 kbps</item>
++      <item>1000 kbps</item>
++      <item>自适应最佳</item>
++  </string-array>
++
++  <!-- Titles for Bluetooth Audio Codec LHDC Low Latency selection preference. [CHAR LIMIT=70] -->
++  <string-array name="bluetooth_enable_a2dp_codec_lhdc_latency_titles">
++      <item>关闭</item>
++      <item>开启</item>
++  </string-array>
++
++  <!-- Summaries for Bluetooth Audio Codec LHDC Latency selection preference. [CHAR LIMIT=70]-->
++  <string-array name="bluetooth_enable_a2dp_codec_lhdc_latency_summaries">
++      <item>关闭</item>
++      <item>开启</item>
++  </string-array>
++
++  <!-- Titles for Bluetooth Audio Codec LHDC Lossless selection preference. [CHAR LIMIT=70] -->
++  <string-array name="bluetooth_enable_a2dp_codec_lhdc_lossless_titles">
++      <item>关闭</item>
++      <item>开启</item>
++  </string-array>
++
++  <!-- Summaries for Bluetooth Audio Codec LHDC Lossless selection preference [CHAR LIMIT=70]-->
++  <string-array name="bluetooth_enable_a2dp_codec_lhdc_lossless_summaries">
++      <item>关闭</item>
++      <item>开启</item>
++  </string-array>
++
++  <!-- Titles for Bluetooth Audio Codec LHDC Lossless Raw mode selection preference. [CHAR LIMIT=70] -->
++
++  <!-- Summaries for Bluetooth Audio Codec LHDC Lossless Raw mode selection preference [CHAR LIMIT=70]-->
++  <!-- Savitech Patch - END -->
+ </resources>
+diff --git a/packages/SettingsLib/res/values-zh-rTW/strings.xml b/packages/SettingsLib/res/values-zh-rTW/strings.xml
+index 7243d0d1f50d0f1c7636361327677862bb01b026..5e4b05b066b954a45328972a734b07a0ede1989e 100644
+--- a/packages/SettingsLib/res/values-zh-rTW/strings.xml
++++ b/packages/SettingsLib/res/values-zh-rTW/strings.xml
+@@ -774,4 +774,30 @@
+     <string name="feminine" msgid="1529155595310784757">"陰性"</string>
+     <string name="masculine" msgid="4653978041013996303">"陽性"</string>
+     <string name="system_update_settings_list_item_title" msgid="6618098383615432484">"系統更新"</string>
++    <!-- Savitech LHDC - START -->
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Playback Quality -->
++    <string name="bluetooth_select_a2dp_codec_lhdc_playback_quality">蓝牙音频 LHDC 编解码器：播放质量</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Playback Quality -->
++    <string name="bluetooth_select_a2dp_codec_lhdc_playback_quality_dialog_title">选择蓝牙音频 LHDC 编解码器：播放质量</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Low Latency Summary -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_playback_quality_summaries">LHDC 编解码器：播放质量</string>
++
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Low Latency -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_latency">蓝牙音频 LHDC 编解码器：低延迟</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Low Latency -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_latency_dialog_titles">选择蓝牙音频 LHDC 编解码器：低延迟</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Low Latency Summary -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_latency_summaries">LHDC 编解码器：低延迟</string>
++
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Lossless -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_lossless">启用 LHDC-V 无损</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Lossless: LHDC Lossless Audio -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_lossless_dialog_titles">选择蓝牙音频 LHDC 编解码器：无损音频</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Lossless Summary -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_lossless_summaries">LHDC 编解码器：无损音频</string>
++
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Lossless Raw Mode -->
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Lossless Raw Mode: LHDC Lossless Audio -->
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Lossless Raw Mode Summary -->
++    <!-- Savitech LHDC - END -->
+ </resources>
+diff --git a/packages/SettingsLib/res/values/arrays.xml b/packages/SettingsLib/res/values/arrays.xml
+index 53c9658414c720ccb423a8b984f091992c3890af..61d019f85059712a0d813b0c36b8ca85874d0404 100644
+--- a/packages/SettingsLib/res/values/arrays.xml
++++ b/packages/SettingsLib/res/values/arrays.xml
+@@ -186,6 +186,10 @@
+         <item>LDAC</item>
+         <item>LC3</item>
+         <item>Opus</item>
++        <!-- Savitech Patch - START -->
++        <item>Savitech® LHDC V3/V4™</item>
++        <item>Savitech® LHDC-V™</item>
++        <!-- Savitech Patch - END -->
+     </string-array>
+ 
+     <!-- Summaries for Bluetooth Audio Codec selection preference. [CHAR LIMIT=50]-->
+@@ -198,6 +202,10 @@
+         <item>LDAC</item>
+         <item>LC3</item>
+         <item>Opus</item>
++        <!-- Savitech Patch - START -->
++        <item>Savitech® LHDC V3/V4™</item>
++        <item>Savitech® LHDC-V™</item>
++        <!-- Savitech Patch - END -->
+     </string-array>
+ 
+     <!-- Titles for Bluetooth Audio Codec Sample Rate selection preference. [CHAR LIMIT=50] -->
+@@ -207,6 +215,10 @@
+         <item>48.0 kHz</item>
+         <item>88.2 kHz</item>
+         <item>96.0 kHz</item>
++        <!-- Savitech Patch - START -->
++        <item>176.4 kHz</item>
++        <item>192.0 kHz</item>
++        <!-- Savitech Patch - END -->
+     </string-array>
+ 
+     <!-- Summaries for Bluetooth Audio Codec Sample Rate selection preference. [CHAR LIMIT=50]-->
+@@ -216,6 +228,10 @@
+         <item>48.0 kHz</item>
+         <item>88.2 kHz</item>
+         <item>96.0 kHz</item>
++        <!-- Savitech Patch - START -->
++        <item>176.4 kHz</item>
++        <item>192.0 kHz</item>
++        <!-- Savitech Patch - END -->
+     </string-array>
+ 
+     <!-- Titles for Bluetooth Audio Codec Bits Per Sample selection preference. [CHAR LIMIT=50] -->
+@@ -264,6 +280,64 @@
+         <item>Best Effort (Adaptive Bit Rate)</item>
+     </string-array>
+ 
++    <!-- Savitech Patch - START -->
++    <!-- Titles for Bluetooth Audio Codec LHDC Playback Quality selection preference. [CHAR LIMIT=70] -->
++    <string-array name="bluetooth_a2dp_codec_lhdc_playback_quality_titles">
++        <item>Optimized for Connection Quality (64kbps)</item>
++        <item>Optimized for Connection Quality (128(V3)/160(V5)kbps)</item>
++        <item>Optimized for Connection Quality (192kbps)</item>
++        <item>Optimized for Connection Quality (256kbps)</item>
++        <item>Optimized for Connection Quality (320kbps)</item>
++        <item>Optimized for Connection Quality (400kbps)</item>
++        <item>Balanced Audio And Connection Quality (500kbps)</item>
++        <item>High Audio Quality (900kbps)</item>
++        <item>High Audio Quality (1000kbps)</item>
++        <item>Best Effort (Auto Bit Rate)</item>
++    </string-array>
++
++    <!-- Summaries for Bluetooth Audio Codec LHDC Playback Quality selection preference. [CHAR LIMIT=70]-->
++    <string-array name="bluetooth_a2dp_codec_lhdc_playback_quality_summaries">
++        <item>64 kbps</item>
++        <item>128(V3)/160(V5) kbps</item>
++        <item>192 kbps</item>
++        <item>256 kbps</item>
++        <item>320 kbps</item>
++        <item>400 kbps</item>
++        <item>500 kbps</item>
++        <item>900 kbps</item>
++        <item>1000 kbps</item>
++        <item>Auto Bit Rate</item>
++    </string-array>
++
++    <!-- Titles for Bluetooth Audio Codec LHDC Low Latency selection preference. [CHAR LIMIT=70] -->
++    <string-array name="bluetooth_enable_a2dp_codec_lhdc_latency_titles">
++        <item>Low Latency Mode Disable</item>
++        <item>Low Latency Mode Enable</item>
++    </string-array>
++
++    <!-- Summaries for Bluetooth Audio Codec LHDC Latency selection preference. [CHAR LIMIT=70]-->
++    <string-array name="bluetooth_enable_a2dp_codec_lhdc_latency_summaries">
++        <item>Low Latency OFF</item>
++        <item>Low Latency ON</item>
++    </string-array>
++
++    <!-- Titles for Bluetooth Audio Codec LHDC Lossless selection preference. [CHAR LIMIT=70] -->
++    <string-array name="bluetooth_enable_a2dp_codec_lhdc_lossless_titles">
++        <item>OFF</item>
++        <item>ON</item>
++    </string-array>
++
++    <!-- Summaries for Bluetooth Audio Codec LHDC Lossless selection preference [CHAR LIMIT=70]-->
++    <string-array name="bluetooth_enable_a2dp_codec_lhdc_lossless_summaries">
++        <item>LHDC Lossless OFF</item>
++        <item>LHDC Lossless ON</item>
++    </string-array>
++
++    <!-- Titles for Bluetooth Audio Codec LHDC Lossless Raw mode selection preference. [CHAR LIMIT=70] -->
++
++    <!-- Summaries for Bluetooth Audio Codec LHDC Lossless Raw mode selection preference [CHAR LIMIT=70]-->
++    <!-- Savitech Patch - END -->
++
+     <!-- Summaries for Android Auto Bluetooth Audio Active Device status. [CHAR LIMIT=50]-->
+     <string-array name="bluetooth_audio_active_device_summaries" >
+         <!-- Status message when the device is not Active. -->
+diff --git a/packages/SettingsLib/res/values/strings.xml b/packages/SettingsLib/res/values/strings.xml
+index bdc08f6949d095ea0de002bbebd5c583193bf84e..d5078fc77f2e927f2b3c70766f56b46473b2215e 100644
+--- a/packages/SettingsLib/res/values/strings.xml
++++ b/packages/SettingsLib/res/values/strings.xml
+@@ -780,6 +780,33 @@
+     <!-- UI debug setting: Select Bluetooth Audio LDAC Codec: LDAC Playback Quality -->
+     <string name="bluetooth_select_a2dp_codec_ldac_playback_quality_dialog_title">Trigger Bluetooth Audio LDAC\u000ACodec Selection: Playback Quality</string>
+ 
++    <!-- Savitech LHDC - START -->
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Playback Quality -->
++    <string name="bluetooth_select_a2dp_codec_lhdc_playback_quality">Bluetooth Audio LHDC Codec: Playback Quality</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Playback Quality -->
++    <string name="bluetooth_select_a2dp_codec_lhdc_playback_quality_dialog_title">Select Bluetooth Audio LHDC Codec:\u000APlayback Quality</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Low Latency Summary -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_playback_quality_summaries">LHDC Codec:\u000APlayback Quality</string>
++
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Low Latency -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_latency">Bluetooth Audio LHDC Codec: Low Latency</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Low Latency -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_latency_dialog_titles">Select Bluetooth Audio LHDC Codec:\u000ALatency</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Low Latency Summary -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_latency_summaries">LHDC Codec:\u000ALow Latency</string>
++
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Lossless -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_lossless">Enable LHDC-V Lossless</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Lossless: LHDC Lossless Audio -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_lossless_dialog_titles">Select Bluetooth Audio LHDC Codec:\u000ALossless Audio</string>
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Lossless Summary -->
++    <string name="bluetooth_enable_a2dp_codec_lhdc_lossless_summaries">LHDC Codec:\u000ALossless</string>
++
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Lossless Raw Mode -->
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Lossless Raw Mode: LHDC Lossless Audio -->
++    <!-- UI debug setting: Select Bluetooth Audio LHDC Codec: LHDC Lossless Raw Mode Summary -->
++    <!-- Savitech LHDC - END -->
++
+     <!-- [CHAR LIMIT=NONE] Label for displaying Bluetooth Audio Codec Parameters while streaming -->
+     <string name="bluetooth_select_a2dp_codec_streaming_label">Streaming: <xliff:g id="streaming_parameter">%1$s</xliff:g></string>
+ 
+@@ -1873,4 +1900,7 @@
+ 
+     <!-- The name of the screen for seeing and installing system updates. [CHAR LIMIT=40]-->
+     <string name="system_update_settings_list_item_title">System Updates</string>
++    <!-- Codec brand names shared by all locales. -->
++    <string name="bluetooth_a2dp_codec_lhdc_v3" translatable="false">Savitech® LHDC V3/V4™</string>
++    <string name="bluetooth_a2dp_codec_lhdc_v5" translatable="false">Savitech® LHDC-V™</string>
+ </resources>
+diff --git a/packages/SettingsLib/src/com/android/settingslib/bluetooth/A2dpProfile.java b/packages/SettingsLib/src/com/android/settingslib/bluetooth/A2dpProfile.java
+index 70126ace7d4cab4aa3fe3efec44613342abbedb2..4dab79283d6cc2a5b14305ba8330b5d17646b1d2 100644
+--- a/packages/SettingsLib/src/com/android/settingslib/bluetooth/A2dpProfile.java
++++ b/packages/SettingsLib/src/com/android/settingslib/bluetooth/A2dpProfile.java
+@@ -335,6 +335,12 @@ public class A2dpProfile implements LocalBluetoothProfile {
+             case BluetoothCodecConfig.SOURCE_CODEC_TYPE_OPUS:
+                 index = 7;
+                 break;
++            case BluetoothCodecConfig.SOURCE_CODEC_TYPE_LHDCV3:
++                return mContext.getString(R.string.bluetooth_profile_a2dp_high_quality,
++                        mContext.getString(R.string.bluetooth_a2dp_codec_lhdc_v3));
++            case BluetoothCodecConfig.SOURCE_CODEC_TYPE_LHDCV5:
++                return mContext.getString(R.string.bluetooth_profile_a2dp_high_quality,
++                        mContext.getString(R.string.bluetooth_a2dp_codec_lhdc_v5));
+            }
+ 
+         if (index < 0) {
+diff --git a/packages/SettingsLib/tests/robotests/src/com/android/settingslib/bluetooth/A2dpProfileTest.java b/packages/SettingsLib/tests/robotests/src/com/android/settingslib/bluetooth/A2dpProfileTest.java
+index a252f522261cec8ce8859013b8ff2d9dc3ad79a7..9e069729124582093040765dbfaffe3b2bd173eb 100644
+--- a/packages/SettingsLib/tests/robotests/src/com/android/settingslib/bluetooth/A2dpProfileTest.java
++++ b/packages/SettingsLib/tests/robotests/src/com/android/settingslib/bluetooth/A2dpProfileTest.java
+@@ -166,6 +166,10 @@ public class A2dpProfileTest {
+         });
+         when(mContext.getString(eq(R.string.bluetooth_profile_a2dp_high_quality_unknown_codec)))
+                 .thenReturn(UNKNOWN_CODEC_LABEL);
++        when(mContext.getString(R.string.bluetooth_a2dp_codec_lhdc_v3))
++                .thenReturn("LHDC V3/V4");
++        when(mContext.getString(R.string.bluetooth_a2dp_codec_lhdc_v5))
++                .thenReturn("LHDC V5");
+ 
+         final Resources res = mock(Resources.class);
+         when(mContext.getResources()).thenReturn(res);
+@@ -224,6 +228,14 @@ public class A2dpProfileTest {
+         when(config.getCodecType()).thenReturn(4);
+         assertThat(mProfile.getHighQualityAudioOptionLabel(mDevice)).isEqualTo(
+                 String.format(KNOWN_CODEC_LABEL, "LDAC"));
++
++        when(config.getCodecType()).thenReturn(BluetoothCodecConfig.SOURCE_CODEC_TYPE_LHDCV3);
++        assertThat(mProfile.getHighQualityAudioOptionLabel(mDevice)).isEqualTo(
++                String.format(KNOWN_CODEC_LABEL, "LHDC V3/V4"));
++
++        when(config.getCodecType()).thenReturn(BluetoothCodecConfig.SOURCE_CODEC_TYPE_LHDCV5);
++        assertThat(mProfile.getHighQualityAudioOptionLabel(mDevice)).isEqualTo(
++                String.format(KNOWN_CODEC_LABEL, "LHDC V5"));
+     }
+ 
+     @Test

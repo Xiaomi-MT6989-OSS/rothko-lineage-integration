@@ -1,140 +1,272 @@
 {
-  "state": "current-source-reconstruction-series",
+  "state": "lineage-23.2-pre-migration-source-candidate",
+  "snapshot_date": "2026-11-14",
   "replay_verified": true,
-  "note": "Preserves revert/diagnostic history. Review before publication; replay on recorded base and compare final tree before use.",
   "repositories": [
+    {
+      "path": "bionic",
+      "base": "ff9fe01e7e1e81febaf32b15fa561aec480a112c",
+      "head": "40570e8752a8119f2750a8ce44f7d76a2f0bec93",
+      "ordered_commits": [
+        "40570e8752a8119f2750a8ce44f7d76a2f0bec93"
+      ],
+      "expected_final_tree": "a6897cbe5d23bae5a76b59919b509a0e8d0b90e9",
+      "local_commits": 1,
+      "file": "bionic.mbox",
+      "bytes": 1269,
+      "sha256": "dfedf3587a5d500ffd739a33ebead7754b6b226545ced1d0a107290f01e53dd3"
+    },
     {
       "path": "build/soong",
       "base": "9aa045a2aef10b8089e32e847fed26d9aa3d61be",
-      "base_ref": "lineage/lineage-23.2",
-      "head": "e4403ac5df4159b33bf96a8f8f756baaa2dc823a",
-      "expected_final_tree": "84650f42289b160a77fc5b7ace4cf87153cffca1",
-      "local_commits": 2,
+      "head": "bee640fa4f40cab5014059014273393c92411782",
+      "ordered_commits": [
+        "50e5622d6bd3a1ac5ec333d1b035ca9edb5d2f9e",
+        "e4403ac5df4159b33bf96a8f8f756baaa2dc823a",
+        "bee640fa4f40cab5014059014273393c92411782"
+      ],
+      "expected_final_tree": "5a2b69a679df8aa89629e16eb31ef53a44a48742",
+      "local_commits": 3,
       "file": "build__soong.mbox",
-      "bytes": 2599,
-      "sha256": "c604e7c98588a315be723c12402df67089b9b55f4a94eaa5a0970d18f39ffd34"
+      "bytes": 3971,
+      "sha256": "a9d657bb1a713344cb4ccd0fb0d3a4e5d661eca1561a8011b42b0ad5dfa6cf10",
+      "host_support_only": false
+    },
+    {
+      "path": "device/mediatek/sepolicy_vndr",
+      "base": "b1c50f4903504168e7bd0e32b44c72d139d38d09",
+      "head": "56b019fd89b226200f023ea9c38b0679ef4cea69",
+      "ordered_commits": [
+        "56b019fd89b226200f023ea9c38b0679ef4cea69"
+      ],
+      "expected_final_tree": "e75c2bdf5974a90308ebe65702e3ff1c6a4c99ff",
+      "local_commits": 1,
+      "file": "device__mediatek__sepolicy_vndr.mbox",
+      "bytes": 1678,
+      "sha256": "af632d4fa53fea5703189e54f882229942fa1d1c866fffe28da4c8ca6e0b1bdc"
     },
     {
       "path": "external/wpa_supplicant_8",
       "base": "16bcc5ac5f275c64c613772852cb879f608ff2a6",
-      "base_ref": "lineage/lineage-23.2",
       "head": "4a2c60d77cc7f201fd5c7a2e569eb9c8135e2f1b",
+      "ordered_commits": [
+        "4a2c60d77cc7f201fd5c7a2e569eb9c8135e2f1b"
+      ],
       "expected_final_tree": "8359fe660cb6b6d2ff64fe85aa9fa12250594ef8",
       "local_commits": 1,
       "file": "external__wpa_supplicant_8.mbox",
-      "bytes": 2028,
-      "sha256": "691029ffbbea0c2d7123db5f4558091ebd046b7a3cce81e1d147c713899d2d17"
+      "bytes": 2083,
+      "sha256": "d841588061a2b026ca4ab171af77b555d6473725b52de070f6c25f2fea301165"
     },
     {
       "path": "frameworks/av",
       "base": "b6b36c1fdb3c6ffced822a054fbf035b544f0de2",
-      "base_ref": "lineage/lineage-23.2",
       "head": "eca3bbce373b1652c35d587cc1e19ae9f4392ace",
+      "ordered_commits": [
+        "dbda2f3461f1a4d7dba793eb916731b5fada4462",
+        "cbd13a24c5124405aee877e21ec4e891812a1387",
+        "806930246937c3ce33a6e3f8f460bcb2b642ee29",
+        "10764a65d00917e7597233e7fdb88f1ae7fa964b",
+        "c5be6ab346549edab16159b6f9736ba60e69be4d",
+        "598a778800330574cc3eab5c5944e103c6d6387f",
+        "322a8008cc41cc8e45c62be7940eeb83316d8cfc",
+        "275e22afe79f2a293982b4f94e1aaf09771fe050",
+        "182c808ffb9220543cbbcdc00df75c712ef6dbaa",
+        "acf83ad0f5eb52c05a1fc6a4fb15eb2f11031e2d",
+        "e5e04617427d644cb65f3c8c8e5980c68c443aa1",
+        "eca3bbce373b1652c35d587cc1e19ae9f4392ace"
+      ],
       "expected_final_tree": "cfb3db04a1c36ca1b160d74d5809cc7c19f697c9",
       "local_commits": 12,
       "file": "frameworks__av.mbox",
-      "bytes": 183869,
-      "sha256": "b6f4c232f625f1271d19f1761efa86c1b7cb282639ac0304755e9c04ae287d36"
+      "bytes": 183924,
+      "sha256": "b9200e02436fa1cd4104d565cc376b46af15c7eba0329b4e0b4909e9e0301c13"
     },
     {
       "path": "frameworks/base",
       "base": "958afcc3d647d57571650cee4172afe0da619171",
-      "base_ref": "lineage/lineage-23.2",
-      "head": "8b24ec80b00b6c356b2730d2fcd4adfae90f4511",
-      "expected_final_tree": "2a9f88dff6916960a5ea4dcddef72158b896c949",
-      "local_commits": 30,
+      "head": "c9a2ecda2cd81e8f84f016bade939a82383e46c7",
+      "ordered_commits": [
+        "a75c83008b95489b4e8ac814d2591d7bf9d67e32",
+        "9910636ad30395625fbee152da39e0f6f46b5415",
+        "3e71e3ec0d5e2932a4b98178292344bf0e4ef1d4",
+        "02e2651c2abd0784dda60a331cbda4138cacc12c",
+        "41a64b4964c2d136c751b968ba71f90020d099d7",
+        "66bc90388cd23dfa2fd0b35d5677a441ccddc579",
+        "fc96d56a4cfa2c29cd30772c08ac0a96b1754a96",
+        "2f3196c8a3bc10c6a5e9349d791cf89240168cb5",
+        "e19462c04f63f9f338cda9be15bdbe2a6036f535",
+        "152c9b5b2fc4c5e461ad4f22bbfc6acf9a811809",
+        "440acf26e3da0423e02f76e492dd27600abdcbf1",
+        "72fd41b201b51b73da9ccbf1f789feb45e9a4e6d",
+        "ecadcb1205eebd7cd5fc4ee9b2692edd00e0dcb5",
+        "b258a85e3b5fb718e2929ee9647678a0c4514497",
+        "df1ade4a9fb51be8b8eb2ddf01ae09e9e9e6f75b",
+        "aa88d5ff49f55ae48a90cb9d939e18847717fed7",
+        "20fd5663d534de626b1a7a887594495942a3d7c1",
+        "0550b2f8eab96bb111738854b43f34bc9d94ac3c",
+        "a7b65f06dafc25a95a0ee3414d6fbd88c3238311",
+        "88308d0e2da3c0168de504bbfc8df46253d340f2",
+        "06bc9b66d3ea52bd1e3bf6f1cc5b155fa36dc4df",
+        "f77f68d06d7c0fe1e36b2030921f9ce4891ce4c5",
+        "ce08e268ddad2f9b0737359b678f5cf549a65248",
+        "d08961be40f886442a1a7edaaed8a2c9cb194ab7",
+        "62d09585a18d13fd7c4593c13a041bede3f7d83a",
+        "935446041a4002cbd34d298628f3a1cc5a1e4503",
+        "8d1e41bdb72b7a3ce255dc0fe7d06fb4507271cf",
+        "4a5c8de936764a4aff0615b352a28bded96467f0",
+        "ba20a22726b5003cb0bd7f9678ff849aceefbdd1",
+        "8b24ec80b00b6c356b2730d2fcd4adfae90f4511",
+        "c9a2ecda2cd81e8f84f016bade939a82383e46c7"
+      ],
+      "expected_final_tree": "a14a04b8d1cbc297bcbfa9d37cdfe62729440fc3",
+      "local_commits": 31,
       "file": "frameworks__base.mbox",
-      "bytes": 287702,
-      "sha256": "05fbb64cd60172a7a6897ae59063a5e5f83f6f8d3b42b6a3eff5bd3acc3e561d"
+      "bytes": 319829,
+      "sha256": "a1e95f44dcae8f970476de11835b8add7617185dcf3df3b674fed99897f2d899"
     },
     {
       "path": "frameworks/native",
       "base": "9568531f9be7ae65f260699811f32ec4e461de6e",
-      "base_ref": "lineage/lineage-23.2",
       "head": "b236ef2b472c0c7aec73c36156ae5a189a737171",
+      "ordered_commits": [
+        "6017a9d7df490324c45753b68e7ac116c69843e4",
+        "5443a0b29fee221932b1b18917a178e5f7e3c17c",
+        "7c1985563962e7d4fbf1bb750763c33c012cda88",
+        "2352df356015a1a8a4dd3ad47fac3c4b5a5de86d",
+        "b236ef2b472c0c7aec73c36156ae5a189a737171"
+      ],
       "expected_final_tree": "9b04960e3f563c5eeac582b11a0e40333e2ec6bf",
       "local_commits": 5,
       "file": "frameworks__native.mbox",
-      "bytes": 48048,
-      "sha256": "974c081bf09d87bfdee0f5ad0136f392f77cd779b42726a685308adb1c1bed68"
+      "bytes": 48103,
+      "sha256": "caf9a7ea8f95849ae446704629c2e613e51f27f23005bfd316157c888cb03a48"
     },
     {
       "path": "hardware/interfaces",
       "base": "13d687a84c834af855bfb314b853b8372a7aa6d9",
-      "base_ref": "lineage/lineage-23.2",
-      "head": "e9de474a54acdb57aa25249c023f16162cc28bf4",
-      "expected_final_tree": "dc20256e85d9a52f49d61088d3f6e15806534fe2",
-      "local_commits": 2,
+      "head": "9882ad35d61bcdb52dabadc2f858f34048ab9808",
+      "ordered_commits": [
+        "0045e73181d0369628bd8fb41e331e39397a1b73",
+        "e9de474a54acdb57aa25249c023f16162cc28bf4",
+        "9882ad35d61bcdb52dabadc2f858f34048ab9808"
+      ],
+      "expected_final_tree": "ce4c8ba222de708b60d4e4e47096d8f2733d66a1",
+      "local_commits": 3,
       "file": "hardware__interfaces.mbox",
-      "bytes": 2540,
-      "sha256": "c21bccc8c1f0676851f3ea258e2539067a6b4699b0de869b6c3ddf0983d7d2eb"
+      "bytes": 4166,
+      "sha256": "9326b162263d6cff25fbfa8971e1a2ed56853b380d2d877fe247a2b09fb08a7d"
     },
     {
       "path": "hardware/mediatek",
       "base": "68f9be72a32bca66e7c63d69e9739b18f13c8b48",
-      "base_ref": "rothko-github/lineage-23.2",
       "head": "43572e2342b9cb9b37f4e3d8dce44d7c8152f15b",
+      "ordered_commits": [
+        "affc75f1b72e26c55aa9fce1b0e5fd13ae13afda",
+        "59892c14bb3148fec42ae97b1db8418f73b8e817",
+        "1480fd5948145934be8c7abe413758474b8e465e",
+        "278b978cc5ffb63c5e0642b5ee46ff89ddc93216",
+        "43572e2342b9cb9b37f4e3d8dce44d7c8152f15b"
+      ],
       "expected_final_tree": "a07348d7a39b2921ed70cf3c2454ddb9fa604d8f",
       "local_commits": 5,
       "file": "hardware__mediatek.mbox",
-      "bytes": 11991,
-      "sha256": "8e5faf81a155b1c0c23ccdfc3d8bd73bd6d6fffd30a0efdc0b0d1298c4d0a956"
+      "bytes": 12046,
+      "sha256": "0272c15bc9bd190b25debd4d307b67c62a090de7bdda0748d1bdee3607325e29"
     },
     {
       "path": "lineage-sdk",
       "base": "c94553c624ef88c7de67b224d1daa7ed10ec7081",
-      "base_ref": "lineage/lineage-23.2",
       "head": "33c1e1a40b12deedfe39c54f9b7cd143ae437b18",
+      "ordered_commits": [
+        "cc8a6359ea89172bf25118ae0ab6a63678d4882f",
+        "91c161284931b60fcaa08a0fe706bb4ed0838578",
+        "58050aa3736159af33f10c6d32c55703b11e469c",
+        "33c1e1a40b12deedfe39c54f9b7cd143ae437b18"
+      ],
       "expected_final_tree": "8884360fb2d147c7f2cb432d2f2af4f5be6f5ef3",
       "local_commits": 4,
       "file": "lineage-sdk.mbox",
-      "bytes": 28385,
-      "sha256": "de2d480ec879e51e14a3854a2f6a96c2fdcdde7aa247f07107969e114460b3ce"
+      "bytes": 28440,
+      "sha256": "03dc05797e865ce76cf2b72e17c1990746cbf108b711b2978a13d809d5a3f3b8"
     },
     {
       "path": "packages/apps/LineageParts",
       "base": "329b58e8e63da78624c8aa675d9b5dd84d990fe0",
-      "base_ref": "lineage/lineage-23.2",
       "head": "51a628f1751d0a2b31a94d4bdc8efd3c62270ee9",
+      "ordered_commits": [
+        "cb3d46552dadbdb182cc1b8c8959b785d423b8c9",
+        "3586221b83275a854ef165b50827b41bf3080457",
+        "c98bbe87f946b0a47b717908ccb26b750d753172",
+        "cd69dd4078cb8a634c3082a2c1673eea18c0f489",
+        "a4dcfed4f5e898520b87a1eecb815b2830949c0b",
+        "51a628f1751d0a2b31a94d4bdc8efd3c62270ee9"
+      ],
       "expected_final_tree": "3f51d0bf548da31f23e65214e79d4f9574d0d611",
       "local_commits": 6,
       "file": "packages__apps__LineageParts.mbox",
-      "bytes": 24044,
-      "sha256": "4cba52ae656ded85a60bfa86bf3a852d992c2c49edda4036b13c896c99ea4042"
+      "bytes": 24099,
+      "sha256": "583b17c46cd3e97c59c551b19b5903ac23832cc6a8ca859ac3eb69ed1d25cf31"
     },
     {
       "path": "packages/apps/Settings",
       "base": "72494c35b673f1b531e1218160e1e514976f6a1e",
-      "base_ref": "lineage/lineage-23.2",
-      "head": "c57e861333cc861c56a65e3eda7978f2f2ac565f",
-      "expected_final_tree": "decbb98a963858f93f49e3379e7c4eabdbf09c89",
-      "local_commits": 4,
+      "head": "af4781d63516ea942a741964ce01aafe82e03fc3",
+      "ordered_commits": [
+        "eaeaa8ca26f6d09afadbc328807a00d46ce1a16f",
+        "cf17588db8ba4dec038059c2b0cae9d8aecd71a3",
+        "6a1b3650729f5ce3cb3189cc1fe2663809d88365",
+        "c57e861333cc861c56a65e3eda7978f2f2ac565f",
+        "edd755ce8debf4ff91c0a210e969dc0b87649a1f",
+        "af4781d63516ea942a741964ce01aafe82e03fc3"
+      ],
+      "expected_final_tree": "1ab83b1df34ed4479f1eba6fc2ba4ab81bb44fda",
+      "local_commits": 6,
       "file": "packages__apps__Settings.mbox",
-      "bytes": 55109,
-      "sha256": "71567765d25aa049e93981374e048b90dd92b139bb18aa43adae772ce21fc307"
+      "bytes": 129091,
+      "sha256": "08f095cbcc6ea4cb7a1e5380bc346dc250f6582e31313d8b9a59b0b77ef96938"
     },
     {
       "path": "packages/modules/Bluetooth",
       "base": "d585a7b489f93e514ad93de7022b5ba20a660328",
-      "base_ref": "lineage/lineage-23.2",
-      "head": "7cdc6ef1d543926cf9bea71495c57152c3296586",
-      "expected_final_tree": "0e04d0d5a1c63b0ebf0e5e8deb9d6964d67dec41",
-      "local_commits": 1,
+      "head": "1654cd4d9cf83e3cc725eb46ba9419113b199403",
+      "ordered_commits": [
+        "7cdc6ef1d543926cf9bea71495c57152c3296586",
+        "18a9dd275e5dda1dd336c48264d5b199d3d13863",
+        "1654cd4d9cf83e3cc725eb46ba9419113b199403"
+      ],
+      "expected_final_tree": "bb335b671d46dae99ac184990152d84c67a8295e",
+      "local_commits": 3,
       "file": "packages__modules__Bluetooth.mbox",
-      "bytes": 1458,
-      "sha256": "e2656a34adf1d720a774e874ae66e37183446b62df24e71c07ad49e3f04b5a49"
+      "bytes": 552423,
+      "sha256": "507a67246c1633a715537a78eff11cdda94575e8a15cb1826ca8d1babaebb41e"
+    },
+    {
+      "path": "packages/modules/common",
+      "base": "987c0721db72b408414bcdd491c8d921ffdfcc5e",
+      "head": "e3faff099c86c0192926fc7fbc59fa1a8047dfe6",
+      "ordered_commits": [
+        "e3faff099c86c0192926fc7fbc59fa1a8047dfe6"
+      ],
+      "expected_final_tree": "7fc36e91ad77f303b35d4a9535c843af209b750e",
+      "local_commits": 1,
+      "file": "packages__modules__common.mbox",
+      "bytes": 1927,
+      "sha256": "d65bf7819029b08b5239186afb4ad6e4b8938f32d137ae1fb88ad1cdcf70fe3d"
     },
     {
       "path": "tools/extract-utils",
       "base": "44e3b07397a339c2721c637e40cb73159c78ad46",
-      "base_ref": "lineage/lineage-23.2",
       "head": "f13e19a95f77e609e0242148b9a18e80c1d96736",
+      "ordered_commits": [
+        "f13e19a95f77e609e0242148b9a18e80c1d96736"
+      ],
       "expected_final_tree": "e2fbed1e4c323f3d8bca62f2eace25bdc60b247a",
       "local_commits": 1,
       "file": "tools__extract-utils.mbox",
-      "bytes": 1265,
-      "sha256": "e1b13d44906a308d7aa70679c3a6b9d94e1c8469d2c21b491fe568a4e469e8e7"
+      "bytes": 1320,
+      "sha256": "5fc240838fe14332fff8b83c78e5f73c8ea2e4ed937ad845c933c55f6a521f8d"
     }
   ],
-  "first_stage_probe_omitted": true
+  "replay_record": "history/2026-11-14-replay.json"
 }

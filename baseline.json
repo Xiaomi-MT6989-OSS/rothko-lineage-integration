@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-07",
+  "date": "2026-11-14",
   "firmware": "OS3.0.307.0.WNNCNXM",
   "framework": "LineageOS 23.2 / Android 16",
   "stock_vendor_api": 34,
@@ -7,7 +7,7 @@
     {
       "repository": "android_device_xiaomi_rothko",
       "path": "device/xiaomi/rothko",
-      "commit": "8bad0a5b9c48371eea17f7d5827aa061277782da"
+      "commit": "3bef67b2eb34329741c839fe22c9038796191a3f"
     },
     {
       "repository": "proprietary_vendor_xiaomi_rothko",
@@ -20,8 +20,8 @@
       "commit": "18ffbb2bc0789d67c23b45a9da4a0bf22a84971e"
     }
   ],
-  "platform_series": 13,
-  "platform_commits": 74,
+  "platform_series": 15,
+  "platform_commits": 83,
   "manifest_projects": 1167,
   "pinned_manifest_sha256": "fb661edd60d12f77185b4b95e02683f09da91f9d31445ca5d0eb081f846101c5",
   "payload_counts": {
@@ -32,5 +32,7 @@
   "clean_full_rom_build_passed": false,
   "runtime_acceptance_passed": false,
   "source_only": true,
-  "first_stage_probe_included": false
+  "first_stage_probe_included": false,
+  "lhdc_inputs": "inputs/lhdc/SHA256SUMS",
+  "replay_record": "history/2026-11-14-replay.json"
 }

@@ -1,7 +1,7 @@
 From 50e5622d6bd3a1ac5ec333d1b035ca9edb5d2f9e Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Sim=C3=A3o=20Gomes=20Viana?= <devel@superboring.dev>
 Date: Fri, 26 Dec 2025 22:56:57 +0100
-Subject: [PATCH 1/2] ci_tests: Skip host paths from out-of-tree OUT_DIR
+Subject: [PATCH 1/3] ci_tests: Skip host paths from out-of-tree OUT_DIR
 
 When building with an out-of-tree OUT_DIR, the productOut prefix
 doesn't match host module paths, leaving f as an absolute path.
@@ -31,10 +31,12 @@ index 7cd03c684be581a8c9deea75371e4563d3ea5158..30348c1368aa1f79e5f739772ce2765b
  			f = strings.Replace(f, "system/", "DATA/", 1)
  		}
 
+base-commit: 9aa045a2aef10b8089e32e847fed26d9aa3d61be
+
 From e4403ac5df4159b33bf96a8f8f756baaa2dc823a Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Mon, 5 Oct 2026 02:37:01 +0800
-Subject: [PATCH 2/2] Allow optional Soong runtime memory limit
+Subject: [PATCH 2/3] Allow optional Soong runtime memory limit
 
 Pass SOONG_GOMEMLIMIT through the hermetic primary builder environment as GOMEMLIMIT. With no setting, upstream behavior stays unchanged. Adapt only the memory-limit portion of SherlockChiang/aviumui-apollon-overlay patches/0003-soong-memory-limits.patch; no GOGC passthrough or Blueprint changes.
 
@@ -57,3 +59,36 @@ index c9b303c5bf7c217ebe362c788810a4e031e26333..e7e3ce497744d8e35935165f14887296
  	if pb.debugPort != "" {
  		//debug mode
  		commonArgs = append(commonArgs, "--delve_listen", pb.debugPort,
+
+From bee640fa4f40cab5014059014273393c92411782 Mon Sep 17 00:00:00 2001
+From: tunkoal <tunkoal@163.com>
+Date: Sat, 14 Nov 2026 00:28:44 +0800
+Subject: [PATCH 3/3] build: allow the Xiaomi IMS boot package namespace
+
+The device includes the stock MediaTek IMS boot jar exposing the Xiaomi
+IMS factory. Allow that namespace in the boot jar check. Existing source
+provenance is the device boot jar integration; Nov 13 IMG build passed.
+
+Recorded before the LineageOS 24.0 migration. See the project integration
+record bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md for companion
+repository revisions and validation boundaries.
+
+Change-Id: I62374ac708ae682073ae08dd8a356177a34464e6
+---
+ scripts/check_boot_jars/package_allowed_list.txt | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/scripts/check_boot_jars/package_allowed_list.txt b/scripts/check_boot_jars/package_allowed_list.txt
+index 95fe0b3d23110b00abe7441e028b1b89a56d9c76..c8e912ab0fda13796064d59d0a949bae8bb17cdd 100644
+--- a/scripts/check_boot_jars/package_allowed_list.txt
++++ b/scripts/check_boot_jars/package_allowed_list.txt
+@@ -281,6 +281,9 @@ mediatek\..*
+ vendor\.mediatek
+ vendor\.mediatek\..*
+ 
++# Xiaomi IMS factory exposed by device/xiaomi/rothko's MediaTek IMS boot jar.
++com\.xiaomi\.ims
++
+ # NT adds
+ com\.nothing
+ com\.nothing\..*

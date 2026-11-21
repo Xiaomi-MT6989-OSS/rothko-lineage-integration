@@ -1,0 +1,49 @@
+// LHDC encoders extracted from rothko OS3.0.307.0.WNNCNXM com.android.bt.apex.
+
+cc_prebuilt_library_shared {
+    name: "liblhdc",
+    owner: "xiaomi",
+    compile_multilib: "64",
+    srcs: ["lib64/liblhdc.so"],
+    shared_libs: ["liblog", "libstdc++"],
+    stl: "none",
+    strip: { none: true },
+    apex_available: ["com.android.bt"],
+    min_sdk_version: "33",
+}
+
+cc_prebuilt_library_shared {
+    name: "liblhdcv5",
+    owner: "xiaomi",
+    compile_multilib: "64",
+    srcs: ["lib64/liblhdcv5.so"],
+    shared_libs: ["liblog", "libstdc++"],
+    stl: "none",
+    strip: { none: true },
+    apex_available: ["com.android.bt"],
+    min_sdk_version: "33",
+}
+
+cc_prebuilt_library_shared {
+    name: "liblhdcBT_enc",
+    owner: "xiaomi",
+    compile_multilib: "64",
+    srcs: ["lib64/liblhdcBT_enc.so"],
+    shared_libs: ["libcutils", "liblog", "liblhdc", "libc++"],
+    stl: "none",
+    strip: { none: true },
+    apex_available: ["com.android.bt"],
+    min_sdk_version: "33",
+}
+
+cc_prebuilt_library_shared {
+    name: "liblhdcv5BT_enc",
+    owner: "xiaomi",
+    compile_multilib: "64",
+    srcs: ["lib64/liblhdcv5BT_enc.so"],
+    shared_libs: ["libcutils", "liblog", "liblhdcv5", "libc++"],
+    stl: "none",
+    strip: { none: true },
+    apex_available: ["com.android.bt"],
+    min_sdk_version: "33",
+}

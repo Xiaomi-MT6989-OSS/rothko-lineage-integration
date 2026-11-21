@@ -1,13 +1,13 @@
 # Known issues and validation limits
 
-Snapshot date: 2026-11-07. This file records unresolved user reports, not
-claims about every build made from these sources. The current filtered source
-candidate has not been promoted to a ROM release; use `VALIDATION.md` to see
-which source checks passed and what still needs a clean build or device test.
+These reports and validation gaps apply to the 23.2 work leading up to the
+2026-11-14 source snapshot. Build and device checks for the exact public
+source combination are recorded in [VALIDATION.md](VALIDATION.md).
 
 | Area | Known status |
 | --- | --- |
-| China Telecom calls and SMS | Community testing reported both directions failing. No test SIM or radio trace was available for diagnosis. |
+| China Telecom calls and SMS | Community testing reported both directions failing. The November 13 image declares CDMA capability. Calls, data and IMS still need testing with a China Telecom SIM. |
+| Bluetooth audio | LHDC V5 at 48 kHz/24-bit worked on the November 13 image. LHDC V3/V4, higher rates, long sessions and the final LE Audio changes still need device checks. |
 | Stock camera still-image effects | Watermark/AI watermark and filters appeared in preview/thumbnail but were reported missing from saved still photos. Live-photo video retained the effects. Beauty presets and current image detail need a fresh check on this source baseline. |
 | Aperture Ultra HDR | Its HDR capture/display path had unresolved issues; the stock camera is the selected app. Do not infer Aperture HDR support from stock camera results. |
 | Factory thermal parity | Original thermal/brightness behavior has not been demonstrated across the full factory policy and workload range. |

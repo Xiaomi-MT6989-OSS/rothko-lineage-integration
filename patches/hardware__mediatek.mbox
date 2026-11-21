@@ -37,6 +37,8 @@ index 7f5874ae05f3b5fc1fd95d4acec73ad0e79509a3..f5f2d77baad356d24c415cb364124737
          const auto &linked_sensors_size = sensor_info.virtual_sensor_info->linked_sensors.size();
          std::vector<bool> count_threshold_counted(linked_sensors_size, false);
 
+base-commit: 68f9be72a32bca66e7c63d69e9739b18f13c8b48
+
 From 59892c14bb3148fec42ae97b1db8418f73b8e817 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Wed, 28 Oct 2026 21:08:04 +0800

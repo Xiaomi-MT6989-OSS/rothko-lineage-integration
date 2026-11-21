@@ -32,6 +32,8 @@ def main():
     plan = []
     for row in rows:
         if a.without_host_support and row['path'] == 'build/soong':
+            if not row.get('host_support_only', True):
+                p.error('this Soong series also contains required product changes')
             continue
         path = PurePosixPath(row['path'])
         if path.is_absolute() or '..' in path.parts:
@@ -63,7 +65,9 @@ def main():
         return
     for repo, patch, row in plan:
         # No reset/rebase/force; git am preserves original author and message.
-        subprocess.run(['git', '-C', str(repo), 'am', str(patch)], check=True)
+        # Preserve CRLF source bytes and avoid whitespace rewriting during replay.
+        subprocess.run(['git', '-C', str(repo), 'am', '--keep-cr',
+                        '--whitespace=warn', str(patch)], check=True)
         if git(repo, 'rev-parse', 'HEAD^{tree}').decode().strip() != row['expected_final_tree']:
             raise RuntimeError('applied tree differs: ' + row['path'])
     print(f'Applied {len(plan)} series; all resulting trees verified')

@@ -1,41 +1,40 @@
-# Validation of the source collaboration candidate
+# Validation of the LineageOS 23.2 source snapshot
 
-Snapshot date: 2026-11-07. This report describes source preparation and
-limited host-side checks. It is not a clean Android build, a ROM release approval
-or a new phone acceptance round.
+The source snapshot was recorded before the LineageOS 24 migration on
+2026-11-14. The checks here apply to the filtered publication candidate
+prepared on 2026-11-21.
 
-## Completed for this source snapshot
+## Source and host checks
 
-- The three companion repositories were generated from the locked current
-  source heads. Their filtered histories preserve 310 device,
-  53 vendor-metadata and 1 kernel-recipe commits;
-  filtered HEADs contain 274, 5 and 1
-  tracked files respectively. Input repositories were not modified.
-- The current local source manifest resolved 1167 projects.
-  The public manifest uses fetchable upstream bases for local patch repositories;
-  the accompanying 13 patch series contain
-  74 commits and reproduce their recorded final Git trees.
-- The matching stock dump reproduced 3056 selected vendor/ODM
-  payloads and four generated build metadata files with exact hashes. The
-  reproduction did not compile Android or test extraction from an installed ROM.
-- The repository text-history scan found no configured host-path, private-key or
-  token patterns within its bounded text scan. It does not scan every binary or
-  establish licensing or security clearance.
+- The six device commits between the previous source export and the snapshot
+  were applied to the public device tree in order. Their modified files
+  match the frozen source byte for byte. Vendor metadata and the kernel
+  recipe use the same revisions as the previous public baseline.
+- The 1,167 Android manifest pins match the previous public manifest.
+  All 15 platform series (83 commits) replayed with the build preparation
+  script against the pinned bases in isolated repositories. Their final
+  trees match the snapshot and the replayed author identities and author
+  dates match the source. Readiness passed after application and reapplying
+  skipped all 15. See [the replay record](history/2026-11-14-replay.json).
+- The LHDC staging instructions fetched the 16 pinned headers. The staged
+  headers, four locally supplied stock libraries and Soong definition
+  passed the 21-file hash check. The seven existing input-tool fixtures
+  passed.
+- Bluetooth replay preserves CRLF in 16 imported LHDC source files so their
+  Git blobs match the snapshot. Git reports existing whitespace in the
+  source patches.
 
-## Not completed or not claimed
+## Earlier device evidence
 
-- A clean synchronization of all 1167 projects and a clean
-  full-ROM build from the public manifest.
-- A phone test of the exact filtered source commits in this candidate. Earlier
-  ROM test results remain attached to their actual image baselines.
-- Fresh independent reproduction of every device-local and kernel payload from
-  a different stock package, installed-phone extraction, OTA or source-built
-  kernel/module delivery.
-- Permission to redistribute proprietary payloads, complete factory thermal
-  parity, resolution of all entries in `KNOWN_ISSUES.md`, or LineageOS official
-  device acceptance.
+On the 2026-11-13 development image, the user confirmed LHDC V5 software
+audio at 48 kHz/24-bit, USB mode switching, fast-charging indication and
+stock camera photo/video capture. ISP service registration, thermal sensor
+reporting and the CDMA capability declaration were checked on that build.
+The final source snapshot also includes later Bluetooth settings and LE Audio
+changes whose exact combination has not been flashed.
 
-Hosted GitHub CI has not run. The source repositories are now published under
-Xiaomi-MT6989-OSS, but publication does not validate a clean full-ROM build or
-hardware behavior. Do not treat successful source filtering, patch replay or
-payload reproduction as ROM build or hardware validation.
+## Pending
+
+Clean synchronization of all pinned repositories, a fresh full ROM build,
+flashing and device acceptance for this exact source combination are pending.
+See [KNOWN_ISSUES.md](KNOWN_ISSUES.md) for the 23.2 validation gaps.

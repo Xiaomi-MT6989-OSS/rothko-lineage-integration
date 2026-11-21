@@ -267,6 +267,8 @@ index 9e1c894979c59f8d0c8115323c58d25201dc7412..4be358c15dd2aa444a5dc904b1a3f9d8
          return false;
      }
 
+base-commit: c94553c624ef88c7de67b224d1daa7ed10ec7081
+
 From 91c161284931b60fcaa08a0fe706bb4ed0838578 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
 Date: Sat, 24 Oct 2026 22:09:03 +0800
