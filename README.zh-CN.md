@@ -2,6 +2,8 @@
 
 这是 Redmi K70 Ultra（`rothko`）的非官方源码协作套件，不是 ROM 发布包，也不表示已达到 LineageOS official 要求。系统框架为 Android 16，原厂 vendor 为 Android 14 / API 34，固件基线为 **OS3.0.307.0.WNNCNXM**。
 
+2026-11-14 快照保存了升级前最后的 23.2 源码，包含 15 组平台补丁，共 83 个提交。LHDC 依赖的四个编码库由构建者从匹配的原厂蓝牙 APEX 在本机提取。
+
 协作套件由四个仓库组成：
 
 - [`android_device_xiaomi_rothko`](https://github.com/Xiaomi-MT6989-OSS/android_device_xiaomi_rothko)：设备配置、服务、overlay、策略及提取工具。

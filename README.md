@@ -7,6 +7,10 @@ Android framework is Android 16; the selected stock vendor is Android 14 / API
 34 from **OS3.0.307.0.WNNCNXM**. This repository is an integration guide and pinned
 source manifest, not a ROM release or an official LineageOS submission.
 
+The final pre-migration 23.2 snapshot was recorded on 2026-11-14.
+Its 15 platform patch series contain 83 commits. LHDC uses four encoder
+libraries extracted locally from the matching stock Bluetooth APEX.
+
 The collaboration set has four repositories:
 
 | Repository | Android checkout path | Contents |
