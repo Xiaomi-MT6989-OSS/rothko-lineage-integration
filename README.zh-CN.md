@@ -1,8 +1,8 @@
-# rothko LineageOS 23.2 公开协作入口
+# rothko LineageOS 24.0 公开协作入口
 
-这是 Redmi K70 Ultra（`rothko`）的非官方源码协作套件，不是 ROM 发布包，也不表示已达到 LineageOS official 要求。系统框架为 Android 16，原厂 vendor 为 Android 14 / API 34，固件基线为 **OS3.0.307.0.WNNCNXM**。
+这是 Redmi K70 Ultra（`rothko`）的非官方源码协作套件，不是 ROM 发布包，也不表示已达到 LineageOS official 要求。系统框架为 Android 17，原厂 vendor 为 Android 14 / API 34，固件基线为 **OS3.0.307.0.WNNCNXM**。
 
-2026-11-14 快照保存了升级前最后的 23.2 源码，包含 15 组平台补丁，共 83 个提交。LHDC 依赖的四个编码库由构建者从匹配的原厂蓝牙 APEX 在本机提取。
+本分支对应 2026-11-19 本地发布版的源码，包含 16 组平台补丁，共 31 个提交。LHDC 依赖的四个编码库由构建者从匹配的原厂蓝牙 APEX 在本机提取。
 
 协作套件由四个仓库组成：
 

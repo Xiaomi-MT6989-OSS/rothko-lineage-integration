@@ -1,14 +1,14 @@
-# rothko LineageOS 23.2 collaboration sources
+# rothko LineageOS 24.0 collaboration sources
 
 [中文入口](README.zh-CN.md)
 
 Unofficial, source-only collaboration for Redmi K70 Ultra (`rothko`). The
-Android framework is Android 16; the selected stock vendor is Android 14 / API
+Android framework is Android 17; the selected stock vendor is Android 14 / API
 34 from **OS3.0.307.0.WNNCNXM**. This repository is an integration guide and pinned
 source manifest, not a ROM release or an official LineageOS submission.
 
-The final pre-migration 23.2 snapshot was recorded on 2026-11-14.
-Its 15 platform patch series contain 83 commits. LHDC uses four encoder
+This source snapshot corresponds to the 2026-11-19 local release build.
+Its 16 platform patch series contain 31 commits. LHDC uses four encoder
 libraries extracted locally from the matching stock Bluetooth APEX.
 
 The collaboration set has four repositories:

@@ -33,7 +33,7 @@ def main():
     for row in rows:
         if a.without_host_support and row['path'] == 'build/soong':
             if not row.get('host_support_only', True):
-                p.error('this Soong series also contains required product changes')
+                p.error('this Soong series also contains required build changes')
             continue
         path = PurePosixPath(row['path'])
         if path.is_absolute() or '..' in path.parts:

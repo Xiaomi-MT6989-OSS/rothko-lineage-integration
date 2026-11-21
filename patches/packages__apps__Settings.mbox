@@ -1,1333 +1,36 @@
-From eaeaa8ca26f6d09afadbc328807a00d46ce1a16f Mon Sep 17 00:00:00 2001
+From 65a3cddccf798b6ee4d5b8fd60b8649878baee1b Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
-Date: Fri, 16 Oct 2026 01:13:26 +0800
-Subject: [PATCH 1/6] Face enrollment: supply HAL-owned preview without opening
- a second camera
+Date: Sat, 14 Nov 2026 08:34:31 +0800
+Subject: [PATCH 1/2] rothko: adapt packages/apps/Settings integration to
+ Android 17
 
-Use queried sensor geometry and wait for a valid Surface. Keep the Surface and detached texture alive until a real terminal enrollment callback, isolate callback generations, and cancel attempts whose view is paused or destroyed. Preserve the existing framework camera preview for legacy sensors.
+Official 24.0 target: 31b1a9f1cab9638bc6af9f4e6412fbf3b3a7947a
+Recorded 23.2 baseline: af4781d63516ea942a741964ce01aafe82e03fc3
 
-Requires the coordinated FaceSensorPropertiesInternal platform update. Validation: static review and diff checks; tests and build deferred to the combined four-feature candidate.
+Resolve against the 24.0 APIs and preserve device integration contracts.
+Prefer the upstream codec naming and HAL-owned face preview interfaces.
+Display persistence migration covers legacy and refactored stores.
+SurfaceFlinger power notifications follow the upstream asynchronous result.
+Details and companion dependencies are recorded in the project document
+LINEAGE_24_MIGRATION_20261114.zh-CN.md.
 
-Change-Id: I6b5cf4ce6423d635efdd5cce35c650950a1f7d6a
----
- .../biometrics/face/FaceEnrollEnrolling.java  | 113 ++++++++++-
- .../face/FaceEnrollPreviewFragment.java       | 142 ++++++++++++--
- .../biometrics/face/FaceEnrollSidecar.java    | 177 ++++++++++++++++--
- .../face/FaceEnrollPreviewFragmentTest.java   |  53 ++++++
- .../face/FaceEnrollSidecarTest.java           | 154 +++++++++++++++
- 5 files changed, 604 insertions(+), 35 deletions(-)
- create mode 100644 tests/robotests/src/com/android/settings/biometrics/face/FaceEnrollPreviewFragmentTest.java
- create mode 100644 tests/robotests/src/com/android/settings/biometrics/face/FaceEnrollSidecarTest.java
-
-diff --git a/src/com/android/settings/biometrics/face/FaceEnrollEnrolling.java b/src/com/android/settings/biometrics/face/FaceEnrollEnrolling.java
-index d520cd64f43e0d449a2d724d42fe5a6a9ca18e19..a7e8123e713bcd5aca53b8c51444f4e074672d0a 100644
---- a/src/com/android/settings/biometrics/face/FaceEnrollEnrolling.java
-+++ b/src/com/android/settings/biometrics/face/FaceEnrollEnrolling.java
-@@ -17,12 +17,17 @@
- package com.android.settings.biometrics.face;
- 
- import static android.hardware.biometrics.BiometricAuthenticator.TYPE_FACE;
-+import static android.hardware.biometrics.BiometricFaceConstants.FACE_ERROR_CANCELED;
-+import static android.hardware.biometrics.BiometricFaceConstants.FACE_ERROR_HW_UNAVAILABLE;
- import static android.hardware.biometrics.BiometricFaceConstants.FACE_ERROR_TIMEOUT;
- import static android.hardware.biometrics.BiometricFaceConstants.FEATURE_REQUIRE_ATTENTION;
- import static android.hardware.biometrics.BiometricFaceConstants.FEATURE_REQUIRE_REQUIRE_DIVERSITY;
- 
- import android.app.settings.SettingsEnums;
- import android.content.Intent;
-+import android.hardware.face.FaceManager;
-+import android.hardware.face.FaceSensorPropertiesInternal;
-+import android.hardware.face.IFaceAuthenticatorsRegisteredCallback;
- import android.os.Bundle;
- import android.text.TextUtils;
- import android.util.Log;
-@@ -32,6 +37,7 @@ import android.view.animation.Interpolator;
- import android.widget.TextView;
- 
- import com.android.settings.R;
-+import com.android.settings.Utils;
- import com.android.settings.biometrics.BiometricEnrollBase;
- import com.android.settings.biometrics.BiometricEnrollSidecar;
- import com.android.settings.biometrics.BiometricErrorDialog;
-@@ -45,6 +51,7 @@ import com.google.android.setupcompat.template.FooterButton;
- import com.google.android.setupcompat.util.WizardManagerHelper;
- 
- import java.util.ArrayList;
-+import java.util.List;
- 
- public class FaceEnrollEnrolling extends BiometricsEnrollEnrolling {
- 
-@@ -55,6 +62,34 @@ public class FaceEnrollEnrolling extends BiometricsEnrollEnrolling {
-     private TextView mErrorText;
-     private Interpolator mLinearOutSlowInInterpolator;
-     private FaceEnrollPreviewFragment mPreviewFragment;
-+    private FaceSensorPropertiesInternal mSensorProperties;
-+    private boolean mPaused;
-+
-+    private final FaceEnrollPreviewFragment.PreviewSurfaceListener mPreviewSurfaceListener =
-+            new FaceEnrollPreviewFragment.PreviewSurfaceListener() {
-+                @Override
-+                public void onPreviewSurfaceReady(FaceEnrollSidecar.PreviewSurface preview) {
-+                    if (mSidecar instanceof FaceEnrollSidecar && !isFinishing()) {
-+                        ((FaceEnrollSidecar) mSidecar).setPreviewSurface(preview);
-+                    } else {
-+                        preview.release();
-+                    }
-+                }
-+
-+                @Override
-+                public void onPreviewStopped() {
-+                    if (mSidecar != null) {
-+                        mSidecar.cancelEnrollment();
-+                    }
-+                }
-+
-+                @Override
-+                public void onPreviewError() {
-+                    if (mSidecar instanceof FaceEnrollSidecar) {
-+                        ((FaceEnrollSidecar) mSidecar).onPreviewUnavailable();
-+                    }
-+                }
-+            };
- 
-     private ArrayList<Integer> mDisabledFeatures = new ArrayList<>();
-     private ParticleCollection.Listener mListener = new ParticleCollection.Listener() {
-@@ -120,7 +155,67 @@ public class FaceEnrollEnrolling extends BiometricsEnrollEnrolling {
-             mDisabledFeatures.add(FEATURE_REQUIRE_ATTENTION);
-         }
- 
--        startEnrollment();
-+        final FaceManager faceManager = Utils.getFaceManagerOrNull(this);
-+        if (faceManager == null) {
-+            showErrorDialog(FaceManager.getErrorString(this, FACE_ERROR_HW_UNAVAILABLE, 0),
-+                    FACE_ERROR_HW_UNAVAILABLE);
-+            return;
-+        }
-+        faceManager.addAuthenticatorsRegisteredCallback(
-+                new IFaceAuthenticatorsRegisteredCallback.Stub() {
-+                    @Override
-+                    public void onAllAuthenticatorsRegistered(
-+                            List<FaceSensorPropertiesInternal> sensors) {
-+                        runOnUiThread(() -> {
-+                            if (isFinishing() || isDestroyed() || mSensorProperties != null) {
-+                                return;
-+                            }
-+                            for (FaceSensorPropertiesInternal properties : sensors) {
-+                                if (properties.sensorId == mSensorId
-+                                        || (mSensorId == -1 && sensors.size() == 1)) {
-+                                    mSensorProperties = properties;
-+                                    break;
-+                                }
-+                            }
-+                            if (mSensorProperties == null) {
-+                                showErrorDialog(FaceManager.getErrorString(FaceEnrollEnrolling.this,
-+                                        FACE_ERROR_HW_UNAVAILABLE, 0), FACE_ERROR_HW_UNAVAILABLE);
-+                                return;
-+                            }
-+                            if (!mPaused) {
-+                                startEnrollment();
-+                            }
-+                        });
-+                    }
-+                });
-+    }
-+
-+    @Override
-+    protected void onResume() {
-+        super.onResume();
-+        mPaused = false;
-+        if (isFinishing() || mSensorProperties == null) {
-+            return;
-+        }
-+        if (mSidecar == null) {
-+            startEnrollment();
-+        } else if (mSensorProperties.halControlsPreview) {
-+            // A transient pause can deliver the terminal cancellation before onStop. Reattach
-+            // here as well as on recreation so the queued result exits the old attempt.
-+            mSidecar.setListener(this);
-+        }
-+    }
-+
-+    @Override
-+    protected void onPause() {
-+        mPaused = true;
-+        if (mSensorProperties != null && mSensorProperties.halControlsPreview && mSidecar != null) {
-+            // A TextureView cannot survive this Activity's view generation. Cancel and leave this
-+            // attempt; configuration recreation must not reuse a retained, stale producer.
-+            mSidecar.setListener(null);
-+            mSidecar.cancelEnrollment();
-+        }
-+        super.onPause();
-     }
- 
-     @Override
-@@ -144,7 +239,6 @@ public class FaceEnrollEnrolling extends BiometricsEnrollEnrolling {
- 
-     @Override
-     protected void startEnrollmentInternal() {
--        super.startEnrollmentInternal();
-         mPreviewFragment = (FaceEnrollPreviewFragment) getSupportFragmentManager()
-                 .findFragmentByTag(TAG_FACE_PREVIEW);
-         if (mPreviewFragment == null) {
-@@ -153,6 +247,10 @@ public class FaceEnrollEnrolling extends BiometricsEnrollEnrolling {
-                     .commitAllowingStateLoss();
-         }
-         mPreviewFragment.setListener(mListener);
-+        super.startEnrollmentInternal();
-+        if (!isFinishing()) {
-+            mPreviewFragment.setPreviewConfiguration(mSensorProperties, mPreviewSurfaceListener);
-+        }
-     }
- 
-     @Override
-@@ -167,7 +265,8 @@ public class FaceEnrollEnrolling extends BiometricsEnrollEnrolling {
-             disabledFeatures[i] = mDisabledFeatures.get(i);
-         }
- 
--        return new FaceEnrollSidecar(disabledFeatures, getIntent());
-+        return new FaceEnrollSidecar(disabledFeatures, getIntent(),
-+                mSensorProperties != null && mSensorProperties.halControlsPreview);
-     }
- 
-     @Override
-@@ -190,6 +289,14 @@ public class FaceEnrollEnrolling extends BiometricsEnrollEnrolling {
- 
-     @Override
-     public void onEnrollmentError(int errMsgId, CharSequence errString) {
-+        if (errMsgId == FACE_ERROR_CANCELED && mSensorProperties != null
-+                && mSensorProperties.halControlsPreview) {
-+            // A destroyed/paused preview requires a new attempt with a new Surface. Do not silently
-+            // restart enrollment or keep the camera active behind an error dialog.
-+            setResult(RESULT_TIMEOUT);
-+            finish();
-+            return;
-+        }
-         int msgId;
-         switch (errMsgId) {
-             case FACE_ERROR_TIMEOUT:
-diff --git a/src/com/android/settings/biometrics/face/FaceEnrollPreviewFragment.java b/src/com/android/settings/biometrics/face/FaceEnrollPreviewFragment.java
-index 853ca7c40ccf88488e26c565b28f5f36beffed25..030d5d6f7392f6cfd395e2ecdfcbd7bb937e3a03 100644
---- a/src/com/android/settings/biometrics/face/FaceEnrollPreviewFragment.java
-+++ b/src/com/android/settings/biometrics/face/FaceEnrollPreviewFragment.java
-@@ -27,6 +27,7 @@ import android.hardware.camera2.CameraDevice;
- import android.hardware.camera2.CameraManager;
- import android.hardware.camera2.CaptureRequest;
- import android.hardware.camera2.params.StreamConfigurationMap;
-+import android.hardware.face.FaceSensorPropertiesInternal;
- import android.os.Bundle;
- import android.os.Handler;
- import android.os.Looper;
-@@ -65,6 +66,33 @@ public class FaceEnrollPreviewFragment extends InstrumentedPreferenceFragment
-     private CaptureRequest mPreviewRequest;
-     private Size mPreviewSize;
-     private ParticleCollection.Listener mListener;
-+    private FaceSensorPropertiesInternal mSensorProperties;
-+    private PreviewSurfaceListener mPreviewSurfaceListener;
-+    private FaceEnrollSidecar.PreviewSurface mHalPreview;
-+    private boolean mPreviewStopped;
-+    private boolean mPreviewConfigured;
-+    private boolean mResumed;
-+
-+    interface PreviewSurfaceListener {
-+        void onPreviewSurfaceReady(FaceEnrollSidecar.PreviewSurface preview);
-+        void onPreviewStopped();
-+        void onPreviewError();
-+    }
-+
-+    void setPreviewConfiguration(FaceSensorPropertiesInternal properties,
-+            PreviewSurfaceListener listener) {
-+        mSensorProperties = properties;
-+        mPreviewSurfaceListener = listener;
-+        mPreviewConfigured = true;
-+        if (mResumed && mTextureView != null && mTextureView.isAvailable()) {
-+            startPreview(mTextureView.getSurfaceTexture(),
-+                    mTextureView.getWidth(), mTextureView.getHeight());
-+        }
-+    }
-+
-+    private boolean halControlsPreview() {
-+        return mSensorProperties != null && mSensorProperties.halControlsPreview;
-+    }
- 
-     // View used to contain the circular cutout and enrollment animation drawable
-     private ImageView mCircleView;
-@@ -80,7 +108,9 @@ public class FaceEnrollPreviewFragment extends InstrumentedPreferenceFragment
-             = new ParticleCollection.Listener() {
-         @Override
-         public void onEnrolled() {
--            mListener.onEnrolled();
-+            if (mListener != null) {
-+                mListener.onEnrolled();
-+            }
-         }
-     };
- 
-@@ -90,7 +120,7 @@ public class FaceEnrollPreviewFragment extends InstrumentedPreferenceFragment
-         @Override
-         public void onSurfaceTextureAvailable(
-                 SurfaceTexture surfaceTexture, int width, int height) {
--            openCamera(width, height);
-+            startPreview(surfaceTexture, width, height);
-         }
- 
-         @Override
-@@ -102,6 +132,13 @@ public class FaceEnrollPreviewFragment extends InstrumentedPreferenceFragment
- 
-         @Override
-         public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
-+            if (mHalPreview != null) {
-+                // TextureView must not release a producer still used by the HAL. The sidecar
-+                // releases this texture after the terminal callback, even if this View is gone.
-+                mHalPreview.detachTexture();
-+                stopHalPreview();
-+                return false;
-+            }
-             return true;
-         }
- 
-@@ -187,6 +224,13 @@ public class FaceEnrollPreviewFragment extends InstrumentedPreferenceFragment
-     @Override
-     public void onCreate(Bundle savedInstanceState) {
-         super.onCreate(savedInstanceState);
-+        mCameraManager = (CameraManager) getContext().getSystemService(Context.CAMERA_SERVICE);
-+    }
-+
-+    @Override
-+    public void onActivityCreated(Bundle savedInstanceState) {
-+        super.onActivityCreated(savedInstanceState);
-+        // A restored Fragment's onCreate can run before the Activity sets its content view.
-         mTextureView = getActivity().findViewById(R.id.texture_view);
-         mCircleView = getActivity().findViewById(R.id.circle_view);
- 
-@@ -195,50 +239,101 @@ public class FaceEnrollPreviewFragment extends InstrumentedPreferenceFragment
- 
-         mAnimationDrawable = new FaceEnrollAnimationDrawable(getContext(), mAnimationListener);
-         mCircleView.setImageDrawable(mAnimationDrawable);
--
--        mCameraManager = (CameraManager) getContext().getSystemService(Context.CAMERA_SERVICE);
-     }
- 
-     @Override
-     public void onResume() {
-         super.onResume();
-+        mResumed = true;
- 
-         // When the screen is turned off and turned back on, the SurfaceTexture is already
-         // available, and "onSurfaceTextureAvailable" will not be called. In that case, we can open
-         // a camera and start preview from here (otherwise, we wait until the surface is ready in
-         // the SurfaceTextureListener).
-+        mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
-         if (mTextureView.isAvailable()) {
--            openCamera(mTextureView.getWidth(), mTextureView.getHeight());
--        } else {
--            mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
-+            startPreview(mTextureView.getSurfaceTexture(),
-+                    mTextureView.getWidth(), mTextureView.getHeight());
-         }
-     }
- 
-     @Override
-     public void onPause() {
-+        mResumed = false;
-+        if (halControlsPreview()) {
-+            stopHalPreview();
-+        } else {
-+            closeCamera();
-+        }
-         super.onPause();
--        closeCamera();
-     }
- 
-     @Override
-     public void onEnrollmentError(int errMsgId, CharSequence errString) {
--        mAnimationDrawable.onEnrollmentError(errMsgId, errString);
-+        if (mAnimationDrawable != null) {
-+            mAnimationDrawable.onEnrollmentError(errMsgId, errString);
-+        }
-     }
- 
-     @Override
-     public void onEnrollmentHelp(int helpMsgId, CharSequence helpString) {
--        mAnimationDrawable.onEnrollmentHelp(helpMsgId, helpString);
-+        if (mAnimationDrawable != null) {
-+            mAnimationDrawable.onEnrollmentHelp(helpMsgId, helpString);
-+        }
-     }
- 
-     @Override
-     public void onEnrollmentProgressChange(int steps, int remaining) {
--        mAnimationDrawable.onEnrollmentProgressChange(steps, remaining);
-+        if (mAnimationDrawable != null) {
-+            mAnimationDrawable.onEnrollmentProgressChange(steps, remaining);
-+        }
-     }
- 
-     public void setListener(ParticleCollection.Listener listener) {
-         mListener = listener;
-     }
- 
-+    private void startPreview(SurfaceTexture texture, int width, int height) {
-+        if (!mPreviewConfigured || !mResumed) {
-+            return;
-+        }
-+        if (!halControlsPreview()) {
-+            openCamera(width, height);
-+            return;
-+        }
-+        if (mPreviewStopped || mHalPreview != null) {
-+            return;
-+        }
-+        final FaceSensorPropertiesInternal properties = mSensorProperties;
-+        if (texture == null || properties.enrollPreviewWidth <= 0
-+                || properties.enrollPreviewHeight <= 0
-+                || !Float.isFinite(properties.enrollPreviewScale)
-+                || properties.enrollPreviewScale <= 0f
-+                || !Float.isFinite(properties.enrollTranslationX)
-+                || !Float.isFinite(properties.enrollTranslationY)
-+                || getActivity().getDisplay() == null
-+                || getActivity().getDisplay().getDisplayId() != properties.previewDisplayId) {
-+            // Falling back to a second CameraDevice would compete with this HAL's camera.
-+            mPreviewStopped = true;
-+            mPreviewSurfaceListener.onPreviewError();
-+            return;
-+        }
-+        mPreviewSize = new Size(properties.enrollPreviewWidth, properties.enrollPreviewHeight);
-+        texture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
-+        configureTransform(width, height);
-+        mHalPreview = new FaceEnrollSidecar.PreviewSurface(texture);
-+        mPreviewSurfaceListener.onPreviewSurfaceReady(mHalPreview);
-+    }
-+
-+    private void stopHalPreview() {
-+        if (!mPreviewStopped) {
-+            mPreviewStopped = true;
-+            if (mPreviewSurfaceListener != null) {
-+                mPreviewSurfaceListener.onPreviewStopped();
-+            }
-+        }
-+    }
-+
-     /**
-      * Sets up member variables related to camera.
-      */
-@@ -304,7 +399,12 @@ public class FaceEnrollPreviewFragment extends InstrumentedPreferenceFragment
-      * @param viewHeight The height of `mTextureView`
-      */
-     private void configureTransform(int viewWidth, int viewHeight) {
--        if (mTextureView == null) {
-+        if (mTextureView == null || mPreviewSize == null || viewWidth <= 0 || viewHeight <= 0) {
-+            return;
-+        }
-+        if (halControlsPreview()) {
-+            mTextureView.setTransform(createHalPreviewTransform(viewWidth, viewHeight,
-+                    mSensorProperties));
-             return;
-         }
- 
-@@ -332,6 +432,24 @@ public class FaceEnrollPreviewFragment extends InstrumentedPreferenceFragment
-         mTextureView.setTransform(transform);
-     }
- 
-+    /**
-+     * TextureView already maps the whole buffer onto the view. Correct that nonuniform mapping
-+     * around the center so source pixels have equal X/Y scale, then apply the HAL placement.
-+     * Buffer orientation/mirroring belongs to the HAL camera pipeline; do not rotate it twice.
-+     */
-+    static Matrix createHalPreviewTransform(int viewWidth, int viewHeight,
-+            FaceSensorPropertiesInternal properties) {
-+        final float fill = Math.max((float) viewWidth / properties.enrollPreviewWidth,
-+                (float) viewHeight / properties.enrollPreviewHeight);
-+        final float scaleX = properties.enrollPreviewWidth * fill / viewWidth;
-+        final float scaleY = properties.enrollPreviewHeight * fill / viewHeight;
-+        final Matrix transform = new Matrix();
-+        transform.setScale(scaleX * properties.enrollPreviewScale,
-+                scaleY * properties.enrollPreviewScale, viewWidth / 2f, viewHeight / 2f);
-+        transform.postTranslate(properties.enrollTranslationX, properties.enrollTranslationY);
-+        return transform;
-+    }
-+
-     private void closeCamera() {
-         if (mCaptureSession != null) {
-             mCaptureSession.close();
-diff --git a/src/com/android/settings/biometrics/face/FaceEnrollSidecar.java b/src/com/android/settings/biometrics/face/FaceEnrollSidecar.java
-index b7ba1b52508cfece78199409c2adb66ca2cb8535..ff6b6c74ad997f9da3aae92d3519b9e8387477c7 100644
---- a/src/com/android/settings/biometrics/face/FaceEnrollSidecar.java
-+++ b/src/com/android/settings/biometrics/face/FaceEnrollSidecar.java
-@@ -16,62 +16,199 @@
- 
- package com.android.settings.biometrics.face;
- 
-+import static android.hardware.biometrics.BiometricFaceConstants.FACE_ERROR_CANCELED;
-+import static android.hardware.biometrics.BiometricFaceConstants.FACE_ERROR_UNABLE_TO_PROCESS;
-+
- import android.app.Activity;
- import android.app.settings.SettingsEnums;
- import android.content.Intent;
-+import android.graphics.SurfaceTexture;
- import android.hardware.face.FaceManager;
-+import android.view.Surface;
- 
- import com.android.settings.biometrics.BiometricEnrollSidecar;
- 
- import java.util.Arrays;
- 
--/**
-- * Sidecar fragment to handle the state around face enrollment
-- */
-+/** Sidecar fragment to handle the state around face enrollment. */
- public class FaceEnrollSidecar extends BiometricEnrollSidecar {
--
-     private final int[] mDisabledFeatures;
--
-+    private final Intent mIntent;
-+    private final boolean mHalControlsPreview;
-     private FaceUpdater mFaceUpdater;
-+    private PreviewSurface mPreview;
-+    private boolean mStartRequested;
-+    private boolean mOperationStarted;
-+    private boolean mOperationFinished;
-+    private boolean mCancellationRequested;
-+    private int mGeneration;
-+
-+    /**
-+     * Owns the app Surface, independently of a Fragment/View generation. TextureView owns the
-+     * SurfaceTexture until its destruction callback hands it over with detachTexture(). If an
-+     * operation is still using it, keep it alive until the actual HAL terminal callback.
-+     */
-+    static final class PreviewSurface {
-+        final Surface surface;
-+        private final SurfaceTexture mTexture;
-+        private boolean mDetached;
-+        private boolean mReleased;
-+
-+        PreviewSurface(SurfaceTexture texture) {
-+            this(texture, new Surface(texture));
-+        }
-+
-+        PreviewSurface(SurfaceTexture texture, Surface previewSurface) {
-+            mTexture = texture;
-+            surface = previewSurface;
-+        }
- 
--    private Intent mIntent;
-+        void detachTexture() {
-+            if (!mDetached) {
-+                mDetached = true;
-+                if (mReleased) {
-+                    mTexture.release();
-+                }
-+            }
-+        }
-+
-+        void release() {
-+            if (!mReleased) {
-+                mReleased = true;
-+                surface.release();
-+                if (mDetached) {
-+                    mTexture.release();
-+                }
-+            }
-+        }
-+    }
- 
-     public FaceEnrollSidecar(int[] disabledFeatures, Intent intent) {
-+        this(disabledFeatures, intent, false /* halControlsPreview */);
-+    }
-+
-+    public FaceEnrollSidecar(int[] disabledFeatures, Intent intent, boolean halControlsPreview) {
-         mDisabledFeatures = Arrays.copyOf(disabledFeatures, disabledFeatures.length);
-         mIntent = intent;
-+        mHalControlsPreview = halControlsPreview;
-     }
- 
-     @Override
-     public void onAttach(Activity activity) {
-         super.onAttach(activity);
--        mFaceUpdater = new FaceUpdater(activity);
-+        // This sidecar is retained across configuration changes; do not retain the old Activity.
-+        mFaceUpdater = new FaceUpdater(activity.getApplicationContext());
-     }
- 
-     @Override
-     public void startEnrollment() {
-+        mStartRequested = true;
-+        if (mHalControlsPreview && (mPreview == null || mOperationStarted
-+                || mOperationFinished || mCancellationRequested)) {
-+            return;
-+        }
-+        if (mHalControlsPreview && !mPreview.surface.isValid()) {
-+            onPreviewUnavailable();
-+            return;
-+        }
-+        mOperationStarted = true;
-+        mOperationFinished = false;
-+        final int generation = ++mGeneration;
-         super.startEnrollment();
-         mFaceUpdater.enroll(mUserId, mToken, mEnrollmentCancel,
--                mEnrollmentCallback, mDisabledFeatures, mIntent);
-+                createEnrollmentCallback(generation), mDisabledFeatures,
-+                mHalControlsPreview ? mPreview.surface : null, false /* debugConsent */, mIntent);
-     }
- 
--    private FaceManager.EnrollmentCallback mEnrollmentCallback
--            = new FaceManager.EnrollmentCallback() {
-+    void setPreviewSurface(PreviewSurface preview) {
-+        if (mPreview == preview) {
-+            return;
-+        }
-+        if (!mHalControlsPreview || mPreview != null || mOperationFinished
-+                || mCancellationRequested) {
-+            // Never replace a Surface underneath an active/retained enrollment.
-+            preview.release();
-+            return;
-+        }
-+        mPreview = preview;
-+        if (mStartRequested) {
-+            startEnrollment();
-+        }
-+    }
- 
--        @Override
--        public void onEnrollmentProgress(int remaining) {
--            FaceEnrollSidecar.super.onEnrollmentProgress(remaining);
-+    void onPreviewUnavailable() {
-+        if (mOperationStarted) {
-+            cancelEnrollment();
-+        } else if (!mOperationFinished) {
-+            finishOperation();
-+            super.onEnrollmentError(FACE_ERROR_UNABLE_TO_PROCESS,
-+                    FaceManager.getErrorString(getContext(), FACE_ERROR_UNABLE_TO_PROCESS, 0));
-         }
-+    }
- 
--        @Override
--        public void onEnrollmentHelp(int helpMsgId, CharSequence helpString) {
--            FaceEnrollSidecar.super.onEnrollmentHelp(helpMsgId, helpString);
-+    @Override
-+    public boolean cancelEnrollment() {
-+        if (!mHalControlsPreview) {
-+            return super.cancelEnrollment();
-         }
-+        if (mOperationFinished || mCancellationRequested) {
-+            return false;
-+        }
-+        mCancellationRequested = true;
-+        if (mOperationStarted) {
-+            // Cancellation is asynchronous. Only a terminal callback releases the producer.
-+            return super.cancelEnrollment();
-+        }
-+        finishOperation();
-+        super.onEnrollmentError(FACE_ERROR_CANCELED,
-+                FaceManager.getErrorString(getContext(), FACE_ERROR_CANCELED, 0));
-+        return true;
-+    }
- 
--        @Override
--        public void onEnrollmentError(int errMsgId, CharSequence errString) {
--            FaceEnrollSidecar.super.onEnrollmentError(errMsgId, errString);
-+    private void finishOperation() {
-+        mOperationFinished = true;
-+        if (mPreview != null) {
-+            mPreview.release();
-+            mPreview = null;
-         }
--    };
-+    }
-+
-+    private FaceManager.EnrollmentCallback createEnrollmentCallback(int generation) {
-+        return new FaceManager.EnrollmentCallback() {
-+            private boolean isCurrent() {
-+                return generation == mGeneration && !mOperationFinished;
-+            }
-+
-+            @Override
-+            public void onEnrollmentProgress(int remaining) {
-+                if (!isCurrent()) {
-+                    return;
-+                }
-+                if (remaining == 0) {
-+                    // A real HAL success may race a cancellation request. Preserve its result.
-+                    finishOperation();
-+                } else if (mCancellationRequested) {
-+                    return;
-+                }
-+                FaceEnrollSidecar.super.onEnrollmentProgress(remaining);
-+            }
-+
-+            @Override
-+            public void onEnrollmentHelp(int helpMsgId, CharSequence helpString) {
-+                if (isCurrent() && !mCancellationRequested) {
-+                    FaceEnrollSidecar.super.onEnrollmentHelp(helpMsgId, helpString);
-+                }
-+            }
-+
-+            @Override
-+            public void onEnrollmentError(int errMsgId, CharSequence errString) {
-+                if (isCurrent()) {
-+                    finishOperation();
-+                    FaceEnrollSidecar.super.onEnrollmentError(errMsgId, errString);
-+                }
-+            }
-+        };
-+    }
- 
-     @Override
-     public int getMetricsCategory() {
-diff --git a/tests/robotests/src/com/android/settings/biometrics/face/FaceEnrollPreviewFragmentTest.java b/tests/robotests/src/com/android/settings/biometrics/face/FaceEnrollPreviewFragmentTest.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..697ca547823c6a9956d782374336abfd9842311b
---- /dev/null
-+++ b/tests/robotests/src/com/android/settings/biometrics/face/FaceEnrollPreviewFragmentTest.java
-@@ -0,0 +1,53 @@
-+/*
-+ * Copyright (C) 2026 The Android Open Source Project
-+ *
-+ * Licensed under the Apache License, Version 2.0 (the "License");
-+ * you may not use this file except in compliance with the License.
-+ * You may obtain a copy of the License at
-+ *
-+ *      http://www.apache.org/licenses/LICENSE-2.0
-+ *
-+ * Unless required by applicable law or agreed to in writing, software
-+ * distributed under the License is distributed on an "AS IS" BASIS,
-+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-+ * See the License for the specific language governing permissions and
-+ * limitations under the License.
-+ */
-+
-+package com.android.settings.biometrics.face;
-+
-+import static com.google.common.truth.Truth.assertThat;
-+
-+import android.graphics.Matrix;
-+import android.hardware.biometrics.SensorProperties;
-+import android.hardware.face.FaceSensorProperties;
-+import android.hardware.face.FaceSensorPropertiesInternal;
-+
-+import org.junit.Test;
-+import org.junit.runner.RunWith;
-+import org.robolectric.RobolectricTestRunner;
-+
-+import java.util.Collections;
-+
-+@RunWith(RobolectricTestRunner.class)
-+public class FaceEnrollPreviewFragmentTest {
-+    @Test
-+    public void halTransform_preservesSourceAspectAndCentersPlacement() {
-+        final FaceSensorPropertiesInternal properties = new FaceSensorPropertiesInternal(8,
-+                SensorProperties.STRENGTH_CONVENIENCE, 2, Collections.emptyList(),
-+                FaceSensorProperties.TYPE_RGB, false, true, false,
-+                true, 0, 480, 640, 100f, 50f, 1f);
-+        final Matrix transform = FaceEnrollPreviewFragment.createHalPreviewTransform(
-+                300, 300, properties);
-+        final float[] values = new float[9];
-+        transform.getValues(values);
-+        // Compose with TextureView's implicit buffer-to-view mapping: each source pixel must
-+        // have the same physical scale on both axes, including for a nonsquare HAL buffer.
-+        assertThat(values[Matrix.MSCALE_X] * 300f / 480f)
-+                .isWithin(0.0001f).of(values[Matrix.MSCALE_Y] * 300f / 640f);
-+        final float[] center = {150f, 150f};
-+        transform.mapPoints(center);
-+        assertThat(center[0]).isWithin(0.0001f).of(250f);
-+        assertThat(center[1]).isWithin(0.0001f).of(200f);
-+    }
-+}
-diff --git a/tests/robotests/src/com/android/settings/biometrics/face/FaceEnrollSidecarTest.java b/tests/robotests/src/com/android/settings/biometrics/face/FaceEnrollSidecarTest.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..d36059f55f1d6f0b3385b169491f66814240bfbb
---- /dev/null
-+++ b/tests/robotests/src/com/android/settings/biometrics/face/FaceEnrollSidecarTest.java
-@@ -0,0 +1,154 @@
-+/*
-+ * Copyright (C) 2026 The Android Open Source Project
-+ *
-+ * Licensed under the Apache License, Version 2.0 (the "License");
-+ * you may not use this file except in compliance with the License.
-+ * You may obtain a copy of the License at
-+ *
-+ *      http://www.apache.org/licenses/LICENSE-2.0
-+ *
-+ * Unless required by applicable law or agreed to in writing, software
-+ * distributed under the License is distributed on an "AS IS" BASIS,
-+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-+ * See the License for the specific language governing permissions and
-+ * limitations under the License.
-+ */
-+
-+package com.android.settings.biometrics.face;
-+
-+import static android.hardware.biometrics.BiometricFaceConstants.FACE_ERROR_CANCELED;
-+
-+import static org.mockito.ArgumentMatchers.any;
-+import static org.mockito.ArgumentMatchers.anyInt;
-+import static org.mockito.ArgumentMatchers.eq;
-+import static org.mockito.ArgumentMatchers.nullable;
-+import static org.mockito.ArgumentMatchers.same;
-+import static org.mockito.Mockito.mock;
-+import static org.mockito.Mockito.never;
-+import static org.mockito.Mockito.times;
-+import static org.mockito.Mockito.verify;
-+import static org.mockito.Mockito.verifyNoInteractions;
-+import static org.mockito.Mockito.when;
-+
-+import android.content.Intent;
-+import android.graphics.SurfaceTexture;
-+import android.hardware.face.FaceManager;
-+import android.os.CancellationSignal;
-+import android.view.Surface;
-+
-+import androidx.fragment.app.FragmentActivity;
-+
-+import com.android.settings.biometrics.BiometricEnrollSidecar;
-+
-+import org.junit.Test;
-+import org.junit.runner.RunWith;
-+import org.mockito.ArgumentCaptor;
-+import org.robolectric.Robolectric;
-+import org.robolectric.RobolectricTestRunner;
-+import org.robolectric.android.controller.ActivityController;
-+import org.robolectric.util.ReflectionHelpers;
-+
-+@RunWith(RobolectricTestRunner.class)
-+public class FaceEnrollSidecarTest {
-+    private final FaceUpdater mUpdater = mock(FaceUpdater.class);
-+    private final Surface mSurface = mock(Surface.class);
-+    private final SurfaceTexture mTexture = mock(SurfaceTexture.class);
-+    private final Intent mIntent = new Intent();
-+
-+    private FaceEnrollSidecar startSidecar(boolean halControlsPreview) {
-+        final ActivityController<FragmentActivity> controller =
-+                Robolectric.buildActivity(FragmentActivity.class).create();
-+        final FaceEnrollSidecar sidecar =
-+                new FaceEnrollSidecar(new int[0], mIntent, halControlsPreview);
-+        controller.get().getSupportFragmentManager().beginTransaction()
-+                .add(sidecar, "face_sidecar").commitNow();
-+        ReflectionHelpers.setField(sidecar, "mFaceUpdater", mUpdater);
-+        controller.start().resume();
-+        when(mSurface.isValid()).thenReturn(true);
-+        return sidecar;
-+    }
-+
-+    private FaceManager.EnrollmentCallback captureCallback(Surface surface) {
-+        final ArgumentCaptor<FaceManager.EnrollmentCallback> callback =
-+                ArgumentCaptor.forClass(FaceManager.EnrollmentCallback.class);
-+        verify(mUpdater).enroll(anyInt(), nullable(byte[].class), any(CancellationSignal.class),
-+                callback.capture(), any(int[].class), eq(surface), eq(false), same(mIntent));
-+        return callback.getValue();
-+    }
-+
-+    @Test
-+    public void halPreview_waitsForSurfaceAndStartsOnlyOnce() {
-+        final FaceEnrollSidecar sidecar = startSidecar(true);
-+        verifyNoInteractions(mUpdater);
-+        final FaceEnrollSidecar.PreviewSurface preview =
-+                new FaceEnrollSidecar.PreviewSurface(mTexture, mSurface);
-+        sidecar.setPreviewSurface(preview);
-+        final FaceManager.EnrollmentCallback callback = captureCallback(mSurface);
-+        sidecar.setPreviewSurface(preview);
-+        sidecar.startEnrollment();
-+        verify(mSurface, never()).release();
-+        verify(mUpdater, times(1)).enroll(anyInt(), nullable(byte[].class),
-+                any(CancellationSignal.class), any(FaceManager.EnrollmentCallback.class),
-+                any(int[].class), same(mSurface), eq(false), same(mIntent));
-+        callback.onEnrollmentError(FACE_ERROR_CANCELED, "Canceled");
-+    }
-+
-+    @Test
-+    public void cancellation_keepsDetachedProducerUntilTerminalCallback() {
-+        final FaceEnrollSidecar sidecar = startSidecar(true);
-+        final FaceEnrollSidecar.PreviewSurface preview =
-+                new FaceEnrollSidecar.PreviewSurface(mTexture, mSurface);
-+        sidecar.setPreviewSurface(preview);
-+        final FaceManager.EnrollmentCallback callback = captureCallback(mSurface);
-+        sidecar.cancelEnrollment();
-+        preview.detachTexture();
-+        verify(mSurface, never()).release();
-+        verify(mTexture, never()).release();
-+        callback.onEnrollmentError(FACE_ERROR_CANCELED, "Canceled");
-+        callback.onEnrollmentError(FACE_ERROR_CANCELED, "Late duplicate");
-+        verify(mSurface, times(1)).release();
-+        verify(mTexture, times(1)).release();
-+    }
-+
-+    @Test
-+    public void completedGeneration_ignoresLateHelpAndDoesNotRestart() {
-+        final FaceEnrollSidecar sidecar = startSidecar(true);
-+        final BiometricEnrollSidecar.Listener listener = mock(BiometricEnrollSidecar.Listener.class);
-+        sidecar.setListener(listener);
-+        sidecar.setPreviewSurface(new FaceEnrollSidecar.PreviewSurface(mTexture, mSurface));
-+        final FaceManager.EnrollmentCallback callback = captureCallback(mSurface);
-+        callback.onEnrollmentProgress(0);
-+        callback.onEnrollmentHelp(1, "Late help");
-+        sidecar.startEnrollment();
-+        verify(listener).onEnrollmentProgressChange(0, 0);
-+        verify(listener, never()).onEnrollmentHelp(anyInt(), any());
-+        verify(mUpdater, times(1)).enroll(anyInt(), nullable(byte[].class),
-+                any(CancellationSignal.class), any(FaceManager.EnrollmentCallback.class),
-+                any(int[].class), same(mSurface), eq(false), same(mIntent));
-+        verify(mSurface).release();
-+        verify(mTexture, never()).release();
-+    }
-+
-+    @Test
-+    public void replacementSurface_releasesOnlyRejectedGeneration() {
-+        final FaceEnrollSidecar sidecar = startSidecar(true);
-+        sidecar.setPreviewSurface(new FaceEnrollSidecar.PreviewSurface(mTexture, mSurface));
-+        final FaceManager.EnrollmentCallback callback = captureCallback(mSurface);
-+        final Surface replacement = mock(Surface.class);
-+        final SurfaceTexture replacementTexture = mock(SurfaceTexture.class);
-+        final FaceEnrollSidecar.PreviewSurface preview =
-+                new FaceEnrollSidecar.PreviewSurface(replacementTexture, replacement);
-+        sidecar.setPreviewSurface(preview);
-+        verify(replacement).release();
-+        verify(mSurface, never()).release();
-+        preview.detachTexture();
-+        verify(replacementTexture).release();
-+        callback.onEnrollmentError(FACE_ERROR_CANCELED, "Canceled");
-+    }
-+
-+    @Test
-+    public void legacyPreview_enrollsWithNullSurface() {
-+        startSidecar(false);
-+        captureCallback(null).onEnrollmentError(FACE_ERROR_CANCELED, "Canceled");
-+    }
-+}
-
-base-commit: 72494c35b673f1b531e1218160e1e514976f6a1e
-
-From cf17588db8ba4dec038059c2b0cae9d8aecd71a3 Mon Sep 17 00:00:00 2001
-From: tunkoal <tunkoal@163.com>
-Date: Fri, 16 Oct 2026 14:35:03 +0800
-Subject: [PATCH 2/6] Settings: Route color profiles to the LiveDisplay owner
-
-Match the existing display-list replacement in controller, search and Catalyst availability. Redirect direct fragment launches to the existing Parts intent, and prevent stale standard radio controls from writing ColorDisplayManager while LiveDisplay owns profiles. Use declared hardware capability rather than transient HAL reads.
-
-Add test sources for empty competing choices and rejected platform writes. Source and diff checks only; Android compilation and test execution remain deferred to the combined candidate.
-
-Change-Id: I2d5552ec9f7413543778ce2054047b8e08993472
----
- .../ColorModePreferenceController.java        |  3 ++
- .../display/ColorModePreferenceFragment.java  | 31 ++++++++++++++++++-
- .../settings/display/ColorModeScreen.kt       |  4 ++-
- .../settings/display/ColorModeUtils.kt        | 22 ++++++++++++-
- .../ColorModePreferenceFragmentTest.java      | 21 +++++++++++++
- 5 files changed, 78 insertions(+), 3 deletions(-)
-
-diff --git a/src/com/android/settings/display/ColorModePreferenceController.java b/src/com/android/settings/display/ColorModePreferenceController.java
-index 04ffdb8ea8d25195d1874dbb74c309ae2ac0b181..01425f287eb27b4e9627e1ea7d1bf03b212618bd 100644
---- a/src/com/android/settings/display/ColorModePreferenceController.java
-+++ b/src/com/android/settings/display/ColorModePreferenceController.java
-@@ -53,6 +53,9 @@ public class ColorModePreferenceController extends BasePreferenceController
- 
-     @Override
-     public int getAvailabilityStatus() {
-+        if (ColorModeUtils.hasLiveDisplayColorProfiles(mContext)) {
-+            return UNSUPPORTED_ON_DEVICE;
-+        }
-         final int[] availableColorModes = mContext.getResources().getIntArray(
-                 com.android.internal.R.array.config_availableColorModes);
-         return mContext.getSystemService(ColorDisplayManager.class)
-diff --git a/src/com/android/settings/display/ColorModePreferenceFragment.java b/src/com/android/settings/display/ColorModePreferenceFragment.java
-index 63443ce908c0421b67c5bb87578124eebdaaa277..81569c23e622ceeeede01a221d2860223e251df4 100644
---- a/src/com/android/settings/display/ColorModePreferenceFragment.java
-+++ b/src/com/android/settings/display/ColorModePreferenceFragment.java
-@@ -22,7 +22,9 @@ import static android.hardware.display.ColorDisplayManager.VENDOR_COLOR_MODE_RAN
- 
- import android.app.settings.SettingsEnums;
- import android.content.ContentResolver;
-+import android.content.ActivityNotFoundException;
- import android.content.Context;
-+import android.content.Intent;
- import android.content.res.Resources;
- import android.database.ContentObserver;
- import android.graphics.drawable.Drawable;
-@@ -32,6 +34,7 @@ import android.os.Bundle;
- import android.os.Handler;
- import android.os.Looper;
- import android.provider.Settings.Secure;
-+import android.util.Log;
- import android.view.View;
- import android.view.ViewGroup;
- import android.widget.ImageView;
-@@ -52,6 +55,7 @@ import com.android.settingslib.widget.LayoutPreference;
- 
- import java.util.ArrayList;
- import java.util.Arrays;
-+import java.util.Collections;
- import java.util.List;
- import java.util.Map;
- 
-@@ -113,6 +117,17 @@ public class ColorModePreferenceFragment extends RadioButtonPickerFragment {
-     @Override
-     public void onCreate(Bundle savedInstanceState) {
-         super.onCreate(savedInstanceState);
-+        final Intent liveDisplay = ColorModeUtils.getLiveDisplayColorProfilesIntent(
-+                requireContext());
-+        if (liveDisplay != null) {
-+            try {
-+                startActivity(liveDisplay);
-+            } catch (ActivityNotFoundException e) {
-+                Log.w("ColorModeSettings", "LiveDisplay color profile page unavailable", e);
-+            }
-+            requireActivity().finish();
-+            return;
-+        }
-         if (savedInstanceState != null) {
-             final int selectedPosition = savedInstanceState.getInt(PAGE_VIEWER_SELECTION_INDEX);
-             mViewPager.setCurrentItem(selectedPosition);
-@@ -132,7 +147,9 @@ public class ColorModePreferenceFragment extends RadioButtonPickerFragment {
-     @Override
-     public void onSaveInstanceState(Bundle outState){
-         super.onSaveInstanceState(outState);
--        outState.putInt(PAGE_VIEWER_SELECTION_INDEX, mViewPager.getCurrentItem());
-+        if (mViewPager != null) {
-+            outState.putInt(PAGE_VIEWER_SELECTION_INDEX, mViewPager.getCurrentItem());
-+        }
-     }
- 
-     @Override
-@@ -213,6 +230,9 @@ public class ColorModePreferenceFragment extends RadioButtonPickerFragment {
- 
-     @Override
-     protected List<? extends CandidateInfo> getCandidates() {
-+        if (usesLiveDisplayColorProfiles()) {
-+            return Collections.emptyList();
-+        }
-         final Map<Integer, String> colorModesToSummaries =
-                 ColorModeUtils.getColorModeMapping(mResources);
-         final List<ColorModeCandidateInfo> candidates = new ArrayList<>();
-@@ -236,6 +256,9 @@ public class ColorModePreferenceFragment extends RadioButtonPickerFragment {
- 
-     @Override
-     protected boolean setDefaultKey(String key) {
-+        if (usesLiveDisplayColorProfiles()) {
-+            return false;
-+        }
-         int colorMode = Integer.parseInt(key.substring(key.lastIndexOf("_") + 1));
-         if (isValidColorMode(colorMode)) {
-             setColorMode(colorMode);
-@@ -243,6 +266,11 @@ public class ColorModePreferenceFragment extends RadioButtonPickerFragment {
-         return true;
-     }
- 
-+    @VisibleForTesting
-+    boolean usesLiveDisplayColorProfiles() {
-+        return getContext() != null && ColorModeUtils.hasLiveDisplayColorProfiles(getContext());
-+    }
-+
-     @Override
-     public @Nullable String getPreferenceScreenBindingKey(@NonNull Context context) {
-         return ColorModeScreen.KEY;
-@@ -400,6 +428,7 @@ public class ColorModePreferenceFragment extends RadioButtonPickerFragment {
-                     final int[] availableColorModes =
-                             ColorModeUtils.getAvailableColorModes(context);
-                     return availableColorModes != null && availableColorModes.length > 0
-+                            && !ColorModeUtils.hasLiveDisplayColorProfiles(context)
-                             && !ColorDisplayManager.areAccessibilityTransformsEnabled(context);
-                 }
-             };
-diff --git a/src/com/android/settings/display/ColorModeScreen.kt b/src/com/android/settings/display/ColorModeScreen.kt
-index fd81432d1efcc6b40ab49e527d9c74e6a9dbde79..9b64262450b6cf08ce79a640aa76c0d9a871bd8e 100644
---- a/src/com/android/settings/display/ColorModeScreen.kt
-+++ b/src/com/android/settings/display/ColorModeScreen.kt
-@@ -72,6 +72,7 @@ open class ColorModeScreen :
-     private var settingsKeyedObserver: KeyedObserver<String>? = null
- 
-     override fun isAvailable(context: Context): Boolean {
-+        if (ColorModeUtils.hasLiveDisplayColorProfiles(context)) return false
-         val colorManager = context.getSystemService(ColorDisplayManager::class.java) ?: return false
-         return colorManager.isDeviceColorManaged &&
-             !ColorDisplayManager.areAccessibilityTransformsEnabled(context)
-@@ -80,7 +81,8 @@ open class ColorModeScreen :
-     override fun getSummary(context: Context): CharSequence? = getActiveColorModeName(context)
- 
-     override fun getLaunchIntent(context: Context, metadata: PreferenceMetadata?) =
--        makeLaunchIntent(context, ColorModeActivity::class.java, metadata?.key)
-+        ColorModeUtils.getLiveDisplayColorProfilesIntent(context)
-+            ?: makeLaunchIntent(context, ColorModeActivity::class.java, metadata?.key)
- 
-     override fun onStart(context: PreferenceLifecycleContext) {
-         if (isEntryPoint(context)) {
-diff --git a/src/com/android/settings/display/ColorModeUtils.kt b/src/com/android/settings/display/ColorModeUtils.kt
-index 01a6a50c0fe1a0fe76ca31ecfabb6b9b3664df22..5f5d94c673bbfbce7f73790eabc486a36be40186 100644
---- a/src/com/android/settings/display/ColorModeUtils.kt
-+++ b/src/com/android/settings/display/ColorModeUtils.kt
-@@ -16,17 +16,37 @@
- package com.android.settings.display
- 
- import android.content.Context
-+import android.content.Intent
- import android.content.res.Resources
- import android.hardware.display.ColorDisplayManager
- import android.hardware.display.ColorDisplayManager.*
- import android.util.Log
- 
- import com.android.settings.R
-+import lineageos.hardware.LineageHardwareManager
-+import lineageos.preference.PartsList
- 
- object ColorModeUtils {
- 
-     private val TAG = "ColorModeUtils"
- 
-+    /** Match the LiveDisplay replacement in display_settings.xml, even during a HAL restart. */
-+    @JvmStatic
-+    fun hasLiveDisplayColorProfiles(context: Context): Boolean =
-+        context.resources.getBoolean(
-+            org.lineageos.platform.internal.R.bool.config_enableLiveDisplay
-+        ) && LineageHardwareManager.getInstance(context).isSupported(
-+            LineageHardwareManager.FEATURE_DISPLAY_MODES
-+        ) && PartsList.get(context).getPartInfo("live_display_color_profile") != null
-+
-+    @JvmStatic
-+    fun getLiveDisplayColorProfilesIntent(context: Context): Intent? =
-+        if (hasLiveDisplayColorProfiles(context)) {
-+            PartsList.get(context).getPartInfo("live_display_color_profile")?.intentForActivity
-+        } else {
-+            null
-+        }
-+
-     @JvmStatic
-     fun getColorModeMapping(resources: Resources): Map<Int, String> {
-         val colorModeOptionsStrings = resources.getStringArray(
-@@ -62,4 +82,4 @@ object ColorModeUtils {
-     @JvmStatic
-     fun getAvailableColorModes(context: Context): IntArray =
-         context.getResources().getIntArray(com.android.internal.R.array.config_availableColorModes)
--}
-\ No newline at end of file
-+}
-diff --git a/tests/unit/src/com/android/settings/display/ColorModePreferenceFragmentTest.java b/tests/unit/src/com/android/settings/display/ColorModePreferenceFragmentTest.java
-index b3a2770baf8e04d4f7d563731976dded65249396..13d30b74cad0cee1a360fab9b084506a61f980d0 100644
---- a/tests/unit/src/com/android/settings/display/ColorModePreferenceFragmentTest.java
-+++ b/tests/unit/src/com/android/settings/display/ColorModePreferenceFragmentTest.java
-@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
- import static org.mockito.ArgumentMatchers.anyInt;
- import static org.mockito.Mockito.doNothing;
- import static org.mockito.Mockito.doReturn;
-+import static org.mockito.Mockito.never;
- import static org.mockito.Mockito.spy;
- import static org.mockito.Mockito.verify;
- import static org.mockito.Mockito.when;
-@@ -63,6 +64,26 @@ public class ColorModePreferenceFragmentTest {
-                 .isEqualTo(MetricsProto.MetricsEvent.COLOR_MODE_SETTINGS);
-     }
- 
-+    @Test
-+    @UiThreadTest
-+    public void getCandidates_liveDisplayOwnsProfiles_returnsEmpty() {
-+        mFragment.onAttach(mContext);
-+        doReturn(true).when(mFragment).usesLiveDisplayColorProfiles();
-+
-+        assertThat(mFragment.getCandidates()).isEmpty();
-+    }
-+
-+    @Test
-+    @UiThreadTest
-+    public void setKey_liveDisplayOwnsProfiles_doesNotWritePlatformMode() {
-+        mFragment.onAttach(mContext);
-+        doReturn(true).when(mFragment).usesLiveDisplayColorProfiles();
-+
-+        assertThat(mFragment.setDefaultKey(
-+                mFragment.getKeyForColorMode(ColorDisplayManager.COLOR_MODE_NATURAL))).isFalse();
-+        verify(mFragment, never()).setColorMode(anyInt());
-+    }
-+
-     @Test
-     @UiThreadTest
-     public void getCandidates_all() {
-
-From 6a1b3650729f5ce3cb3189cc1fe2663809d88365 Mon Sep 17 00:00:00 2001
-From: codex <codex@local>
-Date: Sat, 17 Oct 2026 14:53:32 +0800
-Subject: [PATCH 3/6] Settings: Read the cached face enrollment limit before
- the callback lands
-
-Change-Id: I58274759105a5c5cb7882a4a8a496caf8496b26d
----
- .../biometrics/face/FaceFeatureProviderImpl.java   | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
-
-diff --git a/src/com/android/settings/biometrics/face/FaceFeatureProviderImpl.java b/src/com/android/settings/biometrics/face/FaceFeatureProviderImpl.java
-index d93b8b0963536f22356250350f33e62b5777a3db..f66e451dcb9c89b4df2536d1e9054016d76f1d33 100644
---- a/src/com/android/settings/biometrics/face/FaceFeatureProviderImpl.java
-+++ b/src/com/android/settings/biometrics/face/FaceFeatureProviderImpl.java
-@@ -91,6 +91,20 @@ public class FaceFeatureProviderImpl implements FaceFeatureProvider {
- 
-     @Override
-     public int getMaxEnrollableCount(@NonNull Context context) {
-+        if (mMaxEnrollableCount == -1) {
-+            // The registered callback is delivered asynchronously, so the first
-+            // query of the enrollment flow can arrive before it. Fall back to
-+            // the synchronous cache the framework already holds.
-+            final FaceManager faceManager = Utils.getFaceManagerOrNull(context);
-+            if (faceManager != null) {
-+                final List<FaceSensorPropertiesInternal> sensors =
-+                        faceManager.getSensorPropertiesInternal();
-+                if (sensors != null && !sensors.isEmpty()) {
-+                    mMaxEnrollableCount = sensors.get(0).maxEnrollmentsPerUser;
-+                    Log.d(TAG, "max enrollable count from cache: " + mMaxEnrollableCount);
-+                }
-+            }
-+        }
-         if (mMaxEnrollableCount == -1) {
-             Log.e(TAG, "The max enrollable count is not yet initialized.");
-             return 0;
-
-From c57e861333cc861c56a65e3eda7978f2f2ac565f Mon Sep 17 00:00:00 2001
-From: codex <codex@local>
-Date: Sat, 17 Oct 2026 15:14:38 +0800
-Subject: [PATCH 4/6] Settings: Match the face enrollment mask to the current
- theme
-
-Change-Id: Ib9cd13d26796a98322513f868831cf3a46754f34
----
- .../face/FaceEnrollAnimationDrawable.java      | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
-
-diff --git a/src/com/android/settings/biometrics/face/FaceEnrollAnimationDrawable.java b/src/com/android/settings/biometrics/face/FaceEnrollAnimationDrawable.java
-index 5be7c5331d3196008165d4ae9e5a44b7cc82c90f..45874b23d8c55ded97a86f5dbad16a76048864cf 100644
---- a/src/com/android/settings/biometrics/face/FaceEnrollAnimationDrawable.java
-+++ b/src/com/android/settings/biometrics/face/FaceEnrollAnimationDrawable.java
-@@ -27,6 +27,7 @@ import android.graphics.PorterDuff;
- import android.graphics.PorterDuffXfermode;
- import android.graphics.Rect;
- import android.graphics.drawable.Drawable;
-+import android.util.TypedValue;
- 
- import com.android.settings.biometrics.BiometricEnrollSidecar;
- 
-@@ -66,7 +67,7 @@ public class FaceEnrollAnimationDrawable extends Drawable
-         mListener = listener;
- 
-         mSquarePaint = new Paint();
--        mSquarePaint.setColor(Color.WHITE);
-+        mSquarePaint.setColor(resolveBackgroundColor(context));
-         mSquarePaint.setAntiAlias(true);
- 
-         mCircleCutoutPaint = new Paint();
-@@ -75,6 +76,21 @@ public class FaceEnrollAnimationDrawable extends Drawable
-         mCircleCutoutPaint.setAntiAlias(true);
-     }
- 
-+    /** The area outside the cutout must match the current theme, not a fixed white. */
-+    private static int resolveBackgroundColor(Context context) {
-+        final TypedValue value = new TypedValue();
-+        if (context.getTheme().resolveAttribute(android.R.attr.colorBackground, value, true)) {
-+            if (value.type >= TypedValue.TYPE_FIRST_COLOR_INT
-+                    && value.type <= TypedValue.TYPE_LAST_COLOR_INT) {
-+                return value.data;
-+            }
-+            if (value.resourceId != 0) {
-+                return context.getColor(value.resourceId);
-+            }
-+        }
-+        return Color.WHITE;
-+    }
-+
-     @Override
-     public void onEnrollmentHelp(int helpMsgId, CharSequence helpString) {
-         mParticleCollection.onEnrollmentHelp(helpMsgId, helpString);
-
-From edd755ce8debf4ff91c0a210e969dc0b87649a1f Mon Sep 17 00:00:00 2001
-From: tunkoal <tunkoal@163.com>
-Date: Sat, 14 Nov 2026 00:28:44 +0800
-Subject: [PATCH 5/6] Settings: show disabled LE-only audio profile controls
-
-The upstream LE-only toggle hiding rule also hides a forbidden profile,
-preventing users from enabling audio after an incomplete CSIP pairing.
-Hide the toggle only while the profile is enabled. Extend existing tests
-for both states. Diff checks passed; Robolectric/build/device UI validation
-are pending. Evidence: BLUETOOTH_CODEC_DETAILS_20261113.zh-CN.md.
-
-Recorded before the LineageOS 24.0 migration. See the project integration
-record bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md for companion
-repository revisions and validation boundaries.
-
-Change-Id: I77fddc3e5caf51a11f396b263e12bd1b7e4efca4
----
- .../BluetoothDetailsProfilesController.java      |  3 ++-
- .../BluetoothDetailsProfilesControllerTest.java  | 16 ++++++++++++++--
- 2 files changed, 16 insertions(+), 3 deletions(-)
-
-diff --git a/src/com/android/settings/bluetooth/BluetoothDetailsProfilesController.java b/src/com/android/settings/bluetooth/BluetoothDetailsProfilesController.java
-index 756de1f65229a8f4190b32ab26a40ae290a77bc2..031030a87909fb66ceb5134c4c29d1c248208b5c 100644
---- a/src/com/android/settings/bluetooth/BluetoothDetailsProfilesController.java
-+++ b/src/com/android/settings/bluetooth/BluetoothDetailsProfilesController.java
-@@ -203,7 +203,8 @@ public class BluetoothDetailsProfilesController extends BluetoothDetailsControll
- 
-         if (profile instanceof LeAudioProfile) {
-             boolean showLeAudioToggle = mIsLeAudioToggleEnabled;
--            if (Flags.hideLeAudioToggleForLeAudioOnlyDevice() && mIsLeAudioOnlyDevice) {
-+            if (Flags.hideLeAudioToggleForLeAudioOnlyDevice() && mIsLeAudioOnlyDevice
-+                    && profile.isEnabled(device)) {
-                 showLeAudioToggle = false;
-                 Log.d(
-                         TAG,
-diff --git a/tests/robotests/src/com/android/settings/bluetooth/BluetoothDetailsProfilesControllerTest.java b/tests/robotests/src/com/android/settings/bluetooth/BluetoothDetailsProfilesControllerTest.java
-index 49be28fe259a5a489d6ed730a3c872d88a79bdee..437970812cc894abcbe1080bd96d37d0397f436f 100644
---- a/tests/robotests/src/com/android/settings/bluetooth/BluetoothDetailsProfilesControllerTest.java
-+++ b/tests/robotests/src/com/android/settings/bluetooth/BluetoothDetailsProfilesControllerTest.java
-@@ -638,10 +638,10 @@ public class BluetoothDetailsProfilesControllerTest extends BluetoothDetailsCont
-     }
- 
-     @Test
--    public void leAudioOnlyDevice_hideLeAudioToggle() {
-+    public void leAudioOnlyDevice_hideLeAudioToggleWhenEnabled() {
-         mSetFlagsRule.enableFlags(Flags.FLAG_HIDE_LE_AUDIO_TOGGLE_FOR_LE_AUDIO_ONLY_DEVICE);
-         setupDevice(makeDefaultDeviceConfig());
--        addLeAudioProfileToDevice(false);
-+        addLeAudioProfileToDevice(true);
- 
-         showScreen(mController);
- 
-@@ -649,6 +649,18 @@ public class BluetoothDetailsProfilesControllerTest extends BluetoothDetailsCont
-         assertThat(switches.get(0).isVisible()).isFalse();
-     }
- 
-+    @Test
-+    public void leAudioOnlyDevice_showLeAudioToggleWhenDisabled() {
-+        mSetFlagsRule.enableFlags(Flags.FLAG_HIDE_LE_AUDIO_TOGGLE_FOR_LE_AUDIO_ONLY_DEVICE);
-+        setupDevice(makeDefaultDeviceConfig());
-+        addLeAudioProfileToDevice(false);
-+
-+        showScreen(mController);
-+
-+        List<SwitchPreferenceCompat> switches = getProfileSwitches(false);
-+        assertThat(switches.get(0).isVisible()).isTrue();
-+    }
-+
-     @Test
-     public void ashaHearingAid_hideAshaToggle() {
-         setupDevice(makeDefaultDeviceConfig());
-
-From af4781d63516ea942a741964ce01aafe82e03fc3 Mon Sep 17 00:00:00 2001
-From: tunkoal <tunkoal@163.com>
-Date: Sat, 14 Nov 2026 00:28:44 +0800
-Subject: [PATCH 6/6] Settings: add LHDC software codec configuration controls
-
-Add supported LHDC quality, latency, lossless and PCM controls and keep
-codec-specific fields synchronized. Stock libraries do not provide newer
-RAW-lossless entrypoints. References: project LHDC sources.json and
-LHDC_20261113.zh-CN.md. Nov 13 IMG build and V5 playback passed.
-
-Recorded before the LineageOS 24.0 migration. See the project integration
-record bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md for companion
-repository revisions and validation boundaries.
-
-Change-Id: I720ae677156484df2d3422472f47f1e71fbb40f4
+Validation: whitespace and conflict-marker checks passed. Extracted
+brightness persistence checks passed where applicable. Android compilation,
+full platform tests and flashed 24.0 acceptance remain pending.
 ---
  .../bluetooth_audio_sample_rate_dialog.xml    |  10 +
- .../bluetooth_lhdc_audio_latency_dialog.xml   |  50 +++
- .../bluetooth_lhdc_audio_lossless_dialog.xml  |  50 +++
- .../bluetooth_lhdc_audio_quality_dialog.xml   |  92 +++++
- res/xml/development_settings.xml              |  27 ++
+ .../bluetooth_lhdc_audio_latency_dialog.xml   |  49 +++
+ .../bluetooth_lhdc_audio_lossless_dialog.xml  |  49 +++
+ .../bluetooth_lhdc_audio_quality_dialog.xml   |  91 +++++
+ res/xml/bluetooth_development_settings.xml    |  27 ++
+ .../face/FaceFeatureProviderImpl.java         |  14 +
+ .../BluetoothDetailsProfilesController.java   |   2 +-
  .../development/BluetoothA2dpConfigStore.java |  20 +-
- .../DevelopmentSettingsDashboardFragment.java |  11 +
- ...ctBluetoothDialogPreferenceController.java |   5 +
+ ...ctBluetoothDialogPreferenceController.java |   3 +
  ...itPerSampleDialogPreferenceController.java |   8 +-
  ...ChannelModeDialogPreferenceController.java |   8 +-
  ...luetoothCodecListPreferenceController.java |   3 +
+ .../BluetoothDevelopmentSettingsFragment.kt   |   3 +
  ...toothLHDCAudioLatencyDialogPreference.java |  79 ++++
  ...udioLatencyDialogPreferenceController.java | 144 +++++++
  ...oothLHDCAudioLosslessDialogPreference.java |  79 ++++
@@ -1336,7 +39,13 @@ Change-Id: I720ae677156484df2d3422472f47f1e71fbb40f4
  ...LHDCQualityDialogPreferenceController.java | 356 ++++++++++++++++++
  .../BluetoothSampleRateDialogPreference.java  |  10 +
  ...hSampleRateDialogPreferenceController.java |  35 +-
- 19 files changed, 1221 insertions(+), 10 deletions(-)
+ .../ColorModePreferenceController.java        |   3 +
+ .../display/ColorModePreferenceFragment.java  |  29 +-
+ .../settings/display/ColorModeScreen.kt       |   4 +-
+ .../settings/display/ColorModeUtils.kt        |  22 +-
+ ...luetoothDetailsProfilesControllerTest.java |  15 +-
+ .../ColorModePreferenceFragmentTest.java      |  21 ++
+ 27 files changed, 1312 insertions(+), 16 deletions(-)
  create mode 100755 res/layout/bluetooth_lhdc_audio_latency_dialog.xml
  create mode 100755 res/layout/bluetooth_lhdc_audio_lossless_dialog.xml
  create mode 100755 res/layout/bluetooth_lhdc_audio_quality_dialog.xml
@@ -1348,7 +57,7 @@ Change-Id: I720ae677156484df2d3422472f47f1e71fbb40f4
  create mode 100755 src/com/android/settings/development/bluetooth/BluetoothLHDCQualityDialogPreferenceController.java
 
 diff --git a/res/layout/bluetooth_audio_sample_rate_dialog.xml b/res/layout/bluetooth_audio_sample_rate_dialog.xml
-index 03bbe48bd9b8484a92f050abbb5f92302af37cdd..780d0bf313cefc77140eba38e19cc135e7b937a5 100644
+index 03bbe48bd9b..780d0bf313c 100644
 --- a/res/layout/bluetooth_audio_sample_rate_dialog.xml
 +++ b/res/layout/bluetooth_audio_sample_rate_dialog.xml
 @@ -50,6 +50,16 @@
@@ -1370,10 +79,10 @@ index 03bbe48bd9b8484a92f050abbb5f92302af37cdd..780d0bf313cefc77140eba38e19cc135
          <include
 diff --git a/res/layout/bluetooth_lhdc_audio_latency_dialog.xml b/res/layout/bluetooth_lhdc_audio_latency_dialog.xml
 new file mode 100755
-index 0000000000000000000000000000000000000000..fb9e0ea312707f7d6e0b62748715427e39abfb55
+index 00000000000..5b0ba1b3d92
 --- /dev/null
 +++ b/res/layout/bluetooth_lhdc_audio_latency_dialog.xml
-@@ -0,0 +1,50 @@
+@@ -0,0 +1,49 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<!-- Copyright (C) 2023 The Android Open Source Project
 +
@@ -1423,13 +132,12 @@ index 0000000000000000000000000000000000000000..fb9e0ea312707f7d6e0b62748715427e
 +    </LinearLayout>
 +
 +</ScrollView>
-+
 diff --git a/res/layout/bluetooth_lhdc_audio_lossless_dialog.xml b/res/layout/bluetooth_lhdc_audio_lossless_dialog.xml
 new file mode 100755
-index 0000000000000000000000000000000000000000..ea7ffc7224ae0fdff3561e1d775c62f9fee7baf3
+index 00000000000..aee819ca103
 --- /dev/null
 +++ b/res/layout/bluetooth_lhdc_audio_lossless_dialog.xml
-@@ -0,0 +1,50 @@
+@@ -0,0 +1,49 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<!-- Copyright (C) 2023 The Android Open Source Project
 +
@@ -1479,13 +187,12 @@ index 0000000000000000000000000000000000000000..ea7ffc7224ae0fdff3561e1d775c62f9
 +    </LinearLayout>
 +
 +</ScrollView>
-+
 diff --git a/res/layout/bluetooth_lhdc_audio_quality_dialog.xml b/res/layout/bluetooth_lhdc_audio_quality_dialog.xml
 new file mode 100755
-index 0000000000000000000000000000000000000000..3d959ff980df21a7873e2076640b83ec2f1fcc8e
+index 00000000000..781fd887622
 --- /dev/null
 +++ b/res/layout/bluetooth_lhdc_audio_quality_dialog.xml
-@@ -0,0 +1,92 @@
+@@ -0,0 +1,91 @@
 +<?xml version="1.0" encoding="utf-8"?>
 +<!-- Copyright (C) 2019 The Android Open Source Project
 +
@@ -1577,12 +284,11 @@ index 0000000000000000000000000000000000000000..3d959ff980df21a7873e2076640b83ec
 +    </LinearLayout>
 +
 +</ScrollView>
-+
-diff --git a/res/xml/development_settings.xml b/res/xml/development_settings.xml
-index 5ce46b135f0d59c5fbb331189e16b2ab34b436df..50b0e2c9e7978073ac813ab6481778c2044ce1e1 100644
---- a/res/xml/development_settings.xml
-+++ b/res/xml/development_settings.xml
-@@ -479,6 +479,33 @@
+diff --git a/res/xml/bluetooth_development_settings.xml b/res/xml/bluetooth_development_settings.xml
+index 7e700f2946d..e201a62421f 100644
+--- a/res/xml/bluetooth_development_settings.xml
++++ b/res/xml/bluetooth_development_settings.xml
+@@ -167,6 +167,33 @@
              android:positiveButtonText=""
              android:negativeButtonText="@string/dlg_ok"/>
  
@@ -1616,8 +322,46 @@ index 5ce46b135f0d59c5fbb331189e16b2ab34b436df..50b0e2c9e7978073ac813ab6481778c2
          <ListPreference
              android:key="bluetooth_max_connected_audio_devices"
              android:title="@string/bluetooth_max_connected_audio_devices_string"
+diff --git a/src/com/android/settings/biometrics/face/FaceFeatureProviderImpl.java b/src/com/android/settings/biometrics/face/FaceFeatureProviderImpl.java
+index 2403772ccba..7f42a205e91 100644
+--- a/src/com/android/settings/biometrics/face/FaceFeatureProviderImpl.java
++++ b/src/com/android/settings/biometrics/face/FaceFeatureProviderImpl.java
+@@ -91,6 +91,20 @@ public class FaceFeatureProviderImpl implements FaceFeatureProvider {
+ 
+     @Override
+     public int getMaxEnrollableCount(@NonNull Context context) {
++        if (mMaxEnrollableCount == -1) {
++            // The registered callback is delivered asynchronously, so the first
++            // query of the enrollment flow can arrive before it. Fall back to
++            // the synchronous cache the framework already holds.
++            final FaceManager faceManager = Utils.getFaceManagerOrNull(context);
++            if (faceManager != null) {
++                final List<FaceSensorPropertiesInternal> sensors =
++                        faceManager.getSensorPropertiesInternal();
++                if (sensors != null && !sensors.isEmpty()) {
++                    mMaxEnrollableCount = sensors.get(0).maxEnrollmentsPerUser;
++                    Log.d(TAG, "max enrollable count from cache: " + mMaxEnrollableCount);
++                }
++            }
++        }
+         if (mMaxEnrollableCount == -1) {
+             Log.e(TAG, "The max enrollable count is not yet initialized.");
+             return 0;
+diff --git a/src/com/android/settings/bluetooth/BluetoothDetailsProfilesController.java b/src/com/android/settings/bluetooth/BluetoothDetailsProfilesController.java
+index b6d25a12556..f6979146d32 100644
+--- a/src/com/android/settings/bluetooth/BluetoothDetailsProfilesController.java
++++ b/src/com/android/settings/bluetooth/BluetoothDetailsProfilesController.java
+@@ -199,7 +199,7 @@ public class BluetoothDetailsProfilesController extends BluetoothDetailsControll
+ 
+         if (profile instanceof LeAudioProfile) {
+             boolean showLeAudioToggle = mIsLeAudioToggleEnabled;
+-            if (mIsLeAudioOnlyDevice) {
++            if (mIsLeAudioOnlyDevice && profile.isEnabled(device)) {
+                 showLeAudioToggle = false;
+                 Log.d(
+                         TAG,
 diff --git a/src/com/android/settings/development/BluetoothA2dpConfigStore.java b/src/com/android/settings/development/BluetoothA2dpConfigStore.java
-index ec4ec5875dc26c8b0e098d2ccd1253eb92657e64..8975b3aad66fddf7f1df74b51c630b2d4062f137 100644
+index ec4ec5875dc..8975b3aad66 100644
 --- a/src/com/android/settings/development/BluetoothA2dpConfigStore.java
 +++ b/src/com/android/settings/development/BluetoothA2dpConfigStore.java
 @@ -25,7 +25,6 @@ import androidx.annotation.Nullable;
@@ -1663,49 +407,11 @@ index ec4ec5875dc26c8b0e098d2ccd1253eb92657e64..8975b3aad66fddf7f1df74b51c630b2d
      /** Create codec config utilizing {@link BluetoothCodecConfig.SourceCodecType} */
      public BluetoothCodecConfig createCodecConfig() {
          BluetoothCodecConfig.Builder builder = new BluetoothCodecConfig.Builder()
-diff --git a/src/com/android/settings/development/DevelopmentSettingsDashboardFragment.java b/src/com/android/settings/development/DevelopmentSettingsDashboardFragment.java
-index 0495ee9e5e05ca1ddf98af614a5c2ed09b8bef7f..6203842a25939b4caa6bbb94c7c65f881d662782 100644
---- a/src/com/android/settings/development/DevelopmentSettingsDashboardFragment.java
-+++ b/src/com/android/settings/development/DevelopmentSettingsDashboardFragment.java
-@@ -72,6 +72,9 @@ import com.android.settings.development.bluetooth.BluetoothChannelModeDialogPref
- import com.android.settings.development.bluetooth.BluetoothCodecListPreferenceController;
- import com.android.settings.development.bluetooth.BluetoothHDAudioPreferenceController;
- import com.android.settings.development.bluetooth.BluetoothQualityDialogPreferenceController;
-+import com.android.settings.development.bluetooth.BluetoothLHDCQualityDialogPreferenceController;
-+import com.android.settings.development.bluetooth.BluetoothLHDCAudioLatencyDialogPreferenceController;
-+import com.android.settings.development.bluetooth.BluetoothLHDCAudioLosslessDialogPreferenceController;
- import com.android.settings.development.bluetooth.BluetoothSampleRateDialogPreferenceController;
- import com.android.settings.development.bluetooth.BluetoothStackLogPreferenceController;
- import com.android.settings.development.desktopexperience.DesktopExperiencePreferenceController;
-@@ -839,6 +842,14 @@ public class DevelopmentSettingsDashboardFragment extends RestrictedDashboardFra
-                 bluetoothA2dpConfigStore));
-         controllers.add(new BluetoothQualityDialogPreferenceController(context, lifecycle,
-                 bluetoothA2dpConfigStore));
-+        // Savitech LHDC -- START
-+        controllers.add(new BluetoothLHDCQualityDialogPreferenceController(context, lifecycle,
-+                bluetoothA2dpConfigStore));
-+        controllers.add(new BluetoothLHDCAudioLatencyDialogPreferenceController(context, lifecycle,
-+                bluetoothA2dpConfigStore));
-+        controllers.add(new BluetoothLHDCAudioLosslessDialogPreferenceController(context, lifecycle,
-+                bluetoothA2dpConfigStore));
-+        // Savitech LHDC -- END
-         controllers.add(new BluetoothChannelModeDialogPreferenceController(context, lifecycle,
-                 bluetoothA2dpConfigStore));
-         controllers.add(new BluetoothHDAudioPreferenceController(context, lifecycle,
 diff --git a/src/com/android/settings/development/bluetooth/AbstractBluetoothDialogPreferenceController.java b/src/com/android/settings/development/bluetooth/AbstractBluetoothDialogPreferenceController.java
-index ea90b4f35250798d32ebd9a2bc416e8ad10093a7..100755e348938483c7c78e8aff71799d3d542305 100644
+index 632e7855944..223eca11905 100644
 --- a/src/com/android/settings/development/bluetooth/AbstractBluetoothDialogPreferenceController.java
 +++ b/src/com/android/settings/development/bluetooth/AbstractBluetoothDialogPreferenceController.java
-@@ -41,6 +41,8 @@ public abstract class AbstractBluetoothDialogPreferenceController extends
-     private static final String TAG = "AbstractBtDlgCtr";
- 
-     protected static final int[] CODEC_TYPES = {
-+            BluetoothCodecConfig.SOURCE_CODEC_TYPE_LHDCV5,
-+            BluetoothCodecConfig.SOURCE_CODEC_TYPE_LHDCV3,
-             BluetoothCodecConfig.SOURCE_CODEC_TYPE_OPUS,
-             BluetoothCodecConfig.SOURCE_CODEC_TYPE_LC3,
-             BluetoothCodecConfig.SOURCE_CODEC_TYPE_LDAC,
-@@ -124,6 +126,9 @@ public abstract class AbstractBluetoothDialogPreferenceController extends
+@@ -116,6 +116,9 @@ public abstract class AbstractBluetoothDialogPreferenceController extends
          mBluetoothA2dpConfigStore.setChannelMode(config.getChannelMode());
          mBluetoothA2dpConfigStore.setCodecPriority(CODEC_PRIORITY_HIGHEST);
          mBluetoothA2dpConfigStore.setCodecSpecific1Value(config.getCodecSpecific1());
@@ -1716,7 +422,7 @@ index ea90b4f35250798d32ebd9a2bc416e8ad10093a7..100755e348938483c7c78e8aff71799d
  
      /**
 diff --git a/src/com/android/settings/development/bluetooth/BluetoothBitPerSampleDialogPreferenceController.java b/src/com/android/settings/development/bluetooth/BluetoothBitPerSampleDialogPreferenceController.java
-index 5cd8af28ac652a44f602f9a03f16cd2d1db652fe..078707e74f43ff0023a14b947e76d5a693baa529 100644
+index 5cd8af28ac6..078707e74f4 100644
 --- a/src/com/android/settings/development/bluetooth/BluetoothBitPerSampleDialogPreferenceController.java
 +++ b/src/com/android/settings/development/bluetooth/BluetoothBitPerSampleDialogPreferenceController.java
 @@ -61,8 +61,12 @@ public class BluetoothBitPerSampleDialogPreferenceController extends
@@ -1735,7 +441,7 @@ index 5cd8af28ac652a44f602f9a03f16cd2d1db652fe..078707e74f43ff0023a14b947e76d5a6
                  break;
              case 1:
 diff --git a/src/com/android/settings/development/bluetooth/BluetoothChannelModeDialogPreferenceController.java b/src/com/android/settings/development/bluetooth/BluetoothChannelModeDialogPreferenceController.java
-index d156abde6b469ca132ef6d39ff2dc9195be9370c..d6ba430dbfb2f77105013f187abdf4512ab396d0 100644
+index d156abde6b4..d6ba430dbfb 100644
 --- a/src/com/android/settings/development/bluetooth/BluetoothChannelModeDialogPreferenceController.java
 +++ b/src/com/android/settings/development/bluetooth/BluetoothChannelModeDialogPreferenceController.java
 @@ -61,8 +61,12 @@ public class BluetoothChannelModeDialogPreferenceController extends
@@ -1754,10 +460,10 @@ index d156abde6b469ca132ef6d39ff2dc9195be9370c..d6ba430dbfb2f77105013f187abdf451
                  break;
              case 1:
 diff --git a/src/com/android/settings/development/bluetooth/BluetoothCodecListPreferenceController.java b/src/com/android/settings/development/bluetooth/BluetoothCodecListPreferenceController.java
-index 11ed93cbd46dfccb1972288ebf3755664210d108..035331fe93a59bba1ed8ca61367e4469292ec4ab 100644
+index fe8338191d2..dd235d040f0 100644
 --- a/src/com/android/settings/development/bluetooth/BluetoothCodecListPreferenceController.java
 +++ b/src/com/android/settings/development/bluetooth/BluetoothCodecListPreferenceController.java
-@@ -348,6 +348,9 @@ public class BluetoothCodecListPreferenceController extends AbstractBluetoothPre
+@@ -354,6 +354,9 @@ public class BluetoothCodecListPreferenceController extends AbstractBluetoothPre
          mBluetoothA2dpConfigStore.setChannelMode(config.getChannelMode());
          mBluetoothA2dpConfigStore.setCodecPriority(BluetoothCodecConfig.CODEC_PRIORITY_HIGHEST);
          mBluetoothA2dpConfigStore.setCodecSpecific1Value(config.getCodecSpecific1());
@@ -1767,9 +473,23 @@ index 11ed93cbd46dfccb1972288ebf3755664210d108..035331fe93a59bba1ed8ca61367e4469
      }
  
      @VisibleForTesting
+diff --git a/src/com/android/settings/development/bluetooth/BluetoothDevelopmentSettingsFragment.kt b/src/com/android/settings/development/bluetooth/BluetoothDevelopmentSettingsFragment.kt
+index 442bd24deb2..983dd0e545e 100644
+--- a/src/com/android/settings/development/bluetooth/BluetoothDevelopmentSettingsFragment.kt
++++ b/src/com/android/settings/development/bluetooth/BluetoothDevelopmentSettingsFragment.kt
+@@ -203,6 +203,9 @@ class BluetoothDevelopmentSettingsFragment :
+                     a2dpConfigStore,
+                 ),
+                 BluetoothQualityDialogPreferenceController(context, lifecycle, a2dpConfigStore),
++                BluetoothLHDCQualityDialogPreferenceController(context, lifecycle, a2dpConfigStore),
++                BluetoothLHDCAudioLatencyDialogPreferenceController(context, lifecycle, a2dpConfigStore),
++                BluetoothLHDCAudioLosslessDialogPreferenceController(context, lifecycle, a2dpConfigStore),
+                 BluetoothChannelModeDialogPreferenceController(context, lifecycle, a2dpConfigStore),
+                 BluetoothHDAudioPreferenceController(context, lifecycle, a2dpConfigStore, fragment),
+             )
 diff --git a/src/com/android/settings/development/bluetooth/BluetoothLHDCAudioLatencyDialogPreference.java b/src/com/android/settings/development/bluetooth/BluetoothLHDCAudioLatencyDialogPreference.java
 new file mode 100755
-index 0000000000000000000000000000000000000000..8447c8d9d1234408f54208cd89ad028b56514e60
+index 00000000000..8447c8d9d12
 --- /dev/null
 +++ b/src/com/android/settings/development/bluetooth/BluetoothLHDCAudioLatencyDialogPreference.java
 @@ -0,0 +1,79 @@
@@ -1854,7 +574,7 @@ index 0000000000000000000000000000000000000000..8447c8d9d1234408f54208cd89ad028b
 +}
 diff --git a/src/com/android/settings/development/bluetooth/BluetoothLHDCAudioLatencyDialogPreferenceController.java b/src/com/android/settings/development/bluetooth/BluetoothLHDCAudioLatencyDialogPreferenceController.java
 new file mode 100755
-index 0000000000000000000000000000000000000000..ab4336f735c6eb353653a6267ace17558776ed12
+index 00000000000..ab4336f735c
 --- /dev/null
 +++ b/src/com/android/settings/development/bluetooth/BluetoothLHDCAudioLatencyDialogPreferenceController.java
 @@ -0,0 +1,144 @@
@@ -2004,7 +724,7 @@ index 0000000000000000000000000000000000000000..ab4336f735c6eb353653a6267ace1755
 +}
 diff --git a/src/com/android/settings/development/bluetooth/BluetoothLHDCAudioLosslessDialogPreference.java b/src/com/android/settings/development/bluetooth/BluetoothLHDCAudioLosslessDialogPreference.java
 new file mode 100755
-index 0000000000000000000000000000000000000000..4f7e2c097e32c8701fb1dbd8d5b43767792aae93
+index 00000000000..4f7e2c097e3
 --- /dev/null
 +++ b/src/com/android/settings/development/bluetooth/BluetoothLHDCAudioLosslessDialogPreference.java
 @@ -0,0 +1,79 @@
@@ -2089,7 +809,7 @@ index 0000000000000000000000000000000000000000..4f7e2c097e32c8701fb1dbd8d5b43767
 +}
 diff --git a/src/com/android/settings/development/bluetooth/BluetoothLHDCAudioLosslessDialogPreferenceController.java b/src/com/android/settings/development/bluetooth/BluetoothLHDCAudioLosslessDialogPreferenceController.java
 new file mode 100755
-index 0000000000000000000000000000000000000000..82cc3ca5ed52d57d1d18bfb4a38d2e799a5fed6b
+index 00000000000..15cca74b0b2
 --- /dev/null
 +++ b/src/com/android/settings/development/bluetooth/BluetoothLHDCAudioLosslessDialogPreferenceController.java
 @@ -0,0 +1,160 @@
@@ -2165,7 +885,7 @@ index 0000000000000000000000000000000000000000..82cc3ca5ed52d57d1d18bfb4a38d2e79
 +            final BluetoothCodecConfig currentConfig = getCurrentCodecConfig();
 +            if (currentConfig != null) {
 +                int codecType = currentConfig.getCodecType();
-+                
++
 +                if (codecType == BluetoothCodecConfig.SOURCE_CODEC_TYPE_LHDCV3) {
 +                    codecSpecific3Value &= ~ LHDC_FEATURE_MASK;
 +                    codecSpecific3Value |= LHDCV3_FEATURE_TAG;
@@ -2200,7 +920,7 @@ index 0000000000000000000000000000000000000000..82cc3ca5ed52d57d1d18bfb4a38d2e79
 +            featureTag = LHDCV5_FEATURE_TAG;
 +        }
 +        index = convertCfgToBtnIndex(featureTag, codecSpecific3Value);
-+        
++
 +        // make a sync from current to storage while get
 +        synchronized (mBluetoothA2dpConfigStore) {
 +            mBluetoothA2dpConfigStore.setCodecSpecific3Value(codecSpecific3Value);
@@ -2255,7 +975,7 @@ index 0000000000000000000000000000000000000000..82cc3ca5ed52d57d1d18bfb4a38d2e79
 +}
 diff --git a/src/com/android/settings/development/bluetooth/BluetoothLHDCQualityDialogPreference.java b/src/com/android/settings/development/bluetooth/BluetoothLHDCQualityDialogPreference.java
 new file mode 100755
-index 0000000000000000000000000000000000000000..27b0225f9e531b8d57392d4b91885a5cb03626b7
+index 00000000000..27b0225f9e5
 --- /dev/null
 +++ b/src/com/android/settings/development/bluetooth/BluetoothLHDCQualityDialogPreference.java
 @@ -0,0 +1,84 @@
@@ -2345,7 +1065,7 @@ index 0000000000000000000000000000000000000000..27b0225f9e531b8d57392d4b91885a5c
 +}
 diff --git a/src/com/android/settings/development/bluetooth/BluetoothLHDCQualityDialogPreferenceController.java b/src/com/android/settings/development/bluetooth/BluetoothLHDCQualityDialogPreferenceController.java
 new file mode 100755
-index 0000000000000000000000000000000000000000..77df80e0d67a5d6388a23e4bb58e68c91067e2a5
+index 00000000000..693d97ccf1e
 --- /dev/null
 +++ b/src/com/android/settings/development/bluetooth/BluetoothLHDCQualityDialogPreferenceController.java
 @@ -0,0 +1,356 @@
@@ -2455,13 +1175,13 @@ index 0000000000000000000000000000000000000000..77df80e0d67a5d6388a23e4bb58e68c9
 +    protected void writeConfigurationValues(final int index) {
 +        synchronized (mBluetoothA2dpConfigStore) {
 +            long codecSpecific1Value = mBluetoothA2dpConfigStore.getCodecSpecific1Value();
-+            
++
 +            final BluetoothCodecConfig currentConfig = getCurrentCodecConfig();
 +
 +            // LHDCV3/V5 selectable items are filtered by product rules
 +            if (currentConfig != null) {
 +                int codecType = currentConfig.getCodecType();
-+                
++
 +                if (codecType == BluetoothCodecConfig.SOURCE_CODEC_TYPE_LHDCV3 ||
 +                    codecType == BluetoothCodecConfig.SOURCE_CODEC_TYPE_LHDCV5) {
 +                    codecSpecific1Value &= ~ DEFAULT_MASK;
@@ -2611,7 +1331,7 @@ index 0000000000000000000000000000000000000000..77df80e0d67a5d6388a23e4bb58e68c9
 +                        (i > INDEX_LOW && i < DEFAULT_MAX_INDEX)) {
 +                        continue;
 +                    }
-+                    if (((codecSpecific1Value & MAX_BITRATE_MASK) == LHDCV3_MAX_BITRATE_INX_MID) && 
++                    if (((codecSpecific1Value & MAX_BITRATE_MASK) == LHDCV3_MAX_BITRATE_INX_MID) &&
 +                        (i > INDEX_MID && i < DEFAULT_MAX_INDEX)) {
 +                        continue;
 +                    }
@@ -2625,11 +1345,11 @@ index 0000000000000000000000000000000000000000..77df80e0d67a5d6388a23e4bb58e68c9
 +                        (i > INDEX_LOW && i < DEFAULT_MAX_INDEX)) {
 +                        continue;
 +                    }
-+                    if (((codecSpecific1Value & MAX_BITRATE_MASK) == LHDCV5_MAX_BITRATE_INX_MID) && 
++                    if (((codecSpecific1Value & MAX_BITRATE_MASK) == LHDCV5_MAX_BITRATE_INX_MID) &&
 +                        (i > INDEX_MID && i < DEFAULT_MAX_INDEX)) {
 +                        continue;
 +                    }
-+                    if (((codecSpecific1Value & MAX_BITRATE_MASK) == LHDCV5_MAX_BITRATE_INX_HIGH) && 
++                    if (((codecSpecific1Value & MAX_BITRATE_MASK) == LHDCV5_MAX_BITRATE_INX_HIGH) &&
 +                        (i > INDEX_HIGH && i < DEFAULT_MAX_INDEX)) {
 +                        continue;
 +                    }
@@ -2639,11 +1359,11 @@ index 0000000000000000000000000000000000000000..77df80e0d67a5d6388a23e4bb58e68c9
 +                        (i < INDEX_LOW)) {
 +                        continue;
 +                    }
-+                    if (((codecSpecific1Value & MIN_BITRATE_MASK) == LHDCV5_MIN_BITRATE_INX_LOW3) && 
++                    if (((codecSpecific1Value & MIN_BITRATE_MASK) == LHDCV5_MIN_BITRATE_INX_LOW3) &&
 +                        (i < INDEX_LOW3)) {
 +                        continue;
 +                    }
-+                    if (((codecSpecific1Value & MIN_BITRATE_MASK) == LHDCV5_MIN_BITRATE_INX_LOW1) && 
++                    if (((codecSpecific1Value & MIN_BITRATE_MASK) == LHDCV5_MIN_BITRATE_INX_LOW1) &&
 +                        (i < INDEX_LOW1)) {
 +                        continue;
 +                    }
@@ -2706,7 +1426,7 @@ index 0000000000000000000000000000000000000000..77df80e0d67a5d6388a23e4bb58e68c9
 +    }
 +}
 diff --git a/src/com/android/settings/development/bluetooth/BluetoothSampleRateDialogPreference.java b/src/com/android/settings/development/bluetooth/BluetoothSampleRateDialogPreference.java
-index 71eda79003ed7e974e3c29dc6ce494346057186b..f128b119a66d2221802b423730c4fa0fa589f6ea 100644
+index 71eda79003e..f128b119a66 100644
 --- a/src/com/android/settings/development/bluetooth/BluetoothSampleRateDialogPreference.java
 +++ b/src/com/android/settings/development/bluetooth/BluetoothSampleRateDialogPreference.java
 @@ -61,15 +61,25 @@ public class BluetoothSampleRateDialogPreference extends BaseBluetoothDialogPref
@@ -2736,7 +1456,7 @@ index 71eda79003ed7e974e3c29dc6ce494346057186b..f128b119a66d2221802b423730c4fa0f
      }
  }
 diff --git a/src/com/android/settings/development/bluetooth/BluetoothSampleRateDialogPreferenceController.java b/src/com/android/settings/development/bluetooth/BluetoothSampleRateDialogPreferenceController.java
-index 9e4b99ef88cadd4b547d2e9022c8c296cf7a501c..05c0be8a3cb808a5875ea58607ccdbe7a1c76aad 100644
+index 9e4b99ef88c..05c0be8a3cb 100644
 --- a/src/com/android/settings/development/bluetooth/BluetoothSampleRateDialogPreferenceController.java
 +++ b/src/com/android/settings/development/bluetooth/BluetoothSampleRateDialogPreferenceController.java
 @@ -38,6 +38,10 @@ public class BluetoothSampleRateDialogPreferenceController extends
@@ -2811,3 +1531,351 @@ index 9e4b99ef88cadd4b547d2e9022c8c296cf7a501c..05c0be8a3cb808a5875ea58607ccdbe7
              default:
                  Log.e(TAG, "Unsupported config:" + config);
                  break;
+diff --git a/src/com/android/settings/display/ColorModePreferenceController.java b/src/com/android/settings/display/ColorModePreferenceController.java
+index 705189805a6..a1699ad126c 100644
+--- a/src/com/android/settings/display/ColorModePreferenceController.java
++++ b/src/com/android/settings/display/ColorModePreferenceController.java
+@@ -53,6 +53,9 @@ public class ColorModePreferenceController extends BasePreferenceController
+ 
+     @Override
+     public int getAvailabilityStatus() {
++        if (ColorModeUtils.hasLiveDisplayColorProfiles(mContext)) {
++            return UNSUPPORTED_ON_DEVICE;
++        }
+         final int[] availableColorModes = mContext.getResources().getIntArray(
+                 com.android.internal.R.array.config_availableColorModes);
+         return mContext.getSystemService(ColorDisplayManager.class)
+diff --git a/src/com/android/settings/display/ColorModePreferenceFragment.java b/src/com/android/settings/display/ColorModePreferenceFragment.java
+index 3469a48ac06..e956115ef08 100644
+--- a/src/com/android/settings/display/ColorModePreferenceFragment.java
++++ b/src/com/android/settings/display/ColorModePreferenceFragment.java
+@@ -22,7 +22,9 @@ import static android.hardware.display.ColorDisplayManager.VENDOR_COLOR_MODE_RAN
+ 
+ import android.app.settings.SettingsEnums;
+ import android.content.ContentResolver;
++import android.content.ActivityNotFoundException;
+ import android.content.Context;
++import android.content.Intent;
+ import android.content.res.Resources;
+ import android.content.res.TypedArray;
+ import android.database.ContentObserver;
+@@ -117,6 +119,17 @@ public class ColorModePreferenceFragment extends RadioButtonPickerFragment {
+     @Override
+     public void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
++        final Intent liveDisplay = ColorModeUtils.getLiveDisplayColorProfilesIntent(
++                requireContext());
++        if (liveDisplay != null) {
++            try {
++                startActivity(liveDisplay);
++            } catch (ActivityNotFoundException e) {
++                Log.w("ColorModeSettings", "LiveDisplay color profile page unavailable", e);
++            }
++            requireActivity().finish();
++            return;
++        }
+         if (savedInstanceState != null) {
+             final int selectedPosition = savedInstanceState.getInt(PAGE_VIEWER_SELECTION_INDEX);
+             mViewPager.setCurrentItem(selectedPosition);
+@@ -136,7 +149,9 @@ public class ColorModePreferenceFragment extends RadioButtonPickerFragment {
+     @Override
+     public void onSaveInstanceState(Bundle outState){
+         super.onSaveInstanceState(outState);
+-        outState.putInt(PAGE_VIEWER_SELECTION_INDEX, mViewPager.getCurrentItem());
++        if (mViewPager != null) {
++            outState.putInt(PAGE_VIEWER_SELECTION_INDEX, mViewPager.getCurrentItem());
++        }
+     }
+ 
+     @Override
+@@ -236,6 +251,9 @@ public class ColorModePreferenceFragment extends RadioButtonPickerFragment {
+ 
+     @Override
+     protected List<? extends CandidateInfo> getCandidates() {
++        if (usesLiveDisplayColorProfiles()) {
++            return Collections.emptyList();
++        }
+         final Map<Integer, String> colorModesToSummaries =
+                 ColorModeUtils.getColorModeMapping(mResources);
+         final List<ColorModeCandidateInfo> candidates = new ArrayList<>();
+@@ -259,6 +277,9 @@ public class ColorModePreferenceFragment extends RadioButtonPickerFragment {
+ 
+     @Override
+     protected boolean setDefaultKey(String key) {
++        if (usesLiveDisplayColorProfiles()) {
++            return false;
++        }
+         int colorMode = Integer.parseInt(key.substring(key.lastIndexOf("_") + 1));
+         if (isValidColorMode(colorMode)) {
+             setColorMode(colorMode);
+@@ -266,6 +287,11 @@ public class ColorModePreferenceFragment extends RadioButtonPickerFragment {
+         return true;
+     }
+ 
++    @VisibleForTesting
++    boolean usesLiveDisplayColorProfiles() {
++        return getContext() != null && ColorModeUtils.hasLiveDisplayColorProfiles(getContext());
++    }
++
+     @Override
+     public @Nullable String getPreferenceScreenBindingKey(@NonNull Context context) {
+         return ColorModeScreen.KEY;
+@@ -424,6 +450,7 @@ public class ColorModePreferenceFragment extends RadioButtonPickerFragment {
+                     final int[] availableColorModes =
+                             ColorModeUtils.getAvailableColorModes(context);
+                     return availableColorModes != null && availableColorModes.length > 0
++                            && !ColorModeUtils.hasLiveDisplayColorProfiles(context)
+                             && !ColorDisplayManager.areAccessibilityTransformsEnabled(context);
+                 }
+ 
+diff --git a/src/com/android/settings/display/ColorModeScreen.kt b/src/com/android/settings/display/ColorModeScreen.kt
+index a430df86e16..09c18f21c47 100644
+--- a/src/com/android/settings/display/ColorModeScreen.kt
++++ b/src/com/android/settings/display/ColorModeScreen.kt
+@@ -85,6 +85,7 @@ open class ColorModeScreen :
+     override fun getAvailabilityStability() = PreconditionStability.UNSTABLE
+ 
+     override fun isAvailable(context: Context): Boolean {
++        if (ColorModeUtils.hasLiveDisplayColorProfiles(context)) return false
+         val colorManager = context.getSystemService(ColorDisplayManager::class.java) ?: return false
+         return colorManager.isDeviceColorManaged &&
+             !ColorDisplayManager.areAccessibilityTransformsEnabled(context)
+@@ -93,7 +94,8 @@ open class ColorModeScreen :
+     override fun getSummary(context: Context): CharSequence? = getActiveColorModeName(context)
+ 
+     override fun getLaunchIntent(context: Context, metadata: PreferenceMetadata?) =
+-        makeLaunchIntent(context, ColorModeActivity::class.java, metadata?.key)
++        ColorModeUtils.getLiveDisplayColorProfilesIntent(context)
++            ?: makeLaunchIntent(context, ColorModeActivity::class.java, metadata?.key)
+ 
+     override fun onStart(context: PreferenceLifecycleContext) {
+         if (isEntryPoint(context)) {
+diff --git a/src/com/android/settings/display/ColorModeUtils.kt b/src/com/android/settings/display/ColorModeUtils.kt
+index 01a6a50c0fe..5f5d94c673b 100644
+--- a/src/com/android/settings/display/ColorModeUtils.kt
++++ b/src/com/android/settings/display/ColorModeUtils.kt
+@@ -16,17 +16,37 @@
+ package com.android.settings.display
+ 
+ import android.content.Context
++import android.content.Intent
+ import android.content.res.Resources
+ import android.hardware.display.ColorDisplayManager
+ import android.hardware.display.ColorDisplayManager.*
+ import android.util.Log
+ 
+ import com.android.settings.R
++import lineageos.hardware.LineageHardwareManager
++import lineageos.preference.PartsList
+ 
+ object ColorModeUtils {
+ 
+     private val TAG = "ColorModeUtils"
+ 
++    /** Match the LiveDisplay replacement in display_settings.xml, even during a HAL restart. */
++    @JvmStatic
++    fun hasLiveDisplayColorProfiles(context: Context): Boolean =
++        context.resources.getBoolean(
++            org.lineageos.platform.internal.R.bool.config_enableLiveDisplay
++        ) && LineageHardwareManager.getInstance(context).isSupported(
++            LineageHardwareManager.FEATURE_DISPLAY_MODES
++        ) && PartsList.get(context).getPartInfo("live_display_color_profile") != null
++
++    @JvmStatic
++    fun getLiveDisplayColorProfilesIntent(context: Context): Intent? =
++        if (hasLiveDisplayColorProfiles(context)) {
++            PartsList.get(context).getPartInfo("live_display_color_profile")?.intentForActivity
++        } else {
++            null
++        }
++
+     @JvmStatic
+     fun getColorModeMapping(resources: Resources): Map<Int, String> {
+         val colorModeOptionsStrings = resources.getStringArray(
+@@ -62,4 +82,4 @@ object ColorModeUtils {
+     @JvmStatic
+     fun getAvailableColorModes(context: Context): IntArray =
+         context.getResources().getIntArray(com.android.internal.R.array.config_availableColorModes)
+-}
+\ No newline at end of file
++}
+diff --git a/tests/robotests/src/com/android/settings/bluetooth/BluetoothDetailsProfilesControllerTest.java b/tests/robotests/src/com/android/settings/bluetooth/BluetoothDetailsProfilesControllerTest.java
+index 9ac47e2966c..d7f062b4b7e 100644
+--- a/tests/robotests/src/com/android/settings/bluetooth/BluetoothDetailsProfilesControllerTest.java
++++ b/tests/robotests/src/com/android/settings/bluetooth/BluetoothDetailsProfilesControllerTest.java
+@@ -637,9 +637,9 @@ public class BluetoothDetailsProfilesControllerTest extends BluetoothDetailsCont
+     }
+ 
+     @Test
+-    public void leAudioOnlyDevice_hideLeAudioToggle() {
++    public void leAudioOnlyDevice_hideLeAudioToggleWhenEnabled() {
+         setupDevice(makeDefaultDeviceConfig());
+-        addLeAudioProfileToDevice(false);
++        addLeAudioProfileToDevice(true);
+ 
+         showScreen(mController);
+ 
+@@ -701,6 +701,17 @@ public class BluetoothDetailsProfilesControllerTest extends BluetoothDetailsCont
+         assertThat(leAudioPref.isVisible()).isFalse();
+     }
+ 
++    @Test
++    public void leAudioOnlyDevice_showLeAudioToggleWhenDisabled() {
++        setupDevice(makeDefaultDeviceConfig());
++        addLeAudioProfileToDevice(false);
++
++        showScreen(mController);
++
++        List<SwitchPreferenceCompat> switches = getProfileSwitches(false);
++        assertThat(switches.get(0).isVisible()).isTrue();
++    }
++
+     @Test
+     public void ashaHearingAid_hideAshaToggle() {
+         setupDevice(makeDefaultDeviceConfig());
+diff --git a/tests/unit/src/com/android/settings/display/ColorModePreferenceFragmentTest.java b/tests/unit/src/com/android/settings/display/ColorModePreferenceFragmentTest.java
+index b3a2770baf8..13d30b74cad 100644
+--- a/tests/unit/src/com/android/settings/display/ColorModePreferenceFragmentTest.java
++++ b/tests/unit/src/com/android/settings/display/ColorModePreferenceFragmentTest.java
+@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
+ import static org.mockito.ArgumentMatchers.anyInt;
+ import static org.mockito.Mockito.doNothing;
+ import static org.mockito.Mockito.doReturn;
++import static org.mockito.Mockito.never;
+ import static org.mockito.Mockito.spy;
+ import static org.mockito.Mockito.verify;
+ import static org.mockito.Mockito.when;
+@@ -63,6 +64,26 @@ public class ColorModePreferenceFragmentTest {
+                 .isEqualTo(MetricsProto.MetricsEvent.COLOR_MODE_SETTINGS);
+     }
+ 
++    @Test
++    @UiThreadTest
++    public void getCandidates_liveDisplayOwnsProfiles_returnsEmpty() {
++        mFragment.onAttach(mContext);
++        doReturn(true).when(mFragment).usesLiveDisplayColorProfiles();
++
++        assertThat(mFragment.getCandidates()).isEmpty();
++    }
++
++    @Test
++    @UiThreadTest
++    public void setKey_liveDisplayOwnsProfiles_doesNotWritePlatformMode() {
++        mFragment.onAttach(mContext);
++        doReturn(true).when(mFragment).usesLiveDisplayColorProfiles();
++
++        assertThat(mFragment.setDefaultKey(
++                mFragment.getKeyForColorMode(ColorDisplayManager.COLOR_MODE_NATURAL))).isFalse();
++        verify(mFragment, never()).setColorMode(anyInt());
++    }
++
+     @Test
+     @UiThreadTest
+     public void getCandidates_all() {
+
+base-commit: 31b1a9f1cab9638bc6af9f4e6412fbf3b3a7947a
+-- 
+2.53.0
+
+
+From 0820511d18c9c978042f72547196c5c4797968f2 Mon Sep 17 00:00:00 2001
+From: tunkoal <tunkoal@163.com>
+Date: Thu, 19 Nov 2026 11:35:48 +0800
+Subject: [PATCH 2/2] Settings: allow twilight schedule to start without a
+ cached fix
+
+On Rothko 1795050579 after recovery data wipe, API-first Settings displays the pending-location dialog but rejects auto mode when the fused cache is empty. UiModeManager therefore cannot register TwilightService to obtain location. A direct framework mode selection from the same state did register location requests; subsequent Metok location delivered a TwilightState and sunset alarm.
+
+Match the existing legacy controller by persisting the choice when location is enabled, retaining pending and disabled feedback. The provider overlay controls routing and cannot initialize the fused cache before the user selects a schedule. This fixes the Settings path for any device that uses it without modifying providers, timers, or other theme modes.
+
+Exercise the empty-cache path in the existing preference and storage Robotests. Both changed Kotlin production files compile against the previous build jars and git diff --check passed. Full Robotests, image build, and clean-data UI acceptance remain pending.
+
+Change-Id: I4c8f7e0bdd3e6bb1d49f56849123b582f6141c4a
+---
+ .../display/darkmode/DarkModeSchedulePreference.kt       | 5 ++---
+ .../settings/display/darkmode/DarkModeScheduleStorage.kt | 6 ++----
+ .../display/darkmode/DarkModeSchedulePreferenceTest.kt   | 8 +++++++-
+ .../display/darkmode/DarkModeScheduleStorageTest.kt      | 9 +++++++++
+ 4 files changed, 20 insertions(+), 8 deletions(-)
+
+diff --git a/src/com/android/settings/display/darkmode/DarkModeSchedulePreference.kt b/src/com/android/settings/display/darkmode/DarkModeSchedulePreference.kt
+index 9613f9a8994..a03396a1479 100644
+--- a/src/com/android/settings/display/darkmode/DarkModeSchedulePreference.kt
++++ b/src/com/android/settings/display/darkmode/DarkModeSchedulePreference.kt
+@@ -124,14 +124,13 @@ class DarkModeSchedulePreference(
+         val context = preference.context
+         if (newValue == context.getString(R.string.dark_ui_auto_mode_auto)) {
+             val locationManager = context.getSystemService(LocationManager::class.java)
+-            if (locationManager?.isLocationEnabled == false) {
++            if (locationManager?.isLocationEnabled != true) {
+                 TwilightLocationDialog.showLocationOff(context)
+                 return false
+             }
+ 
+-            if (locationManager?.lastLocation == null) {
++            if (locationManager.lastLocation == null) {
+                 TwilightLocationDialog.showLocationPending(context)
+-                return false
+             }
+         }
+         preference.setValue(newValue as String)
+diff --git a/src/com/android/settings/display/darkmode/DarkModeScheduleStorage.kt b/src/com/android/settings/display/darkmode/DarkModeScheduleStorage.kt
+index dccafbfb3fe..1b49b49c099 100644
+--- a/src/com/android/settings/display/darkmode/DarkModeScheduleStorage.kt
++++ b/src/com/android/settings/display/darkmode/DarkModeScheduleStorage.kt
+@@ -69,10 +69,8 @@ class DarkModeScheduleStorage(private val context: Context) :
+             }
+             context.getString(R.string.dark_ui_auto_mode_auto) -> {
+                 val locationManager = context.getSystemService(LocationManager::class.java)
+-                if (
+-                    locationManager?.isLocationEnabled == true &&
+-                        locationManager.lastLocation != null
+-                ) {
++                if (locationManager?.isLocationEnabled == true) {
++                    // TwilightService requests a location after automatic mode is selected.
+                     uiModeManager.nightMode = UiModeManager.MODE_NIGHT_AUTO
+                 }
+             }
+diff --git a/tests/robotests/src/com/android/settings/display/darkmode/DarkModeSchedulePreferenceTest.kt b/tests/robotests/src/com/android/settings/display/darkmode/DarkModeSchedulePreferenceTest.kt
+index 57a5296d1a6..8d96ab02355 100644
+--- a/tests/robotests/src/com/android/settings/display/darkmode/DarkModeSchedulePreferenceTest.kt
++++ b/tests/robotests/src/com/android/settings/display/darkmode/DarkModeSchedulePreferenceTest.kt
+@@ -224,8 +224,14 @@ class DarkModeSchedulePreferenceTest {
+     }
+ 
+     @Test
+-    fun onPreferenceChange_dropDownValueIsAuto_isLocationEnabled_nightModeChangeToAuto() {
++    @TestParameters(value = ["{hasLastLocation: false}", "{hasLastLocation: true}"])
++    fun onPreferenceChange_dropDownValueIsAuto_isLocationEnabled_nightModeChangeToAuto(
++        hasLastLocation: Boolean,
++    ) {
+         mockUiModeManager.stub { on { nightMode } doReturn UiModeManager.MODE_NIGHT_CUSTOM }
++        mockLocationManager.stub {
++            on { lastLocation } doReturn if (hasLastLocation) Location("mock") else null
++        }
+ 
+         preference.onPreferenceChange(
+             preference.createAndBindWidget<DropDownPreference>(context),
+diff --git a/tests/robotests/src/com/android/settings/display/darkmode/DarkModeScheduleStorageTest.kt b/tests/robotests/src/com/android/settings/display/darkmode/DarkModeScheduleStorageTest.kt
+index 160985bf56c..411368df19a 100644
+--- a/tests/robotests/src/com/android/settings/display/darkmode/DarkModeScheduleStorageTest.kt
++++ b/tests/robotests/src/com/android/settings/display/darkmode/DarkModeScheduleStorageTest.kt
+@@ -171,6 +171,15 @@ class DarkModeScheduleStorageTest {
+         verify(mockUiModeManager).nightMode = UiModeManager.MODE_NIGHT_AUTO
+     }
+ 
++    @Test
++    fun setValue_isAuto_withoutLastLocation_nightModeChangesToAuto() {
++        mockLocationManager.stub { on { isLocationEnabled } doReturn true }
++
++        dataStore.setString(KEY, context.getString(R.string.dark_ui_auto_mode_auto))
++
++        verify(mockUiModeManager).nightMode = UiModeManager.MODE_NIGHT_AUTO
++    }
++
+     @Test
+     fun setValue_isAuto_isLocationDisabled_nightModeNonChangeToAuto() {
+         mockLocationManager.stub {
+-- 
+2.53.0
+

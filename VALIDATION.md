@@ -1,40 +1,28 @@
-# Validation of the LineageOS 23.2 source snapshot
+# LineageOS 24.0 validation
 
-The source snapshot was recorded before the LineageOS 24 migration on
-2026-11-14. The checks here apply to the filtered publication candidate
-prepared on 2026-11-21.
+## Reference build
 
-## Source and host checks
+The November 19 local `lineage_rothko-cp2a-user` image build exited successfully
+and reported VINTF `COMPATIBLE`. It produced
+`rothko-lineage-24.0-user-20261119.zip`. The user confirmed on November 21
+that it booted and the features they tried worked. The report did not itemize
+their release-image tests. LC3 / LE Audio remains open. Review
+[KNOWN_ISSUES.md](KNOWN_ISSUES.md) for scenario-level coverage.
 
-- The six device commits between the previous source export and the snapshot
-  were applied to the public device tree in order. Their modified files
-  match the frozen source byte for byte. Vendor metadata and the kernel
-  recipe use the same revisions as the previous public baseline.
-- The 1,167 Android manifest pins match the previous public manifest.
-  All 15 platform series (83 commits) replayed with the build preparation
-  script against the pinned bases in isolated repositories. Their final
-  trees match the snapshot and the replayed author identities and author
-  dates match the source. Readiness passed after application and reapplying
-  skipped all 15. See [the replay record](history/2026-11-14-replay.json).
-- The LHDC staging instructions fetched the 16 pinned headers. The staged
-  headers, four locally supplied stock libraries and Soong definition
-  passed the 21-file hash check. The seven existing input-tool fixtures
-  passed.
-- Bluetooth replay preserves CRLF in 16 imported LHDC source files so their
-  Git blobs match the snapshot. Git reports existing whitespace in the
-  source patches.
+## Checks on this public source snapshot
 
-## Earlier device evidence
+- The build record's 17 repository HEADs and trees match the local release
+  sources. The manifest locks 1,242 upstream projects. All 16 platform
+  series replayed with `git am` from the pinned bases and reproduced their
+  expected trees. The 31 author identities, dates and subjects matched
+  their exported messages. The readiness check passed.
+- The source-only device tree reproduces the Android 17 IMS binary fixup
+  from stock using the pinned tool. The vendor repository includes the
+  matching rules and extraction ledger. OEM libraries and Google APKs
+  are supplied by the build host from the exact stock firmware.
+- Fresh stock replay verified 778 device payloads, 3,061 vendor payloads, four generated vendor metadata files and 581 kernel materials. The LHDC definitions, headers and four stock encoders matched their hashes.
+- The input-tool fixtures and public Git history checks passed.
 
-On the 2026-11-13 development image, the user confirmed LHDC V5 software
-audio at 48 kHz/24-bit, USB mode switching, fast-charging indication and
-stock camera photo/video capture. ISP service registration, thermal sensor
-reporting and the CDMA capability declaration were checked on that build.
-The final source snapshot also includes later Bluetooth settings and LE Audio
-changes whose exact combination has not been flashed.
-
-## Pending
-
-Clean synchronization of all pinned repositories, a fresh full ROM build,
-flashing and device acceptance for this exact source combination are pending.
-See [KNOWN_ISSUES.md](KNOWN_ISSUES.md) for the 23.2 validation gaps.
+The public-source conversion preserves the recorded platform trees. A fresh
+clean sync, complete ROM build and flash of the public source combination
+remain pending. See the [recorded revisions and replay results](history/2026-11-19-lineageos-24.0.json).

@@ -1,41 +1,55 @@
-From 4a2c60d77cc7f201fd5c7a2e569eb9c8135e2f1b Mon Sep 17 00:00:00 2001
+From ce2669ce8cabe6de1baca873aac2fcdae35167b7 Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
-Date: Thu, 5 Nov 2026 11:19:23 +0800
-Subject: [PATCH] nl80211: Allow legacy RSN version encoding for SAE
+Date: Sat, 14 Nov 2026 01:32:33 +0800
+Subject: [PATCH] rothko: adapt external/wpa_supplicant_8 integration to
+ Android 17
 
-Change-Id: Idf2eaf66ec536aa3f4a7d6e0199220e753e39eb3
+Official 24.0 target: 4d70ee052a9f65038a24ec7ea2f2bb3f92b17277
+Recorded 23.2 baseline: 4a2c60d77cc7f201fd5c7a2e569eb9c8135e2f1b
+
+Resolve against the 24.0 APIs and preserve device integration contracts.
+Prefer the upstream codec naming and HAL-owned face preview interfaces.
+Display persistence migration covers legacy and refactored stores.
+SurfaceFlinger power notifications follow the upstream asynchronous result.
+Details and companion dependencies are recorded in the project document
+LINEAGE_24_MIGRATION_20261114.zh-CN.md.
+
+Validation: whitespace and conflict-marker checks passed. Extracted
+brightness persistence checks passed where applicable. Android compilation,
+full platform tests and flashed 24.0 acceptance remain pending.
 ---
- src/drivers/driver_nl80211.c | 4 +++-
+ src/drivers/driver_nl80211.c | 5 ++++-
  wpa_supplicant/Android.bp    | 5 ++++-
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/src/drivers/driver_nl80211.c b/src/drivers/driver_nl80211.c
-index f8cc9e16199558dc556245316e3987b081befece..7558b7e32ea125c77e6bbd8abcd7431e6173a554 100644
+index af544abe592c3129b81c4a7fd8c7ea10627deb43..a0ff6b2fc00a3da5a27d6d86108aecb565fcf409 100644
 --- a/src/drivers/driver_nl80211.c
 +++ b/src/drivers/driver_nl80211.c
-@@ -7010,7 +7010,8 @@ static int nl80211_connect_common(struct wpa_driver_nl80211_data *drv,
- 		if (params->wpa_proto & WPA_PROTO_WPA)
- 			ver |= NL80211_WPA_VERSION_1;
- 		if (params->wpa_proto & WPA_PROTO_RSN) {
--#if !defined(CONFIG_DRIVER_NL80211_BRCM) && !defined(CONFIG_DRIVER_NL80211_SYNA)
-+#if !defined(CONFIG_DRIVER_NL80211_BRCM) && !defined(CONFIG_DRIVER_NL80211_SYNA) && \
-+	!defined(CONFIG_NL80211_LEGACY_SAE_RSN_VERSION)
+@@ -3840,6 +3840,9 @@ static int wpa_ver_supported(struct wpa_driver_nl80211_data *drv,
+ 	if (proto & WPA_PROTO_WPA)
+ 		ver |= NL80211_WPA_VERSION_1;
+ 	if (proto & WPA_PROTO_RSN) {
++#ifdef CONFIG_NL80211_LEGACY_SAE_RSN_VERSION
++		ver |= NL80211_WPA_VERSION_2;
++#else
+ 		if (drv->chip_vendor_id != OUI_BRCM) {
  			/*
- 			 * NL80211_ATTR_SAE_PASSWORD is related and was added
- 			 * at the same time as NL80211_WPA_VERSION_3.
-@@ -7021,6 +7022,7 @@ static int nl80211_connect_common(struct wpa_driver_nl80211_data *drv,
- 				ver |= NL80211_WPA_VERSION_3;
- 			else
- #endif
-+				/* Legacy drivers use RSN version 2 with SAE AKM. */
- 				ver |= NL80211_WPA_VERSION_2;
+ 			* NL80211_ATTR_SAE_PASSWORD is related and was added
+@@ -3853,7 +3856,7 @@ static int wpa_ver_supported(struct wpa_driver_nl80211_data *drv,
+ 		} else {
+ 			ver |= NL80211_WPA_VERSION_2;
  		}
+-		
++#endif
+ 	}
  
+ 	return ver;
 diff --git a/wpa_supplicant/Android.bp b/wpa_supplicant/Android.bp
-index a99502b4ecf4300d38d0c2e8c03fc5692e38781a..e8f766d22098d5a56c8c5f121f694e446a6f166d 100644
+index 55f7ae8c2a956a2167009eb807b0ee3b2e9b7ead..bcd0a9a1990d7009a667f729d8cfe210845a881c 100644
 --- a/wpa_supplicant/Android.bp
 +++ b/wpa_supplicant/Android.bp
-@@ -929,7 +929,10 @@ cc_defaults {
+@@ -934,7 +934,10 @@ cc_defaults {
      cflags: [
          "-DCONFIG_AIDL",
          "-DCONFIG_CTRL_IFACE_AIDL",
@@ -47,5 +61,3 @@ index a99502b4ecf4300d38d0c2e8c03fc5692e38781a..e8f766d22098d5a56c8c5f121f694e44
      defaults: [
          "wpa_supplicant_no_aidl_cflags_default",
      ],
-
-base-commit: 16bcc5ac5f275c64c613772852cb879f608ff2a6

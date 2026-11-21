@@ -1,0 +1,117 @@
+From 86e08fc769c718357ab3f8621f7c920945cb44a1 Mon Sep 17 00:00:00 2001
+From: tunkoal <tunkoal@163.com>
+Date: Sun, 15 Nov 2026 18:11:39 +0800
+Subject: [PATCH 1/2] apn: allow devices to supply their own APN installation
+
+The Rothko build on LineageOS 24 fails in Kati because the common APN
+prebuilt and the device prebuilt both emit Product/etc/apns-conf.xml
+install recipes. LOCAL_OVERRIDES_MODULES filters package selection later
+and cannot remove the already emitted duplicate recipe.
+
+Add the opt-in lineage_apn.use_device_apns boolean on the owning common
+prebuilt. Unset/false retains the common module. True disables its Soong
+install actions while the device supplies its own table and overrides.
+
+Base: 2842825e44b5ad6e247467bd7a16c1d8bf80407f
+Evidence and alternatives: Rothko bringup/phase-b/
+TELECOM_BROADNET_20261115.zh-CN.md, install-rule follow-up.
+The current vendor APN module has no configurable device replacement
+entry point. Make filtering alone reproduced the duplicate-rule failure,
+and prebuilt_etc does not implement source/prebuilt preference selection.
+Device XML, its installation module and runtime Provider remain device
+and existing framework responsibilities. No device identity is hardcoded.
+
+Checks passed: bpfmt syntax/format, whitespace, actual Make bool typing
+for true/false/empty and stock-table SHA-256. Complete installation graph,
+unified images and actual Telecom/Broadnet SIM acceptance are pending.
+
+Change-Id: I378b31671a17c0ffaae511791aa3300d126ceb31
+---
+ Android.bp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/Android.bp b/Android.bp
+index 5b2cb8d..51afdc9 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -29,6 +29,10 @@ filegroup {
+ 
+ prebuilt_etc_xml {
+     name: "apns-conf.xml",
++    enabled: select(soong_config_variable("lineage_apn", "use_device_apns"), {
++        true: false,
++        default: true,
++    }),
+     product_specific: true,
+     src: ":apns-conf",
+     schema: ":apns-conf-schema",
+
+base-commit: 2842825e44b5ad6e247467bd7a16c1d8bf80407f
+-- 
+2.53.0
+
+
+From 4fd659975e1176fd247f295c3279ff857402d660 Mon Sep 17 00:00:00 2001
+From: tunkoal <tunkoal@163.com>
+Date: Sun, 15 Nov 2026 18:35:00 +0800
+Subject: [PATCH 2/2] apn: select a device source while retaining the common
+ installer
+
+Disabling the common APN prebuilt in 86e08fc removes duplicate install
+recipes but fails the raw PRODUCT_PACKAGES existence check at
+build/make/core/main.mk:1074 before installation overrides are applied.
+Keep the public module name and sole Product installation instead.
+
+Use the standard select source binding for lineage_apn.custom_apns;
+unset retains :apns-conf. The prebuilt_etc installer consumes a supplied
+source, whose validation is owned by its producer. The default generator
+already mandates schema validation of inputs and final merged output in
+make-apns.py:98-107,207,219, so the removed installer XML schema step was
+redundant on that path. Retire the temporary use_device_apns switch.
+
+Base: 2842825e44b5ad6e247467bd7a16c1d8bf80407f
+Evidence: Rothko TELECOM_BROADNET_20261115.zh-CN.md, 18:21 retry failure
+and package-existence follow-up. Device-only overriding cannot supply
+the common module input without an owner hook in this pinned source.
+
+Passed actual Soong fixtures for default input, qualified custom source,
+Product installer location and rejection of undefined sources. Re-running
+the default merge with mandatory schema checks produced byte-identical
+output (ad7245900f52eaec4664d4fca8010da40e60f1795ed35d7297dfe0f835807717).
+Bpfmt and whitespace checks passed. Full graph and image build pending.
+
+Change-Id: Id028307a6271a861947f82c8ac4f748dfa3eaac7
+---
+ Android.bp | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/Android.bp b/Android.bp
+index 51afdc9..32b0e17 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -27,15 +27,15 @@ filegroup {
+     srcs: ["*.xml"],
+ }
+ 
+-prebuilt_etc_xml {
++prebuilt_etc {
+     name: "apns-conf.xml",
+-    enabled: select(soong_config_variable("lineage_apn", "use_device_apns"), {
+-        true: false,
+-        default: true,
+-    }),
+     product_specific: true,
+-    src: ":apns-conf",
+-    schema: ":apns-conf-schema",
++    // The default generator validates its merged output against apns-conf-schema.
++    // Devices supplying a custom source own its XML validation.
++    src: select(soong_config_variable("lineage_apn", "custom_apns"), {
++        any @ source: source,
++        default: ":apns-conf",
++    }),
+ }
+ 
+ filegroup {
+-- 
+2.53.0
+

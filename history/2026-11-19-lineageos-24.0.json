@@ -1,0 +1,340 @@
+{
+  "snapshot_date": "2026-11-19",
+  "source_only_candidate_prepared": "2026-11-21",
+  "aosp_tag": "android-17.0.0_r1",
+  "lineage_manifest": "e4b71068f6ee045ff30e4865a8d82f4047eb78ea",
+  "pinned_manifest_sha256": "6d384f46118a338c95236bbfd8f5f0f031681d9979170117c6681e02c45559f4",
+  "reference_build_shared_series_sha256": "f190d5b0178aebccb759870fa8038bd6d3c5a3ebe4d55275e702c78f8427f8fa",
+  "reference_build_timestamp": 1795073539,
+  "reference_build_exit": 0,
+  "reference_vintf": "COMPATIBLE",
+  "reference_device_feedback": "The user reported the release image booted and the features they tried worked. Test coverage was not itemized.",
+  "reference_build_git_record": [
+    {
+      "path": "build/soong",
+      "head": "722bc4bbb0c4d27792d6e170c98e257b6f9b9c06",
+      "tree": "b1d3929e4362dd7dd81a1b70cc0606448bae981a"
+    },
+    {
+      "path": "frameworks/av",
+      "head": "854c8259b2943cc80724599834ee11b77bd0d3d3",
+      "tree": "f52617f79d84d771beb9cf0a2690d2f71836eb81"
+    },
+    {
+      "path": "lineage-sdk",
+      "head": "e08f863cccd7b38eb62fca1b4c73fd9b66628f14",
+      "tree": "cd7cfde34426e4d3ae2f06065892ad23efd75f84"
+    },
+    {
+      "path": "packages/apps/LineageParts",
+      "head": "5e05923b68da3e32cb5b1c6d3712789644bf22f0",
+      "tree": "3a845047ff1279c28118c98531e1b9b1fcba2722"
+    },
+    {
+      "path": "bionic",
+      "head": "4a56ab473ab1936abe1d3f025b2940f10507e45a",
+      "tree": "5b7b2254b3382e2c677ec3bc2bf79436083c8e3f"
+    },
+    {
+      "path": "hardware/mediatek",
+      "head": "9a9f51cf0dc97e6c91491690e1b14ab541f91a11",
+      "tree": "aeba6f3f3d8bf977a58c4376f9d009e8473575d2"
+    },
+    {
+      "path": "device/mediatek/sepolicy_vndr",
+      "head": "3624f11588994bfa9731b6b9a3898d8ce31b5098",
+      "tree": "5c43d28bc22373c9c864280550f1b8c49318d3c4"
+    },
+    {
+      "path": "frameworks/base",
+      "head": "5b6ca2cc5b1e8b5187889a93def3bb9cbb2fa4b4",
+      "tree": "46c0c99a057bc644bf3ef048bdd326c1b37d3c3b"
+    },
+    {
+      "path": "frameworks/native",
+      "head": "bb63eb756762f2bc763fdc3c049c9ade78fa7873",
+      "tree": "3557c1f448ddc7ae55481911f57d93250f63b21d"
+    },
+    {
+      "path": "hardware/interfaces",
+      "head": "3996a573bcf389c404e400989ba97a3d71861dee",
+      "tree": "fe9918a7c5af0b10e3a07c99a5f74b3286219b6d"
+    },
+    {
+      "path": "external/wpa_supplicant_8",
+      "head": "0e5ad56d61d4fc451209bd447edba8ae098d4f81",
+      "tree": "5aa15351d942a22e8f51a5634026655af1b30d11"
+    },
+    {
+      "path": "packages/modules/Bluetooth",
+      "head": "7e19315b9b8fb4d5da20f37b35e69f1a96846beb",
+      "tree": "31a5c7351f15fe72b5402fe91d4c67a7786efdca"
+    },
+    {
+      "path": "packages/apps/Settings",
+      "head": "7ad66781e951e05e5c44172c41a440d9b7d11730",
+      "tree": "94d500a98ce8f53e43e1419596590682ade48728"
+    },
+    {
+      "path": "tools/extract-utils",
+      "head": "7f65ab8cc2338475f281d9c066bbca7944ffc35d",
+      "tree": "c744c3c614c544ccb7438786f974ce3498de9472"
+    },
+    {
+      "path": "system/tools/hidl",
+      "head": "8f228a6c61979e73c8fcc1bd0d573234b08915d0",
+      "tree": "b9deb28705ade361c131ea88b882ac8b9498c2ab"
+    },
+    {
+      "path": "vendor/apn",
+      "head": "4fd659975e1176fd247f295c3279ff857402d660",
+      "tree": "e0961ebf4d03e8aeb3f38f6d321e85143f9cd7b2"
+    },
+    {
+      "path": "device/xiaomi/rothko",
+      "head": "8df105555fa1b494c751ea6433e35fbe89f31f10",
+      "tree": "e6075b176dd57032e88d1089746277fc4c87c004"
+    }
+  ],
+  "companion_repositories": [
+    {
+      "repository": "android_device_xiaomi_rothko",
+      "path": "device/xiaomi/rothko",
+      "commit": "c18784b8137853629f78ad56199107145c686c4b",
+      "local_source_head": "8df105555fa1b494c751ea6433e35fbe89f31f10",
+      "local_source_tree": "e6075b176dd57032e88d1089746277fc4c87c004",
+      "public_tree": "cffbff961301069e2802f0e95b386c882f6d02d4"
+    },
+    {
+      "repository": "proprietary_vendor_xiaomi_rothko",
+      "path": "vendor/xiaomi/rothko",
+      "commit": "23dcced3b5d1961ccb7282b6c74360310d61b046",
+      "local_source_head": "15fb53cb0e700357f3649420d7ced5cd9fb6e845",
+      "local_source_tree": "1007c598f7636ad00fd5bb6176d31d44dee9ca1b",
+      "public_tree": "d32fa0752b9fd2bb83b5e0c4d2247b192dcdfb01"
+    },
+    {
+      "repository": "rothko-kernel-extraction",
+      "path": "device/xiaomi/rothko-kernel",
+      "commit": "18ffbb2bc0789d67c23b45a9da4a0bf22a84971e",
+      "local_source_head": "508b696afe5a7c925bae0e0a61067ecfe12d8798",
+      "local_source_tree": "c6f2629c2f03770868dec550a38d54fb7c6cda76",
+      "public_tree": "4164bb5084da19de3cb52817a33cd16c128b4470"
+    }
+  ],
+  "shared_series_git_am_replay": [
+    {
+      "path": "build/soong",
+      "upstream_base": "a528a88bd553d2a449ad9338a3e944b89a164971",
+      "build_head": "722bc4bbb0c4d27792d6e170c98e257b6f9b9c06",
+      "exported_head": "ebf9c8f2b2f80eacf173bed725f9f241d7f48b0a",
+      "replayed_head": "7e2eaf1ac934716c88b54251db5d2afcb50ceec5",
+      "tree": "b1d3929e4362dd7dd81a1b70cc0606448bae981a",
+      "mbox_sha256": "47bd9a687de967f805a9c4174739ed3e74b1e6d7b876d64ac213af9bd00ab390"
+    },
+    {
+      "path": "frameworks/av",
+      "upstream_base": "1c5914737a1a89d0c5b3e52e8289019eab3f8cbf",
+      "build_head": "854c8259b2943cc80724599834ee11b77bd0d3d3",
+      "exported_head": "76fa43f540991b4d864e002ee4df9375b57fbca4",
+      "replayed_head": "b59d2914b18c246bd1d946761ec7a7fbbd6b4007",
+      "tree": "f52617f79d84d771beb9cf0a2690d2f71836eb81",
+      "mbox_sha256": "6d63ff205414d8593bedf33e51f7f100da4acb6ce0c0cf1bfa07f82bca36c76e"
+    },
+    {
+      "path": "lineage-sdk",
+      "upstream_base": "33dae0ab26b7efb7eab76bf60b347d2f4df1e5a6",
+      "build_head": "e08f863cccd7b38eb62fca1b4c73fd9b66628f14",
+      "exported_head": "16da791115ec9ea963f14e73d70f1c4a90a1ad5d",
+      "replayed_head": "73fa5b225bc6cee3162b60517f8d3cdc034f118e",
+      "tree": "cd7cfde34426e4d3ae2f06065892ad23efd75f84",
+      "mbox_sha256": "b4d045fc707665eb0ecc92c207b0f2f637dad7c512cb341553da20268b7ad4bd"
+    },
+    {
+      "path": "packages/apps/LineageParts",
+      "upstream_base": "2ce948052f7f7675075c2ec9d68129c99b6e4ee7",
+      "build_head": "5e05923b68da3e32cb5b1c6d3712789644bf22f0",
+      "exported_head": "9a26eb8511589ece35824d155e129a418a05293b",
+      "replayed_head": "268620528778123f791729be3a9c7ad0f9b3871d",
+      "tree": "3a845047ff1279c28118c98531e1b9b1fcba2722",
+      "mbox_sha256": "af93ff89f11b5936fe969ac45f3ea39416f33dc8c4f51bf230fca82d8426f32c"
+    },
+    {
+      "path": "bionic",
+      "upstream_base": "ff3bb041547924ac1a7504e4b3bd3ea18169ca2f",
+      "build_head": "4a56ab473ab1936abe1d3f025b2940f10507e45a",
+      "exported_head": "4dea34a5e04635de73913d8157c138058736c10c",
+      "replayed_head": "c0264c47d1313d5d06029465d7d1130c368414ca",
+      "tree": "5b7b2254b3382e2c677ec3bc2bf79436083c8e3f",
+      "mbox_sha256": "13e4f05868e93949c45ab03f124f855524814048a6e187c58c2e659266ed8864"
+    },
+    {
+      "path": "hardware/mediatek",
+      "upstream_base": "32bd412433ef0d58c3484769d9789987407627fc",
+      "build_head": "9a9f51cf0dc97e6c91491690e1b14ab541f91a11",
+      "exported_head": "503cd9692f175c8391227000542c73042b0bf219",
+      "replayed_head": "6d2ff1497372a67b4a7ac03afda7d2879d6e459c",
+      "tree": "aeba6f3f3d8bf977a58c4376f9d009e8473575d2",
+      "mbox_sha256": "f52fd5ae187c0a659b16d4db5b680fd5bbf7f0ab1176dba93ea422302885e5f8"
+    },
+    {
+      "path": "device/mediatek/sepolicy_vndr",
+      "upstream_base": "d76ed9b3f512decbb68f6641db86230aa595996e",
+      "build_head": "3624f11588994bfa9731b6b9a3898d8ce31b5098",
+      "exported_head": "31b02c0a21c597529930f4319699c6e137600565",
+      "replayed_head": "e42ab240be4b468a890a336a98a1adba040f64f0",
+      "tree": "5c43d28bc22373c9c864280550f1b8c49318d3c4",
+      "mbox_sha256": "d3f57f425b50c6a3f7de411718e73a6ffc70cc78fc9f14aaaa42f33c698da19a"
+    },
+    {
+      "path": "frameworks/base",
+      "upstream_base": "22de88b7b8eb979c816669c7963dee66ae4953cd",
+      "build_head": "5b6ca2cc5b1e8b5187889a93def3bb9cbb2fa4b4",
+      "exported_head": "5b6ca2cc5b1e8b5187889a93def3bb9cbb2fa4b4",
+      "replayed_head": "7e2b8338684704c21239fb155e2a5762320d6ccc",
+      "tree": "46c0c99a057bc644bf3ef048bdd326c1b37d3c3b",
+      "mbox_sha256": "c872fa2f1481a6ee15574ed36290a87a6b242bbe8f088886a2f2b3d351015812"
+    },
+    {
+      "path": "frameworks/native",
+      "upstream_base": "a96adf2c6e62dbb22299cd83bbb9ea4bc569e985",
+      "build_head": "bb63eb756762f2bc763fdc3c049c9ade78fa7873",
+      "exported_head": "388492a6a1e0a22bff45a54ef797271a4400036e",
+      "replayed_head": "5c789cf7c4da684d4e8e082941641d870d432dce",
+      "tree": "3557c1f448ddc7ae55481911f57d93250f63b21d",
+      "mbox_sha256": "2ded26cdfbb7ac121aac5ccc7118fce970e45fa759e0e80ae9af1313b662f820"
+    },
+    {
+      "path": "hardware/interfaces",
+      "upstream_base": "a0221f11248a924532444fc7de85d41998b9fe1e",
+      "build_head": "3996a573bcf389c404e400989ba97a3d71861dee",
+      "exported_head": "b9832f79b852e161eee2ca7c050429f0a5f16d1c",
+      "replayed_head": "e042a4d61d46922e7b8294754a0fc14052fec887",
+      "tree": "fe9918a7c5af0b10e3a07c99a5f74b3286219b6d",
+      "mbox_sha256": "0d928b104d788588b4cbfd46db3effd1f053347730c73afec3ff87e21b0badc2"
+    },
+    {
+      "path": "external/wpa_supplicant_8",
+      "upstream_base": "4d70ee052a9f65038a24ec7ea2f2bb3f92b17277",
+      "build_head": "0e5ad56d61d4fc451209bd447edba8ae098d4f81",
+      "exported_head": "ce2669ce8cabe6de1baca873aac2fcdae35167b7",
+      "replayed_head": "5f59c59f34951134c3bde15549ae11c03f3ca3f1",
+      "tree": "5aa15351d942a22e8f51a5634026655af1b30d11",
+      "mbox_sha256": "772cadea8240cf3f644887acf36f8d8bf603ae2e9205c72cd7f1df2ed43fb75a"
+    },
+    {
+      "path": "packages/modules/Bluetooth",
+      "upstream_base": "0a8ed94208f86cf0fc036b35841fac43ee84c770",
+      "build_head": "7e19315b9b8fb4d5da20f37b35e69f1a96846beb",
+      "exported_head": "b20dda8625e7f3b7c901066d8751a39d54784c29",
+      "replayed_head": "63ec7cd1e196ad1b5a1c73a442c9ada9e1cd75a4",
+      "tree": "31a5c7351f15fe72b5402fe91d4c67a7786efdca",
+      "mbox_sha256": "55cbe3e5b23441d2cdd3b3f479416aa5def0177676b77c4f3558733081cbe8af"
+    },
+    {
+      "path": "packages/apps/Settings",
+      "upstream_base": "31b1a9f1cab9638bc6af9f4e6412fbf3b3a7947a",
+      "build_head": "7ad66781e951e05e5c44172c41a440d9b7d11730",
+      "exported_head": "0820511d18c9c978042f72547196c5c4797968f2",
+      "replayed_head": "1e3cd5562608f5841e66ecafac94c6c12e234c99",
+      "tree": "94d500a98ce8f53e43e1419596590682ade48728",
+      "mbox_sha256": "f6e1fabf028dbb2f23f39ca98c48941adb04f27fa55f7b66820d68d4b66465ff"
+    },
+    {
+      "path": "tools/extract-utils",
+      "upstream_base": "78ba5d58c4b06712e18bb387a2a72eac8fbc8d70",
+      "build_head": "7f65ab8cc2338475f281d9c066bbca7944ffc35d",
+      "exported_head": "2a9076e1cfd0fd938351bca169fa3a186e30b63a",
+      "replayed_head": "750049e449e5cb087d856f630755bbbdcc64f7d4",
+      "tree": "c744c3c614c544ccb7438786f974ce3498de9472",
+      "mbox_sha256": "810f62dc77394fe606836a383c865e997d8a7a1d551dc04a9dd7e42216e66668"
+    },
+    {
+      "path": "system/tools/hidl",
+      "upstream_base": "5d0e05e6535fea94a674a359102bdd42944714f4",
+      "build_head": "8f228a6c61979e73c8fcc1bd0d573234b08915d0",
+      "exported_head": "8a522e37db8485848b30ad4dd89452d737fc2a18",
+      "replayed_head": "7fe9d39fe3eb05f0a559dc9d3fa3a640acdd2134",
+      "tree": "b9deb28705ade361c131ea88b882ac8b9498c2ab",
+      "mbox_sha256": "5b4c990d82e83c1906aeee54c71b90802d89dece5aa1c51b9fea63057f18a029"
+    },
+    {
+      "path": "vendor/apn",
+      "upstream_base": "2842825e44b5ad6e247467bd7a16c1d8bf80407f",
+      "build_head": "4fd659975e1176fd247f295c3279ff857402d660",
+      "exported_head": "4fd659975e1176fd247f295c3279ff857402d660",
+      "replayed_head": "ed13441456eeb3b121f69ab3959a66342566159d",
+      "tree": "e0961ebf4d03e8aeb3f38f6d321e85143f9cd7b2",
+      "mbox_sha256": "72991cddb2a4070fcaa675fb54cff085936200bb4f44d964b9e63c39c89eb37d"
+    }
+  ],
+  "stock_vendor_replay": {
+    "sha256": "f385f36e89b5555a2a7b5ed7b71f1511fd20ce37bb05831d9c27b5f7b1c52999",
+    "payloads": 3061,
+    "generated_metadata": {
+      "Android.bp": "987e19b58e76045cc7be79aaaf0419304d9afc5920b70052d61521297b9ad2d5",
+      "Android.mk": "7a5e9b2a048ce3b454ca66d2be7775eaf808c0cdac69b680a5deeb072ca08eb0",
+      "rothko-vendor.mk": "495d39a1b5ad39f08428b51eb480faf080a70e7b005369a320c7e781ac4a0b0d",
+      "BoardConfigVendor.mk": "31932b8ede523a06046fb6287bdaf6495bf50508dd849cb619aec7ea7d61bdec"
+    }
+  },
+  "companion_commit_mapping": {
+    "device": {
+      "023e27e6346b8bb260413772f74de45602c31518": "5a8ced9ac69b5d7bf2dff2fffa657a8c55b9a131",
+      "14269140e50d8f66489ea93f1d8c464bd4f4d8bd": "6be2cbc61313a64bf8393e8cbad8eea7a81859c3",
+      "630fcaec40fffdfc0c7e9e6f47f7d698c76abf9b": "bbbb1e7dac71587b42077fb8d3fed8db3189312b",
+      "6fe5fbd9ea66942fabce466ea349b8b529eee88e": "1257697874a8cfbe126cb99edfe3f4b2248b3953",
+      "1584a3bda66942b4f87866caaf576ec701a8e4f8": "f0e0d8a7445f5ee91fad0dcb85cfc274c72a535b",
+      "0aeee216ca98af43e2f9dc94191641eb788b220d": "453c4bb65ca92c6e0f91b8017bc9377294a3dbe1",
+      "9020f4d82b59f062c1d6c6315767ac3b68028b32": "dd4bb3b81e5a29ee5494d60df6a77fa387b6c759",
+      "a52885252b490da1a9e1cd5346b9865bd6cec06e": "7bfcb631bb45e02bc89b59658b11d7419f79489f",
+      "1489f90a4560d1b096eb1d9840a79f9967639797": "3d207389a7f850d5d7400ec88462bcef9446187c",
+      "7abab85d456f5ecbb986b586bb6de17fde47d9cf": "11aabfc65722ce86366631756b242eb461bc3359",
+      "60790098b0dcc399edadd596b4631bd2a6c8a153": "c63dace2dc0e894929e08024e8420d1d2a9ed44c",
+      "c3abb883954d655b59b9c1136489af4c10376291": "435733beaf2333ce3d006e461bb95f4fb0581300",
+      "72ae99e233fe7cc6b7f64ed660aa70a55868a1cf": "397a3a2973fcd71a196e4848ae63662073725c03",
+      "43b1dbda825f3453e3bc44ea506f95af6f5a9def": "f5c0092c1f4328a73ea7655cbaa717b7a32061de",
+      "764c660e059d7bb42c959e9ae7e836bb4dfa0e75": "09d1089ae4161423918e85a1c6ac89925f12cb62",
+      "51b6a99fd4b899eb4cddde659b15a4bc43dcf4a3": "a2ae1fe266d01df455873279d320753f1804bdeb",
+      "00d2cb32de45714da88138fa59d79c61d61fef7a": "93ab974864a799572b89ef06aa15739f8a0ead9b",
+      "7b84f45a3a260f1e95bc20e083cc1ceacd2ec2e2": "73c673575dbc2bdd89a726527d68f1e76369fc35",
+      "48ffb2a2aa8262641b3038534c8f5c4258a2259f": "ce086fe59a6411f03c48de09472082e17292f962",
+      "16bb5555522c29d7beb8bf7927d73d8a378a3570": "e42a118f1fc3e1a0d55451135b05a7981c8c4052",
+      "b24053e86c27d381081d142eb8f399a4b913459d": "d2d786c0fc4101055ab6be5e672007d8726451e5",
+      "e6191a6c140105b2fd0c8681b7c5dfcc6823d339": "18e430c7e117ed463e9bb747fd615bdb29e029ba",
+      "eb42c6d2d2d2f9c97d76696b56f8b8dc526cd7a3": "40a777a8a8ccbb1fa82ce5f54e15eef7ae478408",
+      "43ac45b0113662a9a361e26872705c0342a007d2": "92ad75325d843f63fb59df614792cb471d9ba3ca",
+      "cc7046009b3a16747861de5a4dfaade20909b9c7": "8af103dabfe6bc88177f0b4704374ad7b5923608",
+      "505508dabb14f32ba98c4daac5e1de4df1b43e31": "61db68020731b791d2ba66c7826e0b1f1d7b7e6f",
+      "14ad8078ce7dc2f8e2304bb66ec4b260341348ed": "770eefb0d95e3a930794ea88cecfabdd88e458da",
+      "feb5d4d2294ef6c7fca6f0c4b2d4ead147948866": "5107e32cf337378fc05090bb70c1a33ac3063b9b",
+      "ba0b3fe4165f34765736e79516b862f1a699c123": "c3be1d21b77d6f1bb5b2f7fd4911df9155765d54",
+      "324f966966b1817f3de247dbc03ca3fcce90e0f5": "1b85f3bf7eb2883bf9d892fb3a13e71b7295b75f",
+      "8e1575c9df7936ef54b95598b30544f1ae96ad3b": "745524c94523416b4fab4512e079263ecb284f6f",
+      "322fe768a323c9b2b81d2b66b37e2a1f4a1f4ccb": "caad8873810c8c832aa209ca524a88deeb732db2",
+      "a46f6082e136f0f62c0a3e563579b1d5d25604f6": "9c5c6da54cac4d99469833345624e62a3622108e",
+      "50f85fb9d971bf23c418b77d2a9d6d288faa87f9": "c2413c293ba4aeb8e7982c6a5e8463ea08b1e855",
+      "cedb4f4abb3afb4aae398641ad85a906c31e298b": "6a7e30e005589dc9ffabbcfc882cbbba24e11e71",
+      "7523b863e6841dbe0d74a3d09ee93842b27a1d57": "d88f32fe941cfa43e420bd0de4c3d78ddd113c0e",
+      "2b596fc6dea6ce5508716ea59bb0bc4d78550b82": "d5ef4c3be28013c0a85bf97ed2152aa04aea2c43",
+      "b9f3593a959bcd744af52957215470c7f08ad481": "fc65118a40148e684fa403c83c3ac0d6d3107464",
+      "04263134834ad2689f54bb19ce8a2cb36716c970": "14f3da708ff5bab588999c402931110daf5be5d6",
+      "bf1423316684c4e8636e21f3af8373e3f83d1bce": "cb905e5281b379e98276aa3994dc95dc7bd6105e",
+      "b0b63526cdfa9e8b8d5cfa9a1ab1e62ebbe9bf1b": "4788c8471a19c3bf77736ffb1482d0d885e5f8ff",
+      "09731cb176fdba2a8e6bb1c0972f692c6c8fd079": "e31868aba51f1fcd5e56a16b149c7cfddd02d06d",
+      "8df105555fa1b494c751ea6433e35fbe89f31f10": "728ebd15ef0177363d4cf0d64b709bae28d26c07"
+    },
+    "vendor": {
+      "68960af68fd71d02fd9c3bc8ca5b418561a6492e": "17946b73621402e6b3c3378c8edb775e09a7e8bf",
+      "053eb5069d303514db54e6b77749e8a17b1b7a49": "6359798a2eaf7fd632ecb35bc6e88630fa0157a1",
+      "59f860d10542c7c123f45172b2e41ef0bf263145": "09cb68cd69ccbb41c68618e58a6f773aecc99ad9",
+      "32ebf55215bfa39d1a8d1e4ad2fd96e854f619d5": "b6dced45685e8be9c3c9821625aaa24b089267ba",
+      "3c612604d274e26a38207c23369dec164932ad13": "6ebf4e32cc773e5fad6bd500f450a681e09f6f91",
+      "167702c60cef40c05fd024f3c4309ee93a0fc2b7": "49016fcd2af9e2687a719ff038f6159b03a91585",
+      "d9df5733126c4dc963497c16abc6a944faa59f8a": "abe5812c3d01f500c500f01acc92e93e8b776dad",
+      "15fb53cb0e700357f3649420d7ced5cd9fb6e845": "d858399566b253f9e36c0a3af101bad7278c8100"
+    }
+  },
+  "public_clean_build_completed": false,
+  "public_device_acceptance_completed": false
+}

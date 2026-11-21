@@ -1,0 +1,25 @@
+From 8a522e37db8485848b30ad4dd89452d737fc2a18 Mon Sep 17 00:00:00 2001
+From: tunkoal <tunkoal@163.com>
+Date: Sat, 14 Nov 2026 08:55:42 +0800
+Subject: [PATCH] hidl: permit the retired displayservice 1.0 ABI for device
+ compatibility
+
+The device-local API 34 camera bridge restores the exact previously frozen interface removed in AOSP 928ad435. HIDL module creation rejects this known Android namespace before evaluating device configuration. Restore this single allowlist entry in the owning build layer, leaving implementation and installation selected by the device. This avoids changing OEM C++ ABI or weakening the global HIDL namespace check. Whitespace passed. Build and device validation pending.
+
+Change-Id: I74de2c2bbb00d8dbbab1a724a8e7f35e09a68cf9
+---
+ build/hidl_interface.go | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/build/hidl_interface.go b/build/hidl_interface.go
+index b517e84318eb6ea82df31f0290769108c4a7fcf4..47c443239dd79f9a05a0b04ff7c6671cd69eea78 100644
+--- a/build/hidl_interface.go
++++ b/build/hidl_interface.go
+@@ -898,6 +898,7 @@ var allAospHidlInterfaces = map[string]bool{
+ 	"android.frameworks.cameraservice.service@2.0": true,
+ 	"android.frameworks.cameraservice.service@2.1": true,
+ 	"android.frameworks.cameraservice.service@2.2": true,
++	"android.frameworks.displayservice@1.0":        true,
+ 	"android.frameworks.sensorservice@1.0":         true,
+ 	"android.frameworks.stats@1.0":                 true,
+ 	"android.frameworks.vr.composer@1.0":           true,

@@ -1,23 +1,53 @@
-From cb3d46552dadbdb182cc1b8c8959b785d423b8c9 Mon Sep 17 00:00:00 2001
+From 9a26eb8511589ece35824d155e129a418a05293b Mon Sep 17 00:00:00 2001
 From: tunkoal <tunkoal@163.com>
-Date: Fri, 16 Oct 2026 14:10:08 +0800
-Subject: [PATCH 1/6] LiveDisplay: Read back color profiles asynchronously
+Date: Sat, 14 Nov 2026 00:51:04 +0800
+Subject: [PATCH] rothko: port packages/apps/LineageParts integration to
+ Android 17
 
-Serialize display service work off the UI thread and ignore stale lifecycle callbacks. Update selection from current service state, confirm persistent changes by readback, and expose retry after unavailable reads. Keep saved defaults distinct from an observed active mode.
+Carry the final 23.2 device integration delta onto the official 24.0 tree.
+Old upstream base: 329b58e8e63da78624c8aa675d9b5dd84d990fe0
+Recorded device baseline: 51a628f1751d0a2b31a94d4bdc8efd3c62270ee9
+New upstream target: 2ce948052f7f7675075c2ec9d68129c99b6e4ee7
 
-Source, resource XML and diff checks only. Compilation and lifecycle/service recovery testing are deferred to the combined candidate.
-
-Change-Id: I43c89ac7163f5a9291453fe080396b2f8f8e22fb
+Three-way tree integration and whitespace checks passed. Compilation and
+24.0 device validation are pending. Historical reverted changes are
+represented by their final net effect. The project migration record
+LINEAGE_24_MIGRATION_20261114.zh-CN.md tracks companion repository pins.
 ---
- res/values/strings.xml                        |   5 +
- .../livedisplay/ColorProfileFragment.java     | 218 ++++++++++++++----
- 2 files changed, 176 insertions(+), 47 deletions(-)
+ res/values-zh-rCN/strings.xml                 |   3 +
+ res/values/strings.xml                        |   8 +
+ .../livedisplay/ColorProfileFragment.java     | 228 ++++++++++++++----
+ 3 files changed, 190 insertions(+), 49 deletions(-)
 
+diff --git a/res/values-zh-rCN/strings.xml b/res/values-zh-rCN/strings.xml
+index 9346c3b3e87b65a04720bc0f6d6432759e639333..4a3a1db8319a78e61fd5bd0c337e88899ccd57bb 100644
+--- a/res/values-zh-rCN/strings.xml
++++ b/res/values-zh-rCN/strings.xml
+@@ -107,6 +107,9 @@
+     <string name="live_display_enhance_color_summary">为肤色、风景和其他图像提升色彩饱和度</string>
+     <string name="live_display_color_profile_preview">颜色预览</string>
+     <string name="live_display_color_profile_standard_title">标准</string>
++    <string name="live_display_color_profile_original_title">原色</string>
++    <string name="live_display_color_profile_vivid_title">生动</string>
++    <string name="live_display_color_profile_saturated_title">鲜艳</string>
+     <string name="live_display_color_profile_standard_summary">准确的颜色和明亮的白色</string>
+     <string name="live_display_color_profile_natural_title">自然</string>
+     <string name="live_display_color_profile_natural_summary">写实的颜色和肤色</string>
 diff --git a/res/values/strings.xml b/res/values/strings.xml
-index f4f63eb5866cac942fa13927e2f80871725b2cfc..7fe693ba2814578b0128753a3f2c6afb6518b1ce 100644
+index 92ae00dbd8a37a9e907b6939e30b6e2099fb5ee7..38e6310561a7f9f56595fcc5603376eb320da36f 100644
 --- a/res/values/strings.xml
 +++ b/res/values/strings.xml
-@@ -691,4 +691,9 @@
+@@ -140,6 +140,9 @@
+     <string name="live_display_color_profile_title" translatable="false">@string/battery_light_list_title</string>
+     <string name="live_display_color_profile_preview">Color preview</string>
+     <string name="live_display_color_profile_standard_title">Standard</string>
++    <string name="live_display_color_profile_original_title">Original</string>
++    <string name="live_display_color_profile_vivid_title">Vivid</string>
++    <string name="live_display_color_profile_saturated_title">Saturated</string>
+     <string name="live_display_color_profile_standard_summary">Accurate colors and bright whites</string>
+     <string name="live_display_color_profile_natural_title">Natural</string>
+     <string name="live_display_color_profile_natural_summary">Realistic colors and flesh tones</string>
+@@ -692,4 +695,9 @@
      <string name="sms_security_check_limit_summary">Apps can send %s messages in 1 minute before requiring confirmation</string>
      <string name="sms_security_check_limit_summary_none">Apps are not allowed to send any messages without confirmation</string>
      <string name="sms_security_check_limit_always_confirm">Always confirm</string>
@@ -28,19 +58,19 @@ index f4f63eb5866cac942fa13927e2f80871725b2cfc..7fe693ba2814578b0128753a3f2c6afb
 +    <string name="live_display_color_profile_change_failed">Couldn’t change the color profile. Try again.</string>
  </resources>
 diff --git a/src/org/lineageos/lineageparts/livedisplay/ColorProfileFragment.java b/src/org/lineageos/lineageparts/livedisplay/ColorProfileFragment.java
-index 33fef0237204fcc4c0b036c5e0eb00457bca9d38..ec09d86e301fbf211a9e1e2b4d1135cfcc26a9bf 100644
+index 33fef0237204fcc4c0b036c5e0eb00457bca9d38..1056506aa90c7ff136439d42ea5a603dbda794b1 100644
 --- a/src/org/lineageos/lineageparts/livedisplay/ColorProfileFragment.java
 +++ b/src/org/lineageos/lineageparts/livedisplay/ColorProfileFragment.java
-@@ -10,13 +10,15 @@ import static lineageos.hardware.LiveDisplayManager.FEATURE_DISPLAY_MODES;
+@@ -10,6 +10,8 @@ import static lineageos.hardware.LiveDisplayManager.FEATURE_DISPLAY_MODES;
  
  import android.content.Context;
  import android.os.Bundle;
--import android.text.TextUtils;
 +import android.os.Handler;
 +import android.os.Looper;
+ import android.text.TextUtils;
  import android.view.LayoutInflater;
  import android.view.View;
- import android.view.ViewGroup;
+@@ -17,6 +19,7 @@ import android.view.ViewGroup;
  import android.util.ArraySet;
  import android.util.Log;
  import android.widget.ImageView;
@@ -48,7 +78,7 @@ index 33fef0237204fcc4c0b036c5e0eb00457bca9d38..ec09d86e301fbf211a9e1e2b4d1135cf
  
  import androidx.annotation.VisibleForTesting;
  import androidx.preference.Preference;
-@@ -44,6 +46,8 @@ import java.util.Arrays;
+@@ -44,6 +47,8 @@ import java.util.Arrays;
  import java.util.Collections;
  import java.util.List;
  import java.util.Set;
@@ -57,7 +87,7 @@ index 33fef0237204fcc4c0b036c5e0eb00457bca9d38..ec09d86e301fbf211a9e1e2b4d1135cf
  
  public class ColorProfileFragment extends SettingsPreferenceFragment implements
          SelectorWithWidgetPreference.OnClickListener, Searchable {
-@@ -62,6 +66,15 @@ public class ColorProfileFragment extends SettingsPreferenceFragment implements
+@@ -62,6 +67,15 @@ public class ColorProfileFragment extends SettingsPreferenceFragment implements
      private static final int DOT_INDICATOR_RIGHT_PADDING = 6;
  
      private LineageHardwareManager mHardware;
@@ -73,7 +103,7 @@ index 33fef0237204fcc4c0b036c5e0eb00457bca9d38..ec09d86e301fbf211a9e1e2b4d1135cf
  
      private View mViewArrowPrevious;
      private View mViewArrowNext;
-@@ -84,21 +97,19 @@ public class ColorProfileFragment extends SettingsPreferenceFragment implements
+@@ -84,21 +98,19 @@ public class ColorProfileFragment extends SettingsPreferenceFragment implements
          Context context = screen.getContext();
          final LayoutPreference preview = new LayoutPreference(context,
                  R.layout.color_mode_preview_viewpager);
@@ -102,7 +132,7 @@ index 33fef0237204fcc4c0b036c5e0eb00457bca9d38..ec09d86e301fbf211a9e1e2b4d1135cf
  
          if (savedInstanceState != null) {
              final int selectedPosition = savedInstanceState.getInt(PAGE_VIEWER_SELECTION_INDEX);
-@@ -110,7 +121,41 @@ public class ColorProfileFragment extends SettingsPreferenceFragment implements
+@@ -110,7 +122,41 @@ public class ColorProfileFragment extends SettingsPreferenceFragment implements
      @Override
      public void onSaveInstanceState(Bundle outState){
          super.onSaveInstanceState(outState);
@@ -145,7 +175,7 @@ index 33fef0237204fcc4c0b036c5e0eb00457bca9d38..ec09d86e301fbf211a9e1e2b4d1135cf
      }
  
      @VisibleForTesting
-@@ -179,58 +224,137 @@ public class ColorProfileFragment extends SettingsPreferenceFragment implements
+@@ -179,58 +225,143 @@ public class ColorProfileFragment extends SettingsPreferenceFragment implements
  
      @Override
      public void onRadioButtonClicked(SelectorWithWidgetPreference selected) {
@@ -263,7 +293,13 @@ index 33fef0237204fcc4c0b036c5e0eb00457bca9d38..ec09d86e301fbf211a9e1e2b4d1135cf
 -    private void mayCheckOnlyRadioButton() {
 +    private void showStatus(int title, boolean retry) {
 +        mStatusPreference.setTitle(title);
-+        mStatusPreference.setSummary(retry ? R.string.live_display_color_profile_retry : 0);
++        // An int summary is a string resource id, so the non-retry state must
++        // clear the summary instead of passing 0, which crashes the page.
++        if (retry) {
++            mStatusPreference.setSummary(R.string.live_display_color_profile_retry);
++        } else {
++            mStatusPreference.setSummary((CharSequence) null);
++        }
 +        mStatusPreference.setSelectable(retry);
 +        mStatusPreference.setEnabled(retry);
 +        getPreferenceScreen().addPreference(mStatusPreference);
@@ -319,36 +355,7 @@ index 33fef0237204fcc4c0b036c5e0eb00457bca9d38..ec09d86e301fbf211a9e1e2b4d1135cf
          }
      }
  
-
-base-commit: 329b58e8e63da78624c8aa675d9b5dd84d990fe0
-
-From 3586221b83275a854ef165b50827b41bf3080457 Mon Sep 17 00:00:00 2001
-From: tunkoal <tunkoal@163.com>
-Date: Fri, 16 Oct 2026 14:35:07 +0800
-Subject: [PATCH 2/6] LiveDisplay: Keep profile search and summaries consistent
-
-Restore TextUtils needed by the existing search provider after the async-page change. Collect mode keywords when the feature is supported, and read the active mode once for summaries without substituting a saved default for unavailable current state.
-
-Source and diff checks only. Compilation and profile search/recovery validation are deferred to the combined candidate.
-
-Change-Id: I674964ee26a2d76776720dd109c10ddb51221594
----
- .../lineageparts/livedisplay/ColorProfileFragment.java      | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/src/org/lineageos/lineageparts/livedisplay/ColorProfileFragment.java b/src/org/lineageos/lineageparts/livedisplay/ColorProfileFragment.java
-index ec09d86e301fbf211a9e1e2b4d1135cfcc26a9bf..88028bc23cca4ae2f26d094b0cba73881745a5bc 100644
---- a/src/org/lineageos/lineageparts/livedisplay/ColorProfileFragment.java
-+++ b/src/org/lineageos/lineageparts/livedisplay/ColorProfileFragment.java
-@@ -12,6 +12,7 @@ import android.content.Context;
- import android.os.Bundle;
- import android.os.Handler;
- import android.os.Looper;
-+import android.text.TextUtils;
- import android.view.LayoutInflater;
- import android.view.View;
- import android.view.ViewGroup;
-@@ -461,7 +462,7 @@ public class ColorProfileFragment extends SettingsPreferenceFragment implements
+@@ -337,7 +468,7 @@ public class ColorProfileFragment extends SettingsPreferenceFragment implements
              final Set<String> result = new ArraySet<>();
  
              // Add keywords for supported color profiles
@@ -357,7 +364,7 @@ index ec09d86e301fbf211a9e1e2b4d1135cfcc26a9bf..88028bc23cca4ae2f26d094b0cba7388
                  DisplayMode[] modes = LineageHardwareManager.getInstance(context).getDisplayModes();
                  if (modes != null && modes.length > 0) {
                      for (DisplayMode mode : modes) {
-@@ -487,8 +488,7 @@ public class ColorProfileFragment extends SettingsPreferenceFragment implements
+@@ -363,8 +494,7 @@ public class ColorProfileFragment extends SettingsPreferenceFragment implements
                  final LineageHardwareManager manager = LineageHardwareManager.getInstance(context);
                  final DisplayMode[] modes = manager.getDisplayModes();
                  if (modes != null && modes.length > 0) {
@@ -367,132 +374,3 @@ index ec09d86e301fbf211a9e1e2b4d1135cfcc26a9bf..88028bc23cca4ae2f26d094b0cba7388
                      for (int i = 0; i < modes.length; i++) {
                          if (currentMode == null || modes[i].id != currentMode.id)
                              continue;
-
-From c98bbe87f946b0a47b717908ccb26b750d753172 Mon Sep 17 00:00:00 2001
-From: codex <codex@local>
-Date: Sat, 17 Oct 2026 09:03:28 +0800
-Subject: [PATCH 3/6] LiveDisplay: Clear the status summary instead of passing
- resource id 0
-
-Change-Id: I42c53af41771f2ab6ad37b8b774bcdbad3570674
----
- .../lineageparts/livedisplay/ColorProfileFragment.java    | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
-
-diff --git a/src/org/lineageos/lineageparts/livedisplay/ColorProfileFragment.java b/src/org/lineageos/lineageparts/livedisplay/ColorProfileFragment.java
-index 88028bc23cca4ae2f26d094b0cba73881745a5bc..1056506aa90c7ff136439d42ea5a603dbda794b1 100644
---- a/src/org/lineageos/lineageparts/livedisplay/ColorProfileFragment.java
-+++ b/src/org/lineageos/lineageparts/livedisplay/ColorProfileFragment.java
-@@ -308,7 +308,13 @@ public class ColorProfileFragment extends SettingsPreferenceFragment implements
- 
-     private void showStatus(int title, boolean retry) {
-         mStatusPreference.setTitle(title);
--        mStatusPreference.setSummary(retry ? R.string.live_display_color_profile_retry : 0);
-+        // An int summary is a string resource id, so the non-retry state must
-+        // clear the summary instead of passing 0, which crashes the page.
-+        if (retry) {
-+            mStatusPreference.setSummary(R.string.live_display_color_profile_retry);
-+        } else {
-+            mStatusPreference.setSummary((CharSequence) null);
-+        }
-         mStatusPreference.setSelectable(retry);
-         mStatusPreference.setEnabled(retry);
-         getPreferenceScreen().addPreference(mStatusPreference);
-
-From cd69dd4078cb8a634c3082a2c1673eea18c0f489 Mon Sep 17 00:00:00 2001
-From: codex <codex@local>
-Date: Sat, 17 Oct 2026 10:48:55 +0800
-Subject: [PATCH 4/6] LiveDisplay: Add titles for the original, vivid and
- saturated profiles
-
-Change-Id: I1ea1fb9bddf2ebafb80ee5e267a5e43adcdc0fd8
----
- res/values-zh-rCN/strings.xml | 3 +++
- res/values/strings.xml        | 3 +++
- 2 files changed, 6 insertions(+)
-
-diff --git a/res/values-zh-rCN/strings.xml b/res/values-zh-rCN/strings.xml
-index 27a2f0c0d3e4be4d86c35f9cc412690ab9ef6546..9c34df4857ebbd4bfdcfe0d22fb598e873e46f7a 100644
---- a/res/values-zh-rCN/strings.xml
-+++ b/res/values-zh-rCN/strings.xml
-@@ -107,6 +107,9 @@
-     <string name="live_display_enhance_color_summary">为肤色、风景和其他图像提升色彩饱和度</string>
-     <string name="live_display_color_profile_preview">颜色预览</string>
-     <string name="live_display_color_profile_standard_title">标准</string>
-+    <string name="live_display_color_profile_original_title">原色</string>
-+    <string name="live_display_color_profile_vivid_title">生动</string>
-+    <string name="live_display_color_profile_saturated_title">鲜艳</string>
-     <string name="live_display_color_profile_standard_summary">准确的颜色和明亮的白色</string>
-     <string name="live_display_color_profile_natural_title">自然</string>
-     <string name="live_display_color_profile_natural_summary">写实的颜色和肤色</string>
-diff --git a/res/values/strings.xml b/res/values/strings.xml
-index 7fe693ba2814578b0128753a3f2c6afb6518b1ce..68ed059d7d21583595d72cb60f7b279f5c076871 100644
---- a/res/values/strings.xml
-+++ b/res/values/strings.xml
-@@ -140,6 +140,9 @@
-     <string name="live_display_color_profile_title" translatable="false">@string/battery_light_list_title</string>
-     <string name="live_display_color_profile_preview">Color preview</string>
-     <string name="live_display_color_profile_standard_title">Standard</string>
-+    <string name="live_display_color_profile_original_title">Original</string>
-+    <string name="live_display_color_profile_vivid_title">Vivid</string>
-+    <string name="live_display_color_profile_saturated_title">Saturated</string>
-     <string name="live_display_color_profile_standard_summary">Accurate colors and bright whites</string>
-     <string name="live_display_color_profile_natural_title">Natural</string>
-     <string name="live_display_color_profile_natural_summary">Realistic colors and flesh tones</string>
-
-From a4dcfed4f5e898520b87a1eecb815b2830949c0b Mon Sep 17 00:00:00 2001
-From: tunkoal <tunkoal@163.com>
-Date: Sun, 25 Oct 2026 12:13:20 +0800
-Subject: [PATCH 5/6] Keep charging mode preference unchanged when backend
- rejects it
-
-Change-Id: If1b02fd74c17a5fe229c7fac1d52447f7c2734c6
----
- .../lineageparts/health/ChargingControlSettings.java        | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/src/org/lineageos/lineageparts/health/ChargingControlSettings.java b/src/org/lineageos/lineageparts/health/ChargingControlSettings.java
-index 912bc9a364053b336d24d710554e77effc66ff2c..9d966d566f4a7d2b419ed011aa28fabe4724c5f4 100644
---- a/src/org/lineageos/lineageparts/health/ChargingControlSettings.java
-+++ b/src/org/lineageos/lineageparts/health/ChargingControlSettings.java
-@@ -200,8 +200,10 @@ public class ChargingControlSettings extends SettingsPreferenceFragment implemen
-             mHealthInterface.setEnabled((Boolean) objValue);
-         } else if (preference == mChargingControlModePref) {
-             final int chargingControlMode = Integer.parseInt((String) objValue);
--            mHealthInterface.setMode(chargingControlMode);
--            refreshUi(chargingControlMode);
-+            if (!mHealthInterface.setMode(chargingControlMode)) {
-+                return false;
-+            }
-+            refreshUi(mHealthInterface.getMode());
-         }
-         return true;
-     }
-
-From 51a628f1751d0a2b31a94d4bdc8efd3c62270ee9 Mon Sep 17 00:00:00 2001
-From: tunkoal <tunkoal@163.com>
-Date: Sun, 25 Oct 2026 12:21:28 +0800
-Subject: [PATCH 6/6] Withdraw charging mode preference candidate
-
-Change-Id: I1ef46db594af161160db78a8232a66f60329316c
----
- .../lineageparts/health/ChargingControlSettings.java        | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/src/org/lineageos/lineageparts/health/ChargingControlSettings.java b/src/org/lineageos/lineageparts/health/ChargingControlSettings.java
-index 9d966d566f4a7d2b419ed011aa28fabe4724c5f4..912bc9a364053b336d24d710554e77effc66ff2c 100644
---- a/src/org/lineageos/lineageparts/health/ChargingControlSettings.java
-+++ b/src/org/lineageos/lineageparts/health/ChargingControlSettings.java
-@@ -200,10 +200,8 @@ public class ChargingControlSettings extends SettingsPreferenceFragment implemen
-             mHealthInterface.setEnabled((Boolean) objValue);
-         } else if (preference == mChargingControlModePref) {
-             final int chargingControlMode = Integer.parseInt((String) objValue);
--            if (!mHealthInterface.setMode(chargingControlMode)) {
--                return false;
--            }
--            refreshUi(mHealthInterface.getMode());
-+            mHealthInterface.setMode(chargingControlMode);
-+            refreshUi(chargingControlMode);
-         }
-         return true;
-     }

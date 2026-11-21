@@ -25,3 +25,11 @@ The source-only copy is not a claim that all code was written by this project.
 Per-file copyright and licenses remain authoritative. The original community
 repository above is the source attribution; the current publication remotes are
 the corresponding repositories under Xiaomi-MT6989-OSS.
+
+## LineageOS 24.0
+
+This branch follows the November 19 Android 17 release source. Its device and
+vendor metadata commits descend from the final 23.2 public snapshot. Platform
+series were migrated and reviewed in their owning repositories. The
+[November 19 source record](history/2026-11-19-lineageos-24.0.json) ties the build
+revisions, exported platform series and source-only companion revisions together.

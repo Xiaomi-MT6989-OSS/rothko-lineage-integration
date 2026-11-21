@@ -1,272 +1,772 @@
 {
-  "state": "lineage-23.2-pre-migration-source-candidate",
-  "snapshot_date": "2026-11-14",
+  "state": "lineageos-24.0-20261119-release-source",
   "replay_verified": true,
+  "upstream_manifest": "e4b71068f6ee045ff30e4865a8d82f4047eb78ea",
   "repositories": [
     {
-      "path": "bionic",
-      "base": "ff9fe01e7e1e81febaf32b15fa561aec480a112c",
-      "head": "40570e8752a8119f2750a8ce44f7d76a2f0bec93",
-      "ordered_commits": [
-        "40570e8752a8119f2750a8ce44f7d76a2f0bec93"
-      ],
-      "expected_final_tree": "a6897cbe5d23bae5a76b59919b509a0e8d0b90e9",
-      "local_commits": 1,
-      "file": "bionic.mbox",
-      "bytes": 1269,
-      "sha256": "dfedf3587a5d500ffd739a33ebead7754b6b226545ced1d0a107290f01e53dd3"
-    },
-    {
       "path": "build/soong",
-      "base": "9aa045a2aef10b8089e32e847fed26d9aa3d61be",
-      "head": "bee640fa4f40cab5014059014273393c92411782",
-      "ordered_commits": [
-        "50e5622d6bd3a1ac5ec333d1b035ca9edb5d2f9e",
-        "e4403ac5df4159b33bf96a8f8f756baaa2dc823a",
-        "bee640fa4f40cab5014059014273393c92411782"
+      "base": "a528a88bd553d2a449ad9338a3e944b89a164971",
+      "head": "ebf9c8f2b2f80eacf173bed725f9f241d7f48b0a",
+      "local_commits": 2,
+      "legacy_23_2_head": "bee640fa4f40cab5014059014273393c92411782",
+      "source_checks": [
+        "three-way tree merge",
+        "git diff --check"
       ],
-      "expected_final_tree": "5a2b69a679df8aa89629e16eb31ef53a44a48742",
-      "local_commits": 3,
+      "built": true,
       "file": "build__soong.mbox",
-      "bytes": 3971,
-      "sha256": "a9d657bb1a713344cb4ccd0fb0d3a4e5d661eca1561a8011b42b0ad5dfa6cf10",
+      "bytes": 6409,
+      "sha256": "47bd9a687de967f805a9c4174739ed3e74b1e6d7b876d64ac213af9bd00ab390",
+      "expected_final_tree": "b1d3929e4362dd7dd81a1b70cc0606448bae981a",
+      "commits": [
+        "0966274ed0ffdb875bb86ea7d11b7fc0be03a34a",
+        "ebf9c8f2b2f80eacf173bed725f9f241d7f48b0a"
+      ],
+      "files": [
+        "android/packaging.go",
+        "ci_tests/ci_test_package_zip.go",
+        "filesystem/filesystem_test.go",
+        "scripts/check_boot_jars/package_allowed_list.txt",
+        "ui/build/soong.go"
+      ],
+      "candidate_validation": "current HEAD built previously",
+      "companion_registry": "../../lineage-24-migration-20261114/candidates.json",
+      "provenance": {
+        "legacy_23_2_head": "bee640fa4f40cab5014059014273393c92411782",
+        "first_commit_message": "rothko: port build/soong integration to Android 17\n\nCarry the final 23.2 device integration delta onto the official 24.0 tree.\nOld upstream base: 9aa045a2aef10b8089e32e847fed26d9aa3d61be\nRecorded device baseline: bee640fa4f40cab5014059014273393c92411782\nNew upstream target: a528a88bd553d2a449ad9338a3e944b89a164971\n\nThree-way tree integration and whitespace checks passed. Compilation and\n24.0 device validation are pending. Historical reverted changes are\nrepresented by their final net effect. The project migration record\nLINEAGE_24_MIGRATION_20261114.zh-CN.md tracks companion repository pins.",
+        "migration_record": "../../../bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md",
+        "older_public_series": "../../../public-repos/rothko-lineage-integration/patches/index.json"
+      },
+      "last_build_record": "../../unified-build-20261115/retry-03/inputs.json",
+      "ordered_commits": [
+        "0966274ed0ffdb875bb86ea7d11b7fc0be03a34a",
+        "ebf9c8f2b2f80eacf173bed725f9f241d7f48b0a"
+      ],
       "host_support_only": false
     },
     {
-      "path": "device/mediatek/sepolicy_vndr",
-      "base": "b1c50f4903504168e7bd0e32b44c72d139d38d09",
-      "head": "56b019fd89b226200f023ea9c38b0679ef4cea69",
-      "ordered_commits": [
-        "56b019fd89b226200f023ea9c38b0679ef4cea69"
-      ],
-      "expected_final_tree": "e75c2bdf5974a90308ebe65702e3ff1c6a4c99ff",
-      "local_commits": 1,
-      "file": "device__mediatek__sepolicy_vndr.mbox",
-      "bytes": 1678,
-      "sha256": "af632d4fa53fea5703189e54f882229942fa1d1c866fffe28da4c8ca6e0b1bdc"
-    },
-    {
-      "path": "external/wpa_supplicant_8",
-      "base": "16bcc5ac5f275c64c613772852cb879f608ff2a6",
-      "head": "4a2c60d77cc7f201fd5c7a2e569eb9c8135e2f1b",
-      "ordered_commits": [
-        "4a2c60d77cc7f201fd5c7a2e569eb9c8135e2f1b"
-      ],
-      "expected_final_tree": "8359fe660cb6b6d2ff64fe85aa9fa12250594ef8",
-      "local_commits": 1,
-      "file": "external__wpa_supplicant_8.mbox",
-      "bytes": 2083,
-      "sha256": "d841588061a2b026ca4ab171af77b555d6473725b52de070f6c25f2fea301165"
-    },
-    {
       "path": "frameworks/av",
-      "base": "b6b36c1fdb3c6ffced822a054fbf035b544f0de2",
-      "head": "eca3bbce373b1652c35d587cc1e19ae9f4392ace",
-      "ordered_commits": [
-        "dbda2f3461f1a4d7dba793eb916731b5fada4462",
-        "cbd13a24c5124405aee877e21ec4e891812a1387",
-        "806930246937c3ce33a6e3f8f460bcb2b642ee29",
-        "10764a65d00917e7597233e7fdb88f1ae7fa964b",
-        "c5be6ab346549edab16159b6f9736ba60e69be4d",
-        "598a778800330574cc3eab5c5944e103c6d6387f",
-        "322a8008cc41cc8e45c62be7940eeb83316d8cfc",
-        "275e22afe79f2a293982b4f94e1aaf09771fe050",
-        "182c808ffb9220543cbbcdc00df75c712ef6dbaa",
-        "acf83ad0f5eb52c05a1fc6a4fb15eb2f11031e2d",
-        "e5e04617427d644cb65f3c8c8e5980c68c443aa1",
-        "eca3bbce373b1652c35d587cc1e19ae9f4392ace"
+      "base": "1c5914737a1a89d0c5b3e52e8289019eab3f8cbf",
+      "head": "76fa43f540991b4d864e002ee4df9375b57fbca4",
+      "local_commits": 1,
+      "legacy_23_2_head": "eca3bbce373b1652c35d587cc1e19ae9f4392ace",
+      "source_checks": [
+        "three-way tree merge",
+        "git diff --check"
       ],
-      "expected_final_tree": "cfb3db04a1c36ca1b160d74d5809cc7c19f697c9",
-      "local_commits": 12,
+      "built": true,
       "file": "frameworks__av.mbox",
-      "bytes": 183924,
-      "sha256": "b9200e02436fa1cd4104d565cc376b46af15c7eba0329b4e0b4909e9e0301c13"
-    },
-    {
-      "path": "frameworks/base",
-      "base": "958afcc3d647d57571650cee4172afe0da619171",
-      "head": "c9a2ecda2cd81e8f84f016bade939a82383e46c7",
-      "ordered_commits": [
-        "a75c83008b95489b4e8ac814d2591d7bf9d67e32",
-        "9910636ad30395625fbee152da39e0f6f46b5415",
-        "3e71e3ec0d5e2932a4b98178292344bf0e4ef1d4",
-        "02e2651c2abd0784dda60a331cbda4138cacc12c",
-        "41a64b4964c2d136c751b968ba71f90020d099d7",
-        "66bc90388cd23dfa2fd0b35d5677a441ccddc579",
-        "fc96d56a4cfa2c29cd30772c08ac0a96b1754a96",
-        "2f3196c8a3bc10c6a5e9349d791cf89240168cb5",
-        "e19462c04f63f9f338cda9be15bdbe2a6036f535",
-        "152c9b5b2fc4c5e461ad4f22bbfc6acf9a811809",
-        "440acf26e3da0423e02f76e492dd27600abdcbf1",
-        "72fd41b201b51b73da9ccbf1f789feb45e9a4e6d",
-        "ecadcb1205eebd7cd5fc4ee9b2692edd00e0dcb5",
-        "b258a85e3b5fb718e2929ee9647678a0c4514497",
-        "df1ade4a9fb51be8b8eb2ddf01ae09e9e9e6f75b",
-        "aa88d5ff49f55ae48a90cb9d939e18847717fed7",
-        "20fd5663d534de626b1a7a887594495942a3d7c1",
-        "0550b2f8eab96bb111738854b43f34bc9d94ac3c",
-        "a7b65f06dafc25a95a0ee3414d6fbd88c3238311",
-        "88308d0e2da3c0168de504bbfc8df46253d340f2",
-        "06bc9b66d3ea52bd1e3bf6f1cc5b155fa36dc4df",
-        "f77f68d06d7c0fe1e36b2030921f9ce4891ce4c5",
-        "ce08e268ddad2f9b0737359b678f5cf549a65248",
-        "d08961be40f886442a1a7edaaed8a2c9cb194ab7",
-        "62d09585a18d13fd7c4593c13a041bede3f7d83a",
-        "935446041a4002cbd34d298628f3a1cc5a1e4503",
-        "8d1e41bdb72b7a3ce255dc0fe7d06fb4507271cf",
-        "4a5c8de936764a4aff0615b352a28bded96467f0",
-        "ba20a22726b5003cb0bd7f9678ff849aceefbdd1",
-        "8b24ec80b00b6c356b2730d2fcd4adfae90f4511",
-        "c9a2ecda2cd81e8f84f016bade939a82383e46c7"
+      "bytes": 44402,
+      "sha256": "6d63ff205414d8593bedf33e51f7f100da4acb6ce0c0cf1bfa07f82bca36c76e",
+      "expected_final_tree": "f52617f79d84d771beb9cf0a2690d2f71836eb81",
+      "commits": [
+        "76fa43f540991b4d864e002ee4df9375b57fbca4"
       ],
-      "expected_final_tree": "a14a04b8d1cbc297bcbfa9d37cdfe62729440fc3",
-      "local_commits": 31,
-      "file": "frameworks__base.mbox",
-      "bytes": 319829,
-      "sha256": "a1e95f44dcae8f970476de11835b8add7617185dcf3df3b674fed99897f2d899"
-    },
-    {
-      "path": "frameworks/native",
-      "base": "9568531f9be7ae65f260699811f32ec4e461de6e",
-      "head": "b236ef2b472c0c7aec73c36156ae5a189a737171",
-      "ordered_commits": [
-        "6017a9d7df490324c45753b68e7ac116c69843e4",
-        "5443a0b29fee221932b1b18917a178e5f7e3c17c",
-        "7c1985563962e7d4fbf1bb750763c33c012cda88",
-        "2352df356015a1a8a4dd3ad47fac3c4b5a5de86d",
-        "b236ef2b472c0c7aec73c36156ae5a189a737171"
+      "files": [
+        "camera/ndk/Android.bp",
+        "camera/ndk/NdkCameraCaptureSession.cpp",
+        "camera/ndk/NdkCameraCaptureSession.inc",
+        "camera/ndk/NdkCameraDevice.cpp",
+        "camera/ndk/NdkCaptureRequest.cpp",
+        "camera/ndk/impl/ACameraCaptureSession.cpp",
+        "camera/ndk/impl/ACameraCaptureSession.h",
+        "camera/ndk/impl/ACameraCaptureSession.inc",
+        "camera/ndk/impl/ACaptureRequest.h",
+        "camera/ndk/include/camera/NdkCameraCaptureSession.h",
+        "camera/ndk/include/camera/NdkCameraDevice.h",
+        "camera/ndk/include/camera/NdkCameraWindowType.h",
+        "camera/ndk/include/camera/NdkCaptureRequest.h",
+        "camera/ndk/ndk_vendor/impl/ACameraCaptureSessionVendor.h",
+        "camera/ndk/ndk_vendor/impl/ACameraDevice.cpp",
+        "camera/ndk/ndk_vendor/impl/ACameraDevice.h",
+        "camera/ndk/ndk_vendor/impl/ACameraDeviceVendor.inc",
+        "camera/ndk/ndk_vendor/impl/ACaptureRequestVendor.h",
+        "camera/ndk/ndk_vendor/impl/utils.cpp",
+        "camera/ndk/ndk_vendor/impl/utils.h",
+        "services/camera/libcameraservice/device3/Camera3StreamInterface.h"
       ],
-      "expected_final_tree": "9b04960e3f563c5eeac582b11a0e40333e2ec6bf",
-      "local_commits": 5,
-      "file": "frameworks__native.mbox",
-      "bytes": 48103,
-      "sha256": "caf9a7ea8f95849ae446704629c2e613e51f27f23005bfd316157c888cb03a48"
-    },
-    {
-      "path": "hardware/interfaces",
-      "base": "13d687a84c834af855bfb314b853b8372a7aa6d9",
-      "head": "9882ad35d61bcdb52dabadc2f858f34048ab9808",
+      "candidate_validation": "current HEAD built previously",
+      "companion_registry": "../../lineage-24-migration-20261114/candidates.json",
+      "provenance": {
+        "legacy_23_2_head": "eca3bbce373b1652c35d587cc1e19ae9f4392ace",
+        "first_commit_message": "rothko: port frameworks/av integration to Android 17\n\nCarry the final 23.2 device integration delta onto the official 24.0 tree.\nOld upstream base: b6b36c1fdb3c6ffced822a054fbf035b544f0de2\nRecorded device baseline: eca3bbce373b1652c35d587cc1e19ae9f4392ace\nNew upstream target: 1c5914737a1a89d0c5b3e52e8289019eab3f8cbf\n\nThree-way tree integration and whitespace checks passed. Compilation and\n24.0 device validation are pending. Historical reverted changes are\nrepresented by their final net effect. The project migration record\nLINEAGE_24_MIGRATION_20261114.zh-CN.md tracks companion repository pins.",
+        "migration_record": "../../../bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md",
+        "older_public_series": "../../../public-repos/rothko-lineage-integration/patches/index.json"
+      },
+      "last_build_record": "../../unified-build-20261115/retry-03/inputs.json",
       "ordered_commits": [
-        "0045e73181d0369628bd8fb41e331e39397a1b73",
-        "e9de474a54acdb57aa25249c023f16162cc28bf4",
-        "9882ad35d61bcdb52dabadc2f858f34048ab9808"
-      ],
-      "expected_final_tree": "ce4c8ba222de708b60d4e4e47096d8f2733d66a1",
-      "local_commits": 3,
-      "file": "hardware__interfaces.mbox",
-      "bytes": 4166,
-      "sha256": "9326b162263d6cff25fbfa8971e1a2ed56853b380d2d877fe247a2b09fb08a7d"
-    },
-    {
-      "path": "hardware/mediatek",
-      "base": "68f9be72a32bca66e7c63d69e9739b18f13c8b48",
-      "head": "43572e2342b9cb9b37f4e3d8dce44d7c8152f15b",
-      "ordered_commits": [
-        "affc75f1b72e26c55aa9fce1b0e5fd13ae13afda",
-        "59892c14bb3148fec42ae97b1db8418f73b8e817",
-        "1480fd5948145934be8c7abe413758474b8e465e",
-        "278b978cc5ffb63c5e0642b5ee46ff89ddc93216",
-        "43572e2342b9cb9b37f4e3d8dce44d7c8152f15b"
-      ],
-      "expected_final_tree": "a07348d7a39b2921ed70cf3c2454ddb9fa604d8f",
-      "local_commits": 5,
-      "file": "hardware__mediatek.mbox",
-      "bytes": 12046,
-      "sha256": "0272c15bc9bd190b25debd4d307b67c62a090de7bdda0748d1bdee3607325e29"
+        "76fa43f540991b4d864e002ee4df9375b57fbca4"
+      ]
     },
     {
       "path": "lineage-sdk",
-      "base": "c94553c624ef88c7de67b224d1daa7ed10ec7081",
-      "head": "33c1e1a40b12deedfe39c54f9b7cd143ae437b18",
-      "ordered_commits": [
-        "cc8a6359ea89172bf25118ae0ab6a63678d4882f",
-        "91c161284931b60fcaa08a0fe706bb4ed0838578",
-        "58050aa3736159af33f10c6d32c55703b11e469c",
-        "33c1e1a40b12deedfe39c54f9b7cd143ae437b18"
+      "base": "33dae0ab26b7efb7eab76bf60b347d2f4df1e5a6",
+      "head": "16da791115ec9ea963f14e73d70f1c4a90a1ad5d",
+      "local_commits": 1,
+      "legacy_23_2_head": "33c1e1a40b12deedfe39c54f9b7cd143ae437b18",
+      "source_checks": [
+        "three-way tree merge",
+        "git diff --check"
       ],
-      "expected_final_tree": "8884360fb2d147c7f2cb432d2f2af4f5be6f5ef3",
-      "local_commits": 4,
+      "built": true,
       "file": "lineage-sdk.mbox",
-      "bytes": 28440,
-      "sha256": "03dc05797e865ce76cf2b72e17c1990746cbf108b711b2978a13d809d5a3f3b8"
+      "bytes": 11731,
+      "sha256": "b4d045fc707665eb0ecc92c207b0f2f637dad7c512cb341553da20268b7ad4bd",
+      "expected_final_tree": "cd7cfde34426e4d3ae2f06065892ad23efd75f84",
+      "commits": [
+        "16da791115ec9ea963f14e73d70f1c4a90a1ad5d"
+      ],
+      "files": [
+        "sdk/src/java/lineageos/hardware/AIDLHelper.java",
+        "sdk/src/java/lineageos/hardware/LineageHardwareManager.java"
+      ],
+      "candidate_validation": "current HEAD built previously",
+      "companion_registry": "../../lineage-24-migration-20261114/candidates.json",
+      "provenance": {
+        "legacy_23_2_head": "33c1e1a40b12deedfe39c54f9b7cd143ae437b18",
+        "first_commit_message": "rothko: port lineage-sdk integration to Android 17\n\nCarry the final 23.2 device integration delta onto the official 24.0 tree.\nOld upstream base: c94553c624ef88c7de67b224d1daa7ed10ec7081\nRecorded device baseline: 33c1e1a40b12deedfe39c54f9b7cd143ae437b18\nNew upstream target: 33dae0ab26b7efb7eab76bf60b347d2f4df1e5a6\n\nThree-way tree integration and whitespace checks passed. Compilation and\n24.0 device validation are pending. Historical reverted changes are\nrepresented by their final net effect. The project migration record\nLINEAGE_24_MIGRATION_20261114.zh-CN.md tracks companion repository pins.",
+        "migration_record": "../../../bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md",
+        "older_public_series": "../../../public-repos/rothko-lineage-integration/patches/index.json"
+      },
+      "last_build_record": "../../unified-build-20261115/retry-03/inputs.json",
+      "ordered_commits": [
+        "16da791115ec9ea963f14e73d70f1c4a90a1ad5d"
+      ]
     },
     {
       "path": "packages/apps/LineageParts",
-      "base": "329b58e8e63da78624c8aa675d9b5dd84d990fe0",
-      "head": "51a628f1751d0a2b31a94d4bdc8efd3c62270ee9",
-      "ordered_commits": [
-        "cb3d46552dadbdb182cc1b8c8959b785d423b8c9",
-        "3586221b83275a854ef165b50827b41bf3080457",
-        "c98bbe87f946b0a47b717908ccb26b750d753172",
-        "cd69dd4078cb8a634c3082a2c1673eea18c0f489",
-        "a4dcfed4f5e898520b87a1eecb815b2830949c0b",
-        "51a628f1751d0a2b31a94d4bdc8efd3c62270ee9"
+      "base": "2ce948052f7f7675075c2ec9d68129c99b6e4ee7",
+      "head": "9a26eb8511589ece35824d155e129a418a05293b",
+      "local_commits": 1,
+      "legacy_23_2_head": "51a628f1751d0a2b31a94d4bdc8efd3c62270ee9",
+      "source_checks": [
+        "three-way tree merge",
+        "git diff --check"
       ],
-      "expected_final_tree": "3f51d0bf548da31f23e65214e79d4f9574d0d611",
-      "local_commits": 6,
+      "built": true,
       "file": "packages__apps__LineageParts.mbox",
-      "bytes": 24099,
-      "sha256": "583b17c46cd3e97c59c551b19b5903ac23832cc6a8ca859ac3eb69ed1d25cf31"
+      "bytes": 17989,
+      "sha256": "af93ff89f11b5936fe969ac45f3ea39416f33dc8c4f51bf230fca82d8426f32c",
+      "expected_final_tree": "3a845047ff1279c28118c98531e1b9b1fcba2722",
+      "commits": [
+        "9a26eb8511589ece35824d155e129a418a05293b"
+      ],
+      "files": [
+        "res/values-zh-rCN/strings.xml",
+        "res/values/strings.xml",
+        "src/org/lineageos/lineageparts/livedisplay/ColorProfileFragment.java"
+      ],
+      "candidate_validation": "current HEAD built previously",
+      "companion_registry": "../../lineage-24-migration-20261114/candidates.json",
+      "provenance": {
+        "legacy_23_2_head": "51a628f1751d0a2b31a94d4bdc8efd3c62270ee9",
+        "first_commit_message": "rothko: port packages/apps/LineageParts integration to Android 17\n\nCarry the final 23.2 device integration delta onto the official 24.0 tree.\nOld upstream base: 329b58e8e63da78624c8aa675d9b5dd84d990fe0\nRecorded device baseline: 51a628f1751d0a2b31a94d4bdc8efd3c62270ee9\nNew upstream target: 2ce948052f7f7675075c2ec9d68129c99b6e4ee7\n\nThree-way tree integration and whitespace checks passed. Compilation and\n24.0 device validation are pending. Historical reverted changes are\nrepresented by their final net effect. The project migration record\nLINEAGE_24_MIGRATION_20261114.zh-CN.md tracks companion repository pins.",
+        "migration_record": "../../../bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md",
+        "older_public_series": "../../../public-repos/rothko-lineage-integration/patches/index.json"
+      },
+      "last_build_record": "../../unified-build-20261115/retry-03/inputs.json",
+      "ordered_commits": [
+        "9a26eb8511589ece35824d155e129a418a05293b"
+      ]
     },
     {
-      "path": "packages/apps/Settings",
-      "base": "72494c35b673f1b531e1218160e1e514976f6a1e",
-      "head": "af4781d63516ea942a741964ce01aafe82e03fc3",
-      "ordered_commits": [
-        "eaeaa8ca26f6d09afadbc328807a00d46ce1a16f",
-        "cf17588db8ba4dec038059c2b0cae9d8aecd71a3",
-        "6a1b3650729f5ce3cb3189cc1fe2663809d88365",
-        "c57e861333cc861c56a65e3eda7978f2f2ac565f",
-        "edd755ce8debf4ff91c0a210e969dc0b87649a1f",
-        "af4781d63516ea942a741964ce01aafe82e03fc3"
+      "path": "bionic",
+      "base": "ff3bb041547924ac1a7504e4b3bd3ea18169ca2f",
+      "head": "4dea34a5e04635de73913d8157c138058736c10c",
+      "local_commits": 1,
+      "legacy_23_2_head": "40570e8752a8119f2750a8ce44f7d76a2f0bec93",
+      "source_checks": [
+        "three-way tree merge",
+        "git diff --check"
       ],
-      "expected_final_tree": "1ab83b1df34ed4479f1eba6fc2ba4ab81bb44fda",
+      "built": true,
+      "file": "bionic.mbox",
+      "bytes": 1321,
+      "sha256": "13e4f05868e93949c45ab03f124f855524814048a6e187c58c2e659266ed8864",
+      "expected_final_tree": "5b7b2254b3382e2c677ec3bc2bf79436083c8e3f",
+      "commits": [
+        "4dea34a5e04635de73913d8157c138058736c10c"
+      ],
+      "files": [
+        "libc/Android.bp"
+      ],
+      "candidate_validation": "current HEAD built previously",
+      "companion_registry": "../../lineage-24-migration-20261114/candidates.json",
+      "provenance": {
+        "legacy_23_2_head": "40570e8752a8119f2750a8ce44f7d76a2f0bec93",
+        "first_commit_message": "rothko: port bionic integration to Android 17\n\nCarry the final 23.2 device integration delta onto the official 24.0 tree.\nOld upstream base: ff9fe01e7e1e81febaf32b15fa561aec480a112c\nRecorded device baseline: 40570e8752a8119f2750a8ce44f7d76a2f0bec93\nNew upstream target: ff3bb041547924ac1a7504e4b3bd3ea18169ca2f\n\nThree-way tree integration and whitespace checks passed. Compilation and\n24.0 device validation are pending. Historical reverted changes are\nrepresented by their final net effect. The project migration record\nLINEAGE_24_MIGRATION_20261114.zh-CN.md tracks companion repository pins.",
+        "migration_record": "../../../bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md",
+        "older_public_series": "../../../public-repos/rothko-lineage-integration/patches/index.json"
+      },
+      "last_build_record": "../../unified-build-20261115/retry-03/inputs.json",
+      "ordered_commits": [
+        "4dea34a5e04635de73913d8157c138058736c10c"
+      ]
+    },
+    {
+      "path": "hardware/mediatek",
+      "base": "32bd412433ef0d58c3484769d9789987407627fc",
+      "head": "503cd9692f175c8391227000542c73042b0bf219",
+      "local_commits": 1,
+      "legacy_23_2_head": "43572e2342b9cb9b37f4e3d8dce44d7c8152f15b",
+      "source_checks": [
+        "three-way tree merge",
+        "git diff --check"
+      ],
+      "built": true,
+      "file": "hardware__mediatek.mbox",
+      "bytes": 8242,
+      "sha256": "f52fd5ae187c0a659b16d4db5b680fd5bbf7f0ab1176dba93ea422302885e5f8",
+      "expected_final_tree": "aeba6f3f3d8bf977a58c4376f9d009e8473575d2",
+      "commits": [
+        "503cd9692f175c8391227000542c73042b0bf219"
+      ],
+      "files": [
+        "aidl/thermal/Thermal.cpp",
+        "aidl/thermal/Thermal.h",
+        "aidl/thermal/thermal-helper.cpp",
+        "aidl/thermal/thermal-helper.h"
+      ],
+      "candidate_validation": "current HEAD built previously",
+      "companion_registry": "../../lineage-24-migration-20261114/candidates.json",
+      "provenance": {
+        "legacy_23_2_head": "43572e2342b9cb9b37f4e3d8dce44d7c8152f15b",
+        "first_commit_message": "rothko: port hardware/mediatek integration to Android 17\n\nCarry the final 23.2 device integration delta onto the official 24.0 tree.\nOld upstream base: 68f9be72a32bca66e7c63d69e9739b18f13c8b48\nRecorded device baseline: 43572e2342b9cb9b37f4e3d8dce44d7c8152f15b\nNew upstream target: 32bd412433ef0d58c3484769d9789987407627fc\n\nThree-way tree integration and whitespace checks passed. Compilation and\n24.0 device validation are pending. Historical reverted changes are\nrepresented by their final net effect. The project migration record\nLINEAGE_24_MIGRATION_20261114.zh-CN.md tracks companion repository pins.",
+        "migration_record": "../../../bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md",
+        "older_public_series": "../../../public-repos/rothko-lineage-integration/patches/index.json"
+      },
+      "last_build_record": "../../unified-build-20261115/retry-03/inputs.json",
+      "ordered_commits": [
+        "503cd9692f175c8391227000542c73042b0bf219"
+      ]
+    },
+    {
+      "path": "device/mediatek/sepolicy_vndr",
+      "base": "d76ed9b3f512decbb68f6641db86230aa595996e",
+      "head": "31b02c0a21c597529930f4319699c6e137600565",
+      "local_commits": 1,
+      "legacy_23_2_head": "56b019fd89b226200f023ea9c38b0679ef4cea69",
+      "source_checks": [
+        "three-way tree merge",
+        "git diff --check"
+      ],
+      "built": true,
+      "file": "device__mediatek__sepolicy_vndr.mbox",
+      "bytes": 1746,
+      "sha256": "d3f57f425b50c6a3f7de411718e73a6ffc70cc78fc9f14aaaa42f33c698da19a",
+      "expected_final_tree": "5c43d28bc22373c9c864280550f1b8c49318d3c4",
+      "commits": [
+        "31b02c0a21c597529930f4319699c6e137600565"
+      ],
+      "files": [
+        "base/vendor/service_contexts"
+      ],
+      "candidate_validation": "current HEAD built previously",
+      "companion_registry": "../../lineage-24-migration-20261114/candidates.json",
+      "provenance": {
+        "legacy_23_2_head": "56b019fd89b226200f023ea9c38b0679ef4cea69",
+        "first_commit_message": "rothko: port device/mediatek/sepolicy_vndr integration to Android 17\n\nCarry the final 23.2 device integration delta onto the official 24.0 tree.\nOld upstream base: b1c50f4903504168e7bd0e32b44c72d139d38d09\nRecorded device baseline: 56b019fd89b226200f023ea9c38b0679ef4cea69\nNew upstream target: d76ed9b3f512decbb68f6641db86230aa595996e\n\nThree-way tree integration and whitespace checks passed. Compilation and\n24.0 device validation are pending. Historical reverted changes are\nrepresented by their final net effect. The project migration record\nLINEAGE_24_MIGRATION_20261114.zh-CN.md tracks companion repository pins.",
+        "migration_record": "../../../bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md",
+        "older_public_series": "../../../public-repos/rothko-lineage-integration/patches/index.json"
+      },
+      "last_build_record": "../../unified-build-20261115/retry-03/inputs.json",
+      "ordered_commits": [
+        "31b02c0a21c597529930f4319699c6e137600565"
+      ]
+    },
+    {
+      "path": "frameworks/base",
+      "base": "22de88b7b8eb979c816669c7963dee66ae4953cd",
+      "head": "5b6ca2cc5b1e8b5187889a93def3bb9cbb2fa4b4",
       "local_commits": 6,
-      "file": "packages__apps__Settings.mbox",
-      "bytes": 129091,
-      "sha256": "08f095cbcc6ea4cb7a1e5380bc346dc250f6582e31313d8b9a59b0b77ef96938"
+      "legacy_23_2_head": "c9a2ecda2cd81e8f84f016bade939a82383e46c7",
+      "source_checks": [
+        "18 host lifecycle scenarios for AOD draw recovery",
+        "git diff --check",
+        "isolated git am from pinned base; matching final tree",
+        "Verified upstream clock collector and isolated replay after removing duplicate notification",
+        "8 host AOD bucket and alarm lifecycle scenarios",
+        "framework default and Rothko opt-in XML assertions",
+        "git diff --check and verified isolated git am replay"
+      ],
+      "built": false,
+      "file": "frameworks__base.mbox",
+      "bytes": 192657,
+      "sha256": "c872fa2f1481a6ee15574ed36290a87a6b242bbe8f088886a2f2b3d351015812",
+      "expected_final_tree": "46c0c99a057bc644bf3ef048bdd326c1b37d3c3b",
+      "commits": [
+        "987cd071af42671dccf486d82826225f3b5580dc",
+        "1930868640aab41d79dc25a148276ce02bbad118",
+        "6935a1c405573b277bc1aedceb47780688ef5ea7",
+        "1c4ee1fd157440da6352b56c31a1846e088ccb79",
+        "428053776d135969167356de82a7773de7c5991e",
+        "5b6ca2cc5b1e8b5187889a93def3bb9cbb2fa4b4"
+      ],
+      "files": [
+        "core/java/android/hardware/display/BrightnessInfo.java",
+        "core/java/android/hardware/fingerprint/FingerprintManager.java",
+        "core/res/AndroidManifest.xml",
+        "core/res/res/values/config.xml",
+        "core/res/res/values/symbols.xml",
+        "media/java/android/media/AudioSystem.java",
+        "packages/SettingsLib/res/values-zh-rCN/arrays.xml",
+        "packages/SettingsLib/res/values-zh-rCN/strings.xml",
+        "packages/SettingsLib/res/values-zh-rHK/arrays.xml",
+        "packages/SettingsLib/res/values-zh-rHK/strings.xml",
+        "packages/SettingsLib/res/values-zh-rTW/arrays.xml",
+        "packages/SettingsLib/res/values-zh-rTW/strings.xml",
+        "packages/SettingsLib/res/values/arrays.xml",
+        "packages/SettingsLib/res/values/strings.xml",
+        "packages/SystemUI/multivalentTests/src/com/android/systemui/biometrics/UdfpsControllerTest.java",
+        "packages/SystemUI/multivalentTests/src/com/android/systemui/keyguard/ui/view/layout/sections/DefaultIndicationAreaSectionTest.kt",
+        "packages/SystemUI/multivalentTests/src/com/android/systemui/statusbar/phone/DozeServiceHostTest.java",
+        "packages/SystemUI/res/values/config.xml",
+        "packages/SystemUI/src/com/android/systemui/biometrics/UdfpsController.java",
+        "packages/SystemUI/src/com/android/systemui/doze/DozeBrightnessHostForwarder.java",
+        "packages/SystemUI/src/com/android/systemui/doze/DozeHost.java",
+        "packages/SystemUI/src/com/android/systemui/doze/DozePickupListener.java",
+        "packages/SystemUI/src/com/android/systemui/doze/DozeScreenBrightness.java",
+        "packages/SystemUI/src/com/android/systemui/doze/DozeScreenState.java",
+        "packages/SystemUI/src/com/android/systemui/doze/DozeSensors.java",
+        "packages/SystemUI/src/com/android/systemui/doze/DozeSuspendDrawController.java",
+        "packages/SystemUI/src/com/android/systemui/keyguard/ui/view/layout/sections/DefaultIndicationAreaSection.kt",
+        "packages/SystemUI/src/com/android/systemui/keyguard/ui/view/layout/sections/NotificationStackScrollLayoutSection.kt",
+        "packages/SystemUI/src/com/android/systemui/statusbar/phone/DozeServiceHost.java",
+        "packages/SystemUI/tests/src/com/android/systemui/doze/DozeTriggersTest.java",
+        "packages/SystemUI/tests/utils/src/com/android/systemui/statusbar/phone/DozeServiceHostKosmos.kt",
+        "services/core/java/com/android/server/biometrics/sensors/BiometricStateCallback.java",
+        "services/core/java/com/android/server/biometrics/sensors/fingerprint/FingerprintService.java",
+        "services/core/java/com/android/server/biometrics/sensors/fingerprint/UdfpsLifecycle.java",
+        "services/core/java/com/android/server/biometrics/sensors/fingerprint/aidl/AidlResponseHandler.java",
+        "services/core/java/com/android/server/biometrics/sensors/fingerprint/aidl/FingerprintProvider.java",
+        "services/core/java/com/android/server/biometrics/sensors/fingerprint/aidl/FingerprintResetLockoutClient.java",
+        "services/core/java/com/android/server/display/BrightnessBacklightRange.java",
+        "services/core/java/com/android/server/display/DeviceDozeBrightnessController.java",
+        "services/core/java/com/android/server/display/DisplayDeviceConfig.java",
+        "services/core/java/com/android/server/display/DisplayManagerService.java",
+        "services/core/java/com/android/server/display/DisplayPowerController.java",
+        "services/core/java/com/android/server/display/DisplayPowerState.java",
+        "services/core/java/com/android/server/display/HighBrightnessModeController.java",
+        "services/core/java/com/android/server/display/LegacyPersistentDataStore.java",
+        "services/core/java/com/android/server/display/LocalDisplayAdapter.java",
+        "services/core/java/com/android/server/display/brightness/DeviceBrightnessPolicy.java",
+        "services/core/java/com/android/server/display/brightness/clamper/BrightnessClamperController.java",
+        "services/core/java/com/android/server/display/brightness/clamper/BrightnessStateModifier.java",
+        "services/core/java/com/android/server/display/brightness/clamper/DeviceBrightnessModifier.java",
+        "services/core/java/com/android/server/display/brightness/clamper/HdrBrightnessModifier.java",
+        "services/core/java/com/android/server/display/persistence/DisplayState.java",
+        "services/core/java/com/android/server/display/persistence/PersistentDataStore.java",
+        "services/core/java/com/android/server/display/persistence/PersistentDataStoreDelegate.java",
+        "services/proguard.flags",
+        "services/tests/displayservicetests/src/com/android/server/display/DisplayDeviceConfigTest.java",
+        "services/tests/displayservicetests/src/com/android/server/display/DisplayPowerControllerTest.java",
+        "services/tests/displayservicetests/src/com/android/server/display/HighBrightnessModeControllerTest.java",
+        "services/tests/displayservicetests/src/com/android/server/display/LegacyPersistentDataStoreTest.java",
+        "services/tests/displayservicetests/src/com/android/server/display/brightness/clamper/HdrBrightnessModifierTest.kt"
+      ],
+      "candidate_validation": "AOD dimming candidate: host policy checks and isolated replay passed; ROM build, flash and device acceptance pending",
+      "companion_registry": "../../lineage-24-migration-20261114/candidates.json",
+      "provenance": {
+        "legacy_23_2_head": "c9a2ecda2cd81e8f84f016bade939a82383e46c7",
+        "first_commit_message": "rothko: adapt frameworks/base integration to Android 17\n\nOfficial 24.0 target: 22de88b7b8eb979c816669c7963dee66ae4953cd\nRecorded 23.2 baseline: c9a2ecda2cd81e8f84f016bade939a82383e46c7\n\nResolve against the 24.0 APIs and preserve device integration contracts.\nPrefer the upstream codec naming and HAL-owned face preview interfaces.\nDisplay persistence migration covers legacy and refactored stores.\nSurfaceFlinger power notifications follow the upstream asynchronous result.\nDetails and companion dependencies are recorded in the project document\nLINEAGE_24_MIGRATION_20261114.zh-CN.md.\n\nValidation: whitespace and conflict-marker checks passed. Extracted\nbrightness persistence checks passed where applicable. Android compilation,\nfull platform tests and flashed 24.0 acceptance remain pending.",
+        "migration_record": "../../../bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md",
+        "older_public_series": "../../../public-repos/rothko-lineage-integration/patches/index.json"
+      },
+      "withdrawn_commits": [
+        {
+          "commit": "d1ba027fdd4ffa355edaeb4297f1ad1042138158",
+          "reason": "UI codec-specific special case was not justified by device-side alternatives or naming-source evidence"
+        }
+      ],
+      "previous_series": {
+        "head": "2c7317abdc506f6867871b0e09f701435ec4a84e",
+        "commits": [
+          "cad58e9f374a735975a930be6aca7795235f9f22",
+          "b09e5fd15ed6bdae7adaa6ca4253ed1d5dc95627",
+          "2c7317abdc506f6867871b0e09f701435ec4a84e"
+        ],
+        "expected_final_tree": "2b12783cdb4c23ddfdfdb5771f7b0df6574b7bf1",
+        "sha256": "26dbd65e1f14ac9f65d9234fd77442a28fd08046982a6ad2e4199dc24255b1b6",
+        "built": true,
+        "last_build_record": "../../unified-build-20261115/retry-03/inputs.json"
+      },
+      "investigation": "../../../research/display/aod/ADAPTATION_RECHECK_20261118.zh-CN.md",
+      "superseded_clock_candidate": {
+        "head": "1c4ee1fd157440da6352b56c31a1846e088ccb79",
+        "expected_final_tree": "ea73bc30184dbede586133c1c6c0b12fbd2dcdcb",
+        "sha256": "55147e315b6275ac666fc0bc946d7850a86d1d521f8b303f2e44ebb8f9cb49da"
+      },
+      "companion_dependencies": [
+        {
+          "path": "device/xiaomi/rothko",
+          "head": "8e1575c9df7936ef54b95598b30544f1ae96ad3b"
+        }
+      ],
+      "prior_export_commit_aliases": [
+        {
+          "old_export": "3b7a1e4e491414bd62de6edeffb008f4fd83afbe",
+          "active_export": "428053776d135969167356de82a7773de7c5991e"
+        }
+      ],
+      "ordered_commits": [
+        "987cd071af42671dccf486d82826225f3b5580dc",
+        "1930868640aab41d79dc25a148276ce02bbad118",
+        "6935a1c405573b277bc1aedceb47780688ef5ea7",
+        "1c4ee1fd157440da6352b56c31a1846e088ccb79",
+        "428053776d135969167356de82a7773de7c5991e",
+        "5b6ca2cc5b1e8b5187889a93def3bb9cbb2fa4b4"
+      ]
+    },
+    {
+      "path": "frameworks/native",
+      "base": "a96adf2c6e62dbb22299cd83bbb9ea4bc569e985",
+      "head": "388492a6a1e0a22bff45a54ef797271a4400036e",
+      "local_commits": 1,
+      "legacy_23_2_head": "b236ef2b472c0c7aec73c36156ae5a189a737171",
+      "source_checks": [],
+      "built": true,
+      "file": "frameworks__native.mbox",
+      "bytes": 37670,
+      "sha256": "2ded26cdfbb7ac121aac5ccc7118fce970e45fa759e0e80ae9af1313b662f820",
+      "expected_final_tree": "3557c1f448ddc7ae55481911f57d93250f63b21d",
+      "commits": [
+        "388492a6a1e0a22bff45a54ef797271a4400036e"
+      ],
+      "files": [
+        "libs/gui/BLASTBufferQueue.cpp",
+        "services/surfaceflinger/CompositionEngine/Android.bp",
+        "services/surfaceflinger/CompositionEngine/include/compositionengine/DisplayColorExtension.h",
+        "services/surfaceflinger/CompositionEngine/include/compositionengine/Output.h",
+        "services/surfaceflinger/CompositionEngine/include/compositionengine/impl/Display.h",
+        "services/surfaceflinger/CompositionEngine/include/compositionengine/impl/Output.h",
+        "services/surfaceflinger/CompositionEngine/src/Display.cpp",
+        "services/surfaceflinger/CompositionEngine/src/DisplayColorExtension.cpp",
+        "services/surfaceflinger/CompositionEngine/src/Output.cpp",
+        "services/surfaceflinger/CompositionEngine/tests/DisplayTest.cpp",
+        "services/surfaceflinger/CompositionEngine/tests/OutputTest.cpp",
+        "services/surfaceflinger/DisplayHardware/HWComposer.cpp",
+        "services/surfaceflinger/SurfaceFlinger.cpp"
+      ],
+      "candidate_validation": "current HEAD built previously",
+      "companion_registry": "../../lineage-24-migration-20261114/candidates.json",
+      "provenance": {
+        "legacy_23_2_head": "b236ef2b472c0c7aec73c36156ae5a189a737171",
+        "first_commit_message": "rothko: adapt frameworks/native integration to Android 17\n\nOfficial 24.0 target: a96adf2c6e62dbb22299cd83bbb9ea4bc569e985\nRecorded 23.2 baseline: b236ef2b472c0c7aec73c36156ae5a189a737171\n\nResolve against the 24.0 APIs and preserve device integration contracts.\nPrefer the upstream codec naming and HAL-owned face preview interfaces.\nDisplay persistence migration covers legacy and refactored stores.\nSurfaceFlinger power notifications follow the upstream asynchronous result.\nDetails and companion dependencies are recorded in the project document\nLINEAGE_24_MIGRATION_20261114.zh-CN.md.\n\nValidation: whitespace and conflict-marker checks passed. Extracted\nbrightness persistence checks passed where applicable. Android compilation,\nfull platform tests and flashed 24.0 acceptance remain pending.",
+        "migration_record": "../../../bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md",
+        "older_public_series": "../../../public-repos/rothko-lineage-integration/patches/index.json"
+      },
+      "last_build_record": "../../unified-build-20261115/retry-03/inputs.json",
+      "ordered_commits": [
+        "388492a6a1e0a22bff45a54ef797271a4400036e"
+      ]
+    },
+    {
+      "path": "hardware/interfaces",
+      "base": "a0221f11248a924532444fc7de85d41998b9fe1e",
+      "head": "b9832f79b852e161eee2ca7c050429f0a5f16d1c",
+      "local_commits": 3,
+      "legacy_23_2_head": "9882ad35d61bcdb52dabadc2f858f34048ab9808",
+      "source_checks": [],
+      "built": true,
+      "file": "hardware__interfaces.mbox",
+      "bytes": 7798,
+      "sha256": "0d928b104d788588b4cbfd46db3effd1f053347730c73afec3ff87e21b0badc2",
+      "expected_final_tree": "fe9918a7c5af0b10e3a07c99a5f74b3286219b6d",
+      "commits": [
+        "2b34dc0cbdf50209dc85e2b2fb1875e99fefba98",
+        "7e7768bde07221df4626e7edc7741c29114b422e",
+        "b9832f79b852e161eee2ca7c050429f0a5f16d1c"
+      ],
+      "files": [
+        "bluetooth/audio/utils/aidl_session/BluetoothAudioCodecs.cpp",
+        "camera/common/default/Android.bp"
+      ],
+      "candidate_validation": "current HEAD built previously",
+      "companion_registry": "../../lineage-24-migration-20261114/candidates.json",
+      "provenance": {
+        "legacy_23_2_head": "9882ad35d61bcdb52dabadc2f858f34048ab9808",
+        "first_commit_message": "rothko: adapt hardware/interfaces integration to Android 17\n\nOfficial 24.0 target: a0221f11248a924532444fc7de85d41998b9fe1e\nRecorded 23.2 baseline: 9882ad35d61bcdb52dabadc2f858f34048ab9808\n\nResolve against the 24.0 APIs and preserve device integration contracts.\nPrefer the upstream codec naming and HAL-owned face preview interfaces.\nDisplay persistence migration covers legacy and refactored stores.\nSurfaceFlinger power notifications follow the upstream asynchronous result.\nDetails and companion dependencies are recorded in the project document\nLINEAGE_24_MIGRATION_20261114.zh-CN.md.\n\nValidation: whitespace and conflict-marker checks passed. Extracted\nbrightness persistence checks passed where applicable. Android compilation,\nfull platform tests and flashed 24.0 acceptance remain pending.",
+        "migration_record": "../../../bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md",
+        "older_public_series": "../../../public-repos/rothko-lineage-integration/patches/index.json"
+      },
+      "last_build_record": "../../unified-build-20261115/retry-03/inputs.json",
+      "ordered_commits": [
+        "2b34dc0cbdf50209dc85e2b2fb1875e99fefba98",
+        "7e7768bde07221df4626e7edc7741c29114b422e",
+        "b9832f79b852e161eee2ca7c050429f0a5f16d1c"
+      ]
+    },
+    {
+      "path": "external/wpa_supplicant_8",
+      "base": "4d70ee052a9f65038a24ec7ea2f2bb3f92b17277",
+      "head": "ce2669ce8cabe6de1baca873aac2fcdae35167b7",
+      "local_commits": 1,
+      "legacy_23_2_head": "4a2c60d77cc7f201fd5c7a2e569eb9c8135e2f1b",
+      "source_checks": [],
+      "built": true,
+      "file": "external__wpa_supplicant_8.mbox",
+      "bytes": 2483,
+      "sha256": "772cadea8240cf3f644887acf36f8d8bf603ae2e9205c72cd7f1df2ed43fb75a",
+      "expected_final_tree": "5aa15351d942a22e8f51a5634026655af1b30d11",
+      "commits": [
+        "ce2669ce8cabe6de1baca873aac2fcdae35167b7"
+      ],
+      "files": [
+        "src/drivers/driver_nl80211.c",
+        "wpa_supplicant/Android.bp"
+      ],
+      "candidate_validation": "current HEAD built previously",
+      "companion_registry": "../../lineage-24-migration-20261114/candidates.json",
+      "provenance": {
+        "legacy_23_2_head": "4a2c60d77cc7f201fd5c7a2e569eb9c8135e2f1b",
+        "first_commit_message": "rothko: adapt external/wpa_supplicant_8 integration to Android 17\n\nOfficial 24.0 target: 4d70ee052a9f65038a24ec7ea2f2bb3f92b17277\nRecorded 23.2 baseline: 4a2c60d77cc7f201fd5c7a2e569eb9c8135e2f1b\n\nResolve against the 24.0 APIs and preserve device integration contracts.\nPrefer the upstream codec naming and HAL-owned face preview interfaces.\nDisplay persistence migration covers legacy and refactored stores.\nSurfaceFlinger power notifications follow the upstream asynchronous result.\nDetails and companion dependencies are recorded in the project document\nLINEAGE_24_MIGRATION_20261114.zh-CN.md.\n\nValidation: whitespace and conflict-marker checks passed. Extracted\nbrightness persistence checks passed where applicable. Android compilation,\nfull platform tests and flashed 24.0 acceptance remain pending.",
+        "migration_record": "../../../bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md",
+        "older_public_series": "../../../public-repos/rothko-lineage-integration/patches/index.json"
+      },
+      "last_build_record": "../../unified-build-20261115/retry-03/inputs.json",
+      "ordered_commits": [
+        "ce2669ce8cabe6de1baca873aac2fcdae35167b7"
+      ]
     },
     {
       "path": "packages/modules/Bluetooth",
-      "base": "d585a7b489f93e514ad93de7022b5ba20a660328",
-      "head": "1654cd4d9cf83e3cc725eb46ba9419113b199403",
-      "ordered_commits": [
-        "7cdc6ef1d543926cf9bea71495c57152c3296586",
-        "18a9dd275e5dda1dd336c48264d5b199d3d13863",
-        "1654cd4d9cf83e3cc725eb46ba9419113b199403"
+      "base": "0a8ed94208f86cf0fc036b35841fac43ee84c770",
+      "head": "b20dda8625e7f3b7c901066d8751a39d54784c29",
+      "local_commits": 6,
+      "legacy_23_2_head": "1654cd4d9cf83e3cc725eb46ba9419113b199403",
+      "source_checks": [
+        "git diff --check",
+        "extracted CIG fallback host Clang four cases",
+        "net patch replay tree matches HEAD",
+        "full native tests pending"
       ],
-      "expected_final_tree": "bb335b671d46dae99ac184990152d84c67a8295e",
-      "local_commits": 3,
+      "built": true,
       "file": "packages__modules__Bluetooth.mbox",
-      "bytes": 552423,
-      "sha256": "507a67246c1633a715537a78eff11cdda94575e8a15cb1826ca8d1babaebb41e"
+      "bytes": 352688,
+      "sha256": "55cbe3e5b23441d2cdd3b3f479416aa5def0177676b77c4f3558733081cbe8af",
+      "expected_final_tree": "31a5c7351f15fe72b5402fe91d4c67a7786efdca",
+      "commits": [
+        "4071f543a548661bb082a7adc4e738de3dd2b571",
+        "9e06407deaa02f0eeba6490ac00be5d99559194e",
+        "3c5ffef56d655e192c5b4faffb95c1c738c5b8f5",
+        "d70e00e0fe0e6963e49f9b2df6da86dd81038cad",
+        "bba5e5061ec6fa3147db506e3b863a2633e811e0",
+        "b20dda8625e7f3b7c901066d8751a39d54784c29"
+      ],
+      "files": [
+        "android/app/src/com/android/bluetooth/a2dp/A2dpCodecConfig.java",
+        "android/app/src/com/android/bluetooth/a2dp/A2dpStateMachine.java",
+        "apex/Android.bp",
+        "framework/api/current.txt",
+        "framework/api/lint-baseline.txt",
+        "framework/api/module-lib-lint-baseline.txt",
+        "framework/api/system-lint-baseline.txt",
+        "framework/java/android/bluetooth/BluetoothCodecConfig.java",
+        "framework/java/android/bluetooth/BluetoothCodecType.java",
+        "system/audio_bluetooth_hw/Android.bp",
+        "system/bta/le_audio/client.cc",
+        "system/bta/le_audio/le_audio_client_test.cc",
+        "system/bta/le_audio/state_machine.cc",
+        "system/bta/le_audio/state_machine_test.cc",
+        "system/btif/co/bta_av_co.cc",
+        "system/include/hardware/bt_av.h",
+        "system/stack/Android.bp",
+        "system/stack/a2dp/a2dp_codec_config.cc",
+        "system/stack/a2dp/a2dp_vendor.cc",
+        "system/stack/a2dp/a2dp_vendor_lhdcv3.cc",
+        "system/stack/a2dp/a2dp_vendor_lhdcv3_dec.cc",
+        "system/stack/a2dp/a2dp_vendor_lhdcv3_decoder.cc",
+        "system/stack/a2dp/a2dp_vendor_lhdcv3_encoder.cc",
+        "system/stack/include/a2dp_constants.h",
+        "system/stack/include/a2dp_vendor_lhdc_constants.h",
+        "system/stack/include/a2dp_vendor_lhdcv3.h",
+        "system/stack/include/a2dp_vendor_lhdcv3_dec.h",
+        "system/stack/include/a2dp_vendor_lhdcv3_decoder.h",
+        "system/stack/include/a2dp_vendor_lhdcv3_encoder.h",
+        "system/stack/test/stack_a2dp_test.cc"
+      ],
+      "candidate_validation": "current HEAD not built; see Bluetooth candidate record",
+      "companion_registry": "../../lineage-24-migration-20261114/candidates.json",
+      "provenance": {
+        "legacy_23_2_head": "1654cd4d9cf83e3cc725eb46ba9419113b199403",
+        "first_commit_message": "rothko: adapt packages/modules/Bluetooth integration to Android 17\n\nOfficial 24.0 target: 0a8ed94208f86cf0fc036b35841fac43ee84c770\nRecorded 23.2 baseline: 1654cd4d9cf83e3cc725eb46ba9419113b199403\n\nResolve against the 24.0 APIs and preserve device integration contracts.\nPrefer the upstream codec naming and HAL-owned face preview interfaces.\nDisplay persistence migration covers legacy and refactored stores.\nSurfaceFlinger power notifications follow the upstream asynchronous result.\nDetails and companion dependencies are recorded in the project document\nLINEAGE_24_MIGRATION_20261114.zh-CN.md.\n\nValidation: whitespace and conflict-marker checks passed. Extracted\nbrightness persistence checks passed where applicable. Android compilation,\nfull platform tests and flashed 24.0 acceptance remain pending.\n\nChange-Id: I5a94ac12a2d595dc922007adff0cbfcde4808a8a",
+        "migration_record": "../../../bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md",
+        "older_public_series": "../../../public-repos/rothko-lineage-integration/patches/index.json"
+      },
+      "last_build_record": "../../unified-build-20261115/retry-03/inputs.json",
+      "ordered_commits": [
+        "4071f543a548661bb082a7adc4e738de3dd2b571",
+        "9e06407deaa02f0eeba6490ac00be5d99559194e",
+        "3c5ffef56d655e192c5b4faffb95c1c738c5b8f5",
+        "d70e00e0fe0e6963e49f9b2df6da86dd81038cad",
+        "bba5e5061ec6fa3147db506e3b863a2633e811e0",
+        "b20dda8625e7f3b7c901066d8751a39d54784c29"
+      ]
     },
     {
-      "path": "packages/modules/common",
-      "base": "987c0721db72b408414bcdd491c8d921ffdfcc5e",
-      "head": "e3faff099c86c0192926fc7fbc59fa1a8047dfe6",
-      "ordered_commits": [
-        "e3faff099c86c0192926fc7fbc59fa1a8047dfe6"
+      "path": "packages/apps/Settings",
+      "base": "31b1a9f1cab9638bc6af9f4e6412fbf3b3a7947a",
+      "head": "0820511d18c9c978042f72547196c5c4797968f2",
+      "local_commits": 2,
+      "legacy_23_2_head": "af4781d63516ea942a741964ce01aafe82e03fc3",
+      "source_checks": [
+        "Kotlinc with actual built Settings and framework jars; isolated git am final tree verification"
       ],
-      "expected_final_tree": "7fc36e91ad77f303b35d4a9535c843af209b750e",
-      "local_commits": 1,
-      "file": "packages__modules__common.mbox",
-      "bytes": 1927,
-      "sha256": "d65bf7819029b08b5239186afb4ad6e4b8938f32d137ae1fb88ad1cdcf70fe3d"
+      "built": false,
+      "file": "packages__apps__Settings.mbox",
+      "bytes": 87670,
+      "sha256": "f6e1fabf028dbb2f23f39ca98c48941adb04f27fa55f7b66820d68d4b66465ff",
+      "expected_final_tree": "94d500a98ce8f53e43e1419596590682ade48728",
+      "commits": [
+        "65a3cddccf798b6ee4d5b8fd60b8649878baee1b",
+        "0820511d18c9c978042f72547196c5c4797968f2"
+      ],
+      "files": [
+        "res/layout/bluetooth_audio_sample_rate_dialog.xml",
+        "res/layout/bluetooth_lhdc_audio_latency_dialog.xml",
+        "res/layout/bluetooth_lhdc_audio_lossless_dialog.xml",
+        "res/layout/bluetooth_lhdc_audio_quality_dialog.xml",
+        "res/xml/bluetooth_development_settings.xml",
+        "src/com/android/settings/biometrics/face/FaceFeatureProviderImpl.java",
+        "src/com/android/settings/bluetooth/BluetoothDetailsProfilesController.java",
+        "src/com/android/settings/development/BluetoothA2dpConfigStore.java",
+        "src/com/android/settings/development/bluetooth/AbstractBluetoothDialogPreferenceController.java",
+        "src/com/android/settings/development/bluetooth/BluetoothBitPerSampleDialogPreferenceController.java",
+        "src/com/android/settings/development/bluetooth/BluetoothChannelModeDialogPreferenceController.java",
+        "src/com/android/settings/development/bluetooth/BluetoothCodecListPreferenceController.java",
+        "src/com/android/settings/development/bluetooth/BluetoothDevelopmentSettingsFragment.kt",
+        "src/com/android/settings/development/bluetooth/BluetoothLHDCAudioLatencyDialogPreference.java",
+        "src/com/android/settings/development/bluetooth/BluetoothLHDCAudioLatencyDialogPreferenceController.java",
+        "src/com/android/settings/development/bluetooth/BluetoothLHDCAudioLosslessDialogPreference.java",
+        "src/com/android/settings/development/bluetooth/BluetoothLHDCAudioLosslessDialogPreferenceController.java",
+        "src/com/android/settings/development/bluetooth/BluetoothLHDCQualityDialogPreference.java",
+        "src/com/android/settings/development/bluetooth/BluetoothLHDCQualityDialogPreferenceController.java",
+        "src/com/android/settings/development/bluetooth/BluetoothSampleRateDialogPreference.java",
+        "src/com/android/settings/development/bluetooth/BluetoothSampleRateDialogPreferenceController.java",
+        "src/com/android/settings/display/ColorModePreferenceController.java",
+        "src/com/android/settings/display/ColorModePreferenceFragment.java",
+        "src/com/android/settings/display/ColorModeScreen.kt",
+        "src/com/android/settings/display/ColorModeUtils.kt",
+        "src/com/android/settings/display/darkmode/DarkModeSchedulePreference.kt",
+        "src/com/android/settings/display/darkmode/DarkModeScheduleStorage.kt",
+        "tests/robotests/src/com/android/settings/bluetooth/BluetoothDetailsProfilesControllerTest.java",
+        "tests/robotests/src/com/android/settings/display/darkmode/DarkModeSchedulePreferenceTest.kt",
+        "tests/robotests/src/com/android/settings/display/darkmode/DarkModeScheduleStorageTest.kt",
+        "tests/unit/src/com/android/settings/display/ColorModePreferenceFragmentTest.java"
+      ],
+      "candidate_validation": "Twilight Settings Kotlin sources compiled against build 1795050579; clean-data diagnosis and system mode control verified on device; Robolectric, build and flashed UI acceptance pending.",
+      "companion_registry": "../../lineage-24-migration-20261114/candidates.json",
+      "provenance": {
+        "legacy_23_2_head": "af4781d63516ea942a741964ce01aafe82e03fc3",
+        "first_commit_message": "rothko: adapt packages/apps/Settings integration to Android 17\n\nOfficial 24.0 target: 31b1a9f1cab9638bc6af9f4e6412fbf3b3a7947a\nRecorded 23.2 baseline: af4781d63516ea942a741964ce01aafe82e03fc3\n\nResolve against the 24.0 APIs and preserve device integration contracts.\nPrefer the upstream codec naming and HAL-owned face preview interfaces.\nDisplay persistence migration covers legacy and refactored stores.\nSurfaceFlinger power notifications follow the upstream asynchronous result.\nDetails and companion dependencies are recorded in the project document\nLINEAGE_24_MIGRATION_20261114.zh-CN.md.\n\nValidation: whitespace and conflict-marker checks passed. Extracted\nbrightness persistence checks passed where applicable. Android compilation,\nfull platform tests and flashed 24.0 acceptance remain pending.",
+        "migration_record": "../../../bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md",
+        "older_public_series": "../../../public-repos/rothko-lineage-integration/patches/index.json"
+      },
+      "last_build_record": "../../unified-build-20261115/retry-03/inputs.json",
+      "ordered_commits": [
+        "65a3cddccf798b6ee4d5b8fd60b8649878baee1b",
+        "0820511d18c9c978042f72547196c5c4797968f2"
+      ]
     },
     {
       "path": "tools/extract-utils",
-      "base": "44e3b07397a339c2721c637e40cb73159c78ad46",
-      "head": "f13e19a95f77e609e0242148b9a18e80c1d96736",
-      "ordered_commits": [
-        "f13e19a95f77e609e0242148b9a18e80c1d96736"
-      ],
-      "expected_final_tree": "e2fbed1e4c323f3d8bca62f2eace25bdc60b247a",
+      "base": "78ba5d58c4b06712e18bb387a2a72eac8fbc8d70",
+      "head": "2a9076e1cfd0fd938351bca169fa3a186e30b63a",
       "local_commits": 1,
+      "legacy_23_2_head": null,
+      "source_checks": [],
+      "built": true,
       "file": "tools__extract-utils.mbox",
-      "bytes": 1320,
-      "sha256": "5fc240838fe14332fff8b83c78e5f73c8ea2e4ed937ad845c933c55f6a521f8d"
+      "bytes": 1165,
+      "sha256": "810f62dc77394fe606836a383c865e997d8a7a1d551dc04a9dd7e42216e66668",
+      "expected_final_tree": "c744c3c614c544ccb7438786f974ce3498de9472",
+      "commits": [
+        "2a9076e1cfd0fd938351bca169fa3a186e30b63a"
+      ],
+      "files": [
+        "extract_utils/makefiles.py"
+      ],
+      "candidate_validation": "current HEAD built previously",
+      "companion_registry": "../../lineage-24-migration-20261114/candidates.json",
+      "provenance": {
+        "legacy_23_2_head": null,
+        "first_commit_message": "extract_utils: preserve explicit module names for ETC prebuilts on 24.0\n\nCarry the single-line 23.2 fix f13e19a95f77 onto upstream 78ba5d58c4b0. Explicit MODULE aliases require can_have_stem when computing the package name. Whitespace checked. No extraction performed during this migration.\n\nChange-Id: Ic0785b78560042a60714c009343764ae9a380327",
+        "migration_record": "../../../bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md",
+        "older_public_series": "../../../public-repos/rothko-lineage-integration/patches/index.json"
+      },
+      "last_build_record": "../../unified-build-20261115/retry-03/inputs.json",
+      "ordered_commits": [
+        "2a9076e1cfd0fd938351bca169fa3a186e30b63a"
+      ]
+    },
+    {
+      "path": "system/tools/hidl",
+      "base": "5d0e05e6535fea94a674a359102bdd42944714f4",
+      "head": "8a522e37db8485848b30ad4dd89452d737fc2a18",
+      "local_commits": 1,
+      "legacy_23_2_head": null,
+      "source_checks": [],
+      "built": true,
+      "file": "system__tools__hidl.mbox",
+      "bytes": 1502,
+      "sha256": "5b4c990d82e83c1906aeee54c71b90802d89dece5aa1c51b9fea63057f18a029",
+      "expected_final_tree": "b9deb28705ade361c131ea88b882ac8b9498c2ab",
+      "commits": [
+        "8a522e37db8485848b30ad4dd89452d737fc2a18"
+      ],
+      "files": [
+        "build/hidl_interface.go"
+      ],
+      "candidate_validation": "current HEAD built previously",
+      "companion_registry": "../../lineage-24-migration-20261114/candidates.json",
+      "provenance": {
+        "legacy_23_2_head": null,
+        "first_commit_message": "hidl: permit the retired displayservice 1.0 ABI for device compatibility\n\nThe device-local API 34 camera bridge restores the exact previously frozen interface removed in AOSP 928ad435. HIDL module creation rejects this known Android namespace before evaluating device configuration. Restore this single allowlist entry in the owning build layer, leaving implementation and installation selected by the device. This avoids changing OEM C++ ABI or weakening the global HIDL namespace check. Whitespace passed. Build and device validation pending.\n\nChange-Id: I74de2c2bbb00d8dbbab1a724a8e7f35e09a68cf9",
+        "migration_record": "../../../bringup/phase-b/LINEAGE_24_MIGRATION_20261114.zh-CN.md",
+        "older_public_series": "../../../public-repos/rothko-lineage-integration/patches/index.json"
+      },
+      "last_build_record": "../../unified-build-20261115/retry-03/inputs.json",
+      "ordered_commits": [
+        "8a522e37db8485848b30ad4dd89452d737fc2a18"
+      ]
+    },
+    {
+      "path": "vendor/apn",
+      "base": "2842825e44b5ad6e247467bd7a16c1d8bf80407f",
+      "head": "4fd659975e1176fd247f295c3279ff857402d660",
+      "file": "vendor__apn.mbox",
+      "bytes": 4495,
+      "sha256": "72991cddb2a4070fcaa675fb54cff085936200bb4f44d964b9e63c39c89eb37d",
+      "expected_final_tree": "e0961ebf4d03e8aeb3f38f6d321e85143f9cd7b2",
+      "commits": [
+        "86e08fc769c718357ab3f8621f7c920945cb44a1",
+        "4fd659975e1176fd247f295c3279ff857402d660"
+      ],
+      "local_commits": 2,
+      "source_checks": [
+        "actual Soong producer+installer default/device/missing/collision fixtures",
+        "default merge schema validation and byte-identical output",
+        "device XML validation and malformed input rejection",
+        "bpfmt and git diff --check"
+      ],
+      "built": true,
+      "files": [
+        "Android.bp"
+      ],
+      "candidate_validation": "full unified IMG build, single installer, EROFS embedded stock APN hash and intrinsic AVB chain passed; device SIM acceptance pending",
+      "companion_registry": "../../lineage-24-migration-20261114/candidates.json",
+      "companion_device_commit": "ba0b3fe4165f34765736e79516b862f1a699c123",
+      "provenance": {
+        "evidence": "../../../bringup/phase-b/TELECOM_BROADNET_20261115.zh-CN.md",
+        "reason": "keep the public APN module and sole installation while selecting the device-provided XML source",
+        "other_devices": "unset custom_apns retains the original merge generator with mandatory schema checks"
+      },
+      "last_build_record": "../../unified-build-20261115/retry-03/inputs.json",
+      "ordered_commits": [
+        "86e08fc769c718357ab3f8621f7c920945cb44a1",
+        "4fd659975e1176fd247f295c3279ff857402d660"
+      ]
     }
   ],
-  "replay_record": "history/2026-11-14-replay.json"
+  "replay_record": "history/2026-11-19-lineageos-24.0.json"
 }

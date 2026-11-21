@@ -20,7 +20,9 @@ def main():
     root = a.source_root.resolve()
     base = a.repositories_parent.resolve(strict=True)
     integration = Path(__file__).resolve().parents[1]
-    rows = json.loads((integration / 'baseline.json').read_text())['device_repositories']
+    baseline = json.loads((integration / 'baseline.json').read_text())
+    rows = baseline['device_repositories']
+    branch = baseline.get('companion_branch', 'lineage-23.2')
     plan = []
     for row in rows:
         source = base / row['repository']
@@ -39,7 +41,7 @@ def main():
     for source, target, expected in plan:
         target.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run(['git', 'clone', '--no-local', '--single-branch',
-                        '--branch', 'lineage-23.2', str(source), str(target)], check=True)
+                        '--branch', branch, str(source), str(target)], check=True)
         if git(target, 'rev-parse', 'HEAD') != expected:
             raise RuntimeError('source branch moved during clone; inspect the new checkout')
         # An existing recorded commit remains pinned even if upstream main advances.

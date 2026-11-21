@@ -10,10 +10,10 @@ different steps; none of these helpers contacts a phone.
 Clone the four public repositories beside one another:
 
 ```sh
-git clone -b lineage-23.2 https://github.com/Xiaomi-MT6989-OSS/rothko-lineage-integration.git
-git clone -b lineage-23.2 https://github.com/Xiaomi-MT6989-OSS/android_device_xiaomi_rothko.git
-git clone -b lineage-23.2 https://github.com/Xiaomi-MT6989-OSS/proprietary_vendor_xiaomi_rothko.git
-git clone -b lineage-23.2 https://github.com/Xiaomi-MT6989-OSS/rothko-kernel-extraction.git
+git clone -b lineageos-24.0 https://github.com/Xiaomi-MT6989-OSS/rothko-lineage-integration.git
+git clone -b lineageos-24.0 https://github.com/Xiaomi-MT6989-OSS/android_device_xiaomi_rothko.git
+git clone -b lineageos-24.0 https://github.com/Xiaomi-MT6989-OSS/proprietary_vendor_xiaomi_rothko.git
+git clone -b lineageos-24.0 https://github.com/Xiaomi-MT6989-OSS/rothko-kernel-extraction.git
 ```
 
 Set `INTEGRATION` to the integration checkout and `SOURCE` to a new Android
@@ -28,14 +28,14 @@ continuing. Do not use an unrelated vendor, kernel or device branch.
 ```sh
 mkdir -p "$SOURCE"
 cd "$SOURCE"
-repo init -u "$INTEGRATION" -b lineage-23.2 -m manifests/pinned.xml --git-lfs
+repo init -u "$INTEGRATION" -b lineageos-24.0 -m manifests/pinned.xml --git-lfs
 repo sync -j4
 python3 "$INTEGRATION/scripts/stage-sources.py" --source-root "$SOURCE"
 ```
 
 `manifests/pinned.xml` is a complete manifest, **not** a local-manifest overlay.
 It uses public fetch URLs and upstream bases for locally patched repositories.
-The 1167-project snapshot is pinned; this does not claim that every remote SHA
+The 1242-project snapshot is pinned; this does not claim that every remote SHA
 has been fetched anew during preparation. A missing upstream object must be
 reported with its project and SHA, not replaced by an arbitrary newer branch.
 Three companion checkouts are intentionally staged separately; no unpublished
@@ -53,7 +53,7 @@ This requires clean repositories at exact bases and verifies final trees. It
 never resets local work; an interrupted `git am` is left for inspection. Configure
 your Git committer identity first. Original patch authors/messages remain intact.
 The Soong series includes host support for external OUT_DIR and optional
-Soong memory limits, plus a Xiaomi IMS boot package allowlist entry. Apply the
+Soong memory limits and required Android 17 build integration. Apply the
 whole series for this snapshot. First-stage probe patches are excluded and
 `system/core` stays at the manifest pin.
 
@@ -73,7 +73,7 @@ required layout is:
 
 | Variable | Required contents |
 | --- | --- |
-| STOCK_DUMP | Partition filesystem roots: system, system_ext, vendor, odm, vendor_dlkm, system_dlkm and required other selected paths |
+| STOCK_DUMP | Partition filesystem roots: system, system_ext, product, vendor, odm, vendor_dlkm, system_dlkm and recovery (the files of the recovery fragment of the vendor ramdisk) |
 | STOCK_DUMP/apex | Prepared com.android.vndk.v34 filesystem, including lib64; it is not the compressed .apex archive |
 | STOCK_ARTIFACTS | boot/kernel, vendor_boot/dtb, vendor_boot/vendor_ramdisk00-files/lib/modules, kernel-config.txt |
 | STOCK_IMAGES | Original images directory containing dtbo.img |
@@ -101,9 +101,9 @@ python3 "$INTEGRATION/scripts/prepare-local-inputs.py" \
 ```
 
 Staging must be new and outside source/stock directories. The workflow verifies
-778 device payloads, 3056 vendor/ODM payloads
-and four generated metadata files, plus 581 kernel artifacts
-(4415 stock-derived files in total). Conflicting target files are rejected;
+778 device payloads, 3061 vendor/ODM payloads
+and four generated metadata files, plus 581 kernel artifacts. Conflicting
+target files are rejected;
 existing byte-identical payloads are retained. All extracted payload paths are
 Git-ignored. Do not `git add -f` them. The reviewed patchelf binary from
 prebuilts/extract-tools is mandatory for exact device audio transforms.
@@ -157,7 +157,7 @@ export OUT_DIR=/absolute/path/to/new-output
 export SOONG_GOMEMLIMIT=24GiB
 export NINJA_HIGHMEM_NUM_JOBS=4
 source build/envsetup.sh
-lunch lineage_rothko-bp4a-userdebug
+lunch lineage_rothko-cp2a-userdebug
 m -j6 bootimage initbootimage vendorbootimage systemimage systemextimage \
   productimage vendorimage odmimage system_dlkmimage vendor_dlkmimage odm_dlkmimage \
   vbmetasystemimage vbmetavendorimage vbmetaimage check-vintf-all sepolicy_test
@@ -167,6 +167,6 @@ These host resource values describe the working development host, not device
 requirements. Use appropriate resources on another machine. This is the recorded
 image-oriented bring-up route; Recovery/OTA distribution, signing and installation
 must be validated separately. Do not use it to overwrite a trusted release build.
-The cleaned public-source candidate has not undergone a new clean full-ROM build
-and phone regression. A successful extraction or host fixture does not imply that
+The original local source combination was used for the 2026-11-19 release build.
+A fresh clean build and device regression from these public repositories are pending. A successful extraction or host fixture does not imply that
 those steps passed. See VALIDATION.md before proposing a release.
